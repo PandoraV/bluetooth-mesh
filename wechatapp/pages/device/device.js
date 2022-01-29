@@ -88,10 +88,10 @@ Page({
       inputText: e.detail.value
     })
   },
-  SendTap: function (red, green, blue) {
+  SendTap: function (red, green, blue) {  //  将数据发送给蓝牙设备
     console.log('22', this.data.isCheckOutControl)
     var that = this
-    if (!this.data.isCheckOutControl) {
+    if (!this.data.isCheckOutControl) { // 蓝牙模式
       if (this.data.connected) {
         var buffer = new ArrayBuffer(that.data.inputText.length)
         var dataView = new Uint8Array(buffer)
@@ -125,7 +125,7 @@ Page({
           }
         })
       }
-    } else {
+    } else {  // wifi mqtt 模式
       if (this.data.client && this.data.client.connected) {
         this.data.client.publish('/esp32-c3/7cdfa1322e68/devSub', JSON.stringify({red,green,blue}));
       } else {
@@ -139,7 +139,7 @@ Page({
   },
   onLoad: function (options) {
     var that = this
-    this.connect_mqtt()
+    // this.connect_mqtt()
     that.setData({
       name: options.name,
       connectedDeviceId: options.connectedDeviceId
@@ -283,7 +283,7 @@ Page({
     var nowTime = add_10(myDate.getHours()) + '时' + add_10(myDate.getMinutes()) + '分' + add_10(myDate.getSeconds()) + '秒 收到：';
     return nowTime;
   },
-  onSlide: function (e) {
+  onSlide: function (e) { // 获取输入，调用发送
     let that = this;
     if (e.touches && (e.type === 'touchend')) {
       console.log("ok");
