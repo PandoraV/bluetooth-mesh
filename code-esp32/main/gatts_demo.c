@@ -225,7 +225,8 @@ void Task_ParseJSON(void *pvParameters) {
 
     printf("Task_ParseJSON_Message xQueueReceive wait [%d] ... \n",
            esp_get_free_heap_size());
-    xQueueReceive(ParseJSONQueueHandler, &pMqttMsg, portMAX_DELAY);
+    xQueueReceive(ParseJSONQueueHandler, &pMqttMsg,
+                  portMAX_DELAY); // 从消息队列中提取数据
 
     printf("Task_ParseJSON_Message xQueueReceive get [%s] ... \n",
            pMqttMsg->allData);
@@ -237,7 +238,7 @@ void Task_ParseJSON(void *pvParameters) {
       printf("[SY] Task_ParseJSON_Message xQueueReceive not json ... \n");
       goto __cJSON_Delete;
     }
-    printf("!!!!!!!!!!!测试消息\n");
+    printf("!!!!!!!!!!!测试消息 Task_ParseJSON\n");
 
   __cJSON_Delete:
     cJSON_Delete(pJsonRoot);
@@ -418,7 +419,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event,
 #endif
     esp_ble_gatts_create_service(gatts_if,
                                  &gl_profile_tab[PROFILE_A_APP_ID].service_id,
-                                 GATTS_NUM_HANDLE_TEST_A);
+                                 GATTS_NUM_HANDLE_TEST_A);  // 创建服务
     break;
   case ESP_GATTS_READ_EVT: {
     ESP_LOGI(GATTS_TAG, "GATT_READ_EVT, conn_id %d, trans_id %d, handle %d\n",
@@ -448,12 +449,15 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event,
               param->write.value[2]);
       pTmper = &user_data;
       user_data.dataLen = strlen(user_data.allData);
-      xQueueSend(ParseJSONQueueHandler, (void *)&pTmper, portMAX_DELAY);
+      xQueueSend(ParseJSONQueueHandler, (void *)&pTmper,
+                 portMAX_DELAY); // 数据加入队列
 
       ESP_LOGI(GATTS_TAG, "%02x %02x %02x ", param->write.value[0],
                param->write.value[1], param->write.value[2]);
     }
     example_write_event_env(gatts_if, &a_prepare_write_env, param);
+    printf("!!!!!!!!!!!测试 回调函数 gatts_profile_a_event_handler\n");
+
     break;
   }
   case ESP_GATTS_EXEC_WRITE_EVT:
@@ -477,7 +481,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event,
         GATTS_CHAR_UUID_TEST_A;
 
     esp_ble_gatts_start_service(
-        gl_profile_tab[PROFILE_A_APP_ID].service_handle);
+        gl_profile_tab[PROFILE_A_APP_ID].service_handle);   // 启动一个服务
     a_property = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE |
                  ESP_GATT_CHAR_PROP_BIT_NOTIFY;
     esp_err_t add_char_ret =
@@ -628,20 +632,20 @@ void app_main(void) {
   ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 
   esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-  ret = esp_bt_controller_init(&bt_cfg);
+  ret = esp_bt_controller_init(&bt_cfg); // 初始化蓝牙控制器
   if (ret) {
     ESP_LOGE(GATTS_TAG, "%s initialize controller failed: %s\n", __func__,
              esp_err_to_name(ret));
     return;
   }
 
-  ret = esp_bt_controller_enable(ESP_BT_MODE_BLE);
+  ret = esp_bt_controller_enable(ESP_BT_MODE_BLE);  // 使能蓝牙控制器：蓝牙 ble 模式
   if (ret) {
     ESP_LOGE(GATTS_TAG, "%s enable controller failed: %s\n", __func__,
              esp_err_to_name(ret));
     return;
   }
-  ret = esp_bluedroid_init();
+  ret = esp_bluedroid_init();   // 初始化蓝牙并分配系统资源
   if (ret) {
     ESP_LOGE(GATTS_TAG, "%s init bluetooth failed: %s\n", __func__,
              esp_err_to_name(ret));
@@ -654,7 +658,7 @@ void app_main(void) {
     return;
   }
 
-  ret = esp_ble_gatts_register_callback(gatts_event_handler);
+  ret = esp_ble_gatts_register_callback(gatts_event_handler);   // 回调函数注册
   if (ret) {
     ESP_LOGE(GATTS_TAG, "gatts register error, error code = %x", ret);
     return;
@@ -664,7 +668,7 @@ void app_main(void) {
     ESP_LOGE(GATTS_TAG, "gap register error, error code = %x", ret);
     return;
   }
-  ret = esp_ble_gatts_app_register(PROFILE_A_APP_ID);
+  ret = esp_ble_gatts_app_register(PROFILE_A_APP_ID);   // 注册创建GATT服务
   if (ret) {
     ESP_LOGE(GATTS_TAG, "gatts app register error, error code = %x", ret);
     return;
