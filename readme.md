@@ -6,3 +6,7 @@
 # 文件目录
 - wechatapp wx小程序代码
 - code-esp32  esp32c3代码
+- ESP32C3-I2C-Arduino 基于Arduino和ESP-IDF v4.4进行的I2C总线开发
+    * 通过蓝牙向上位机发送信息
+    * 采集传感器数据并传回
+    * I2C控制OLED小屏
