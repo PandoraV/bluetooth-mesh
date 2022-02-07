@@ -1,7 +1,12 @@
 {
     "description": "项目配置文件",
     "packOptions": {
-        "ignore": []
+        "ignore": [
+            {
+                "type": "file",
+                "value": ".eslintrc.js"
+            }
+        ]
     },
     "setting": {
         "urlCheck": true,
@@ -20,7 +25,7 @@
         "checkInvalidKey": true,
         "checkSiteMap": true,
         "uploadWithSourceMap": true,
-        "compileHotReLoad": false,
+        "compileHotReLoad": true,
         "lazyloadPlaceholderEnable": false,
         "useMultiFrameRuntime": true,
         "useApiHook": true,
@@ -32,11 +37,8 @@
         },
         "useIsolateContext": true,
         "userConfirmedBundleSwitch": false,
-        "packNpmManually": true,
-        "packNpmRelationList": [ {
-            "packageJsonPath": "./package.json",
-            "miniprogramNpmDistDir": "./"
-          }],
+        "packNpmManually": false,
+        "packNpmRelationList": [],
         "minifyWXSS": true,
         "disableUseStrict": false,
         "minifyWXML": true,
@@ -45,9 +47,9 @@
         "ignoreUploadUnusedFiles": true
     },
     "compileType": "miniprogram",
-    "libVersion": "2.21.4",
+    "libVersion": "2.19.4",
     "appid": "wx35955da2b03ab745",
-    "projectname": "ESP32WiFiBleControlProject",
+    "projectname": "wechatapp",
     "debugOptions": {
         "hidedInDevtools": []
     },

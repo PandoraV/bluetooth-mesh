@@ -1,16 +1,15 @@
 {
-  "pages": [
-    "pages/search/search",
-    "pages/device/device"
+  "pages":[
+    "pages/index/index",
+    "pages/logs/logs",
+    "pages/blueTooth/blueTooth"
   ],
-  "window": {
-    "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#f8f8f8",
-    "navigationBarTitleText": "安信可ESP32-C3F模块双控制",
-    "navigationBarTextStyle": "black",
-    "backgroundColor": "#f8f8f8"
+  "window":{
+    "backgroundTextStyle":"light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "Weixin",
+    "navigationBarTextStyle":"black"
   },
+  "style": "v2",
   "sitemapLocation": "sitemap.json"
- 
-
 }

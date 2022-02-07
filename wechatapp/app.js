@@ -1,21 +1,19 @@
-//app.js
+// app.js
 App({
-  buf2hex: function (buffer) {
-    return (new Uint8Array(buffer))
-  },
-  buf2string: function (buffer) {
-    var arr = Array.prototype.map.call(new Uint8Array(buffer), x => x)
-    var str = ''
-    for (var i = 0; i < arr.length; i++) {
-      str += String.fromCharCode(arr[i])
-    }
-    return str
-  },
-  onLaunch: function () {
-    this.globalData.SystemInfo = wx.getSystemInfoSync()
-    //console.log(this.globalData.SystemInfo)
+  onLaunch() {
+    // 展示本地存储能力
+    const logs = wx.getStorageSync('logs') || []
+    logs.unshift(Date.now())
+    wx.setStorageSync('logs', logs)
+
+    // 登录
+    wx.login({
+      success: res => {
+        // 发送 res.code 到后台换取 openId, sessionKey, unionId
+      }
+    })
   },
   globalData: {
-    SystemInfo: {}
+    userInfo: null
   }
 })
