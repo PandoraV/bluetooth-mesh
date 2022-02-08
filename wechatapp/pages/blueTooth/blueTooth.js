@@ -14,20 +14,19 @@ Page({
       query: [0x02, 0x09, 0x00, 0x01, 0x6A, 0x00, 0x50, 0x06],
       stateTest: [0x01, 0x08, 0x02, 0x00, 0x56, 0x00, 0x59, 0x06],
     },
-    msg:"", // 收到的蓝牙消息
+    msg: '', // 收到的蓝牙消息
   },
 
   onLoad: function (option) {
-    console.log(option.id,option.name);
     let deviceId = option.id; //设备id
     let connectName = option.name; //连接的设备名称
-    this.connectTo(deviceId,connectName);
-    
+    this.connectTo(deviceId, connectName);
+
   },
 
 
   //开始连接，获取deviceId
-  connectTo(deviceId,connectName) {
+  connectTo(deviceId, connectName) {
     let that = this;
     wx.showLoading({
       title: '连接中...',
@@ -39,7 +38,6 @@ Page({
         that.stopBluetoothDevicesDiscovery(); //停止搜索蓝牙
         console.log(res);
         if (res.errCode == 0) {
-          console.log('连接成功');
           that.setData({
             deviceId: deviceId,
             connectName: connectName,
@@ -171,14 +169,15 @@ Page({
     wx.closeBLEConnection({
       deviceId: this.data.deviceId,
       success() {
-        wx.showToast({
-          title: '已断开连接',
-        });
         that.setData({
           deviceId: '',
           connectName: '',
           isHideConnect: true,
+          msg: '',
         });
+        wx.navigateTo({ // 返回设备列表页面
+          url: '../index/index',
+        })
       }
     })
   },
@@ -219,54 +218,41 @@ Page({
   },
 
 
-
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
-  onReady: function () {
-
-  },
+  onReady: function () {},
 
   /**
    * 生命周期函数--监听页面显示
    */
-  onShow: function () {
-
-  },
+  onShow: function () {},
 
   /**
    * 生命周期函数--监听页面隐藏
    */
-  onHide: function () {
-
-  },
+  onHide: function () {},
 
   /**
-   * 生命周期函数--监听页面卸载
+   * 生命周期函数--监听页面卸载，向左滑动回到上一页
    */
   onUnload: function () {
     let that = this;
-    that.closeBluetoothAdapter();
+    that.closeBLEConnection();
   },
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作
    */
-  onPullDownRefresh: function () {
-
-  },
+  onPullDownRefresh: function () {},
 
   /**
    * 页面上拉触底事件的处理函数
    */
-  onReachBottom: function () {
-
-  },
+  onReachBottom: function () {},
 
   /**
    * 用户点击右上角分享
    */
-  onShareAppMessage: function () {
-
-  }
+  onShareAppMessage: function () {}
 })
