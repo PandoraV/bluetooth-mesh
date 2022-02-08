@@ -287,8 +287,6 @@ Page({
         });
       }
     })
-    that.closeBluetoothAdapter();
-
   },
 
 
@@ -314,9 +312,9 @@ Page({
 
   //关闭蓝牙模块
   closeBluetoothAdapter() {
+    let that = this;
     wx.closeBluetoothAdapter({
       success(res) {
-        console.log('关闭蓝牙模块')
         that.setData({
           devicesList: [],
           isHideList: true, //是否隐藏蓝牙列表
@@ -353,7 +351,8 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
-
+    let that = this;
+    that.closeBluetoothAdapter();
   },
 
   /**
