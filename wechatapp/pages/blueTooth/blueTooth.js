@@ -14,6 +14,7 @@ Page({
       query: [0x02, 0x09, 0x00, 0x01, 0x6A, 0x00, 0x50, 0x06],
       stateTest: [0x01, 0x08, 0x02, 0x00, 0x56, 0x00, 0x59, 0x06],
     },
+    msg:"", // 收到的蓝牙消息
   },
 
   onLoad: function (option) {
@@ -150,11 +151,12 @@ Page({
       serviceId,
       characteristicId,
       success(res) {
-        console.log('notifyBLECharacteristicValueChange success');
-        console.log(res);
         wx.onBLECharacteristicValueChange(function (res) {
           console.log(res);
           let str = that.ab2hex(res.value);
+          that.setData({
+            msg: str
+          });
         })
       }
     })
