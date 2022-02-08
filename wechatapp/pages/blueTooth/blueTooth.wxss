@@ -21,7 +21,7 @@
 	overflow: scroll;
 }
 .item-box{
-	width:100%;
+	/* width:100%; 在 se 下需要右滑动才能点击连接按钮 */
 	padding: 8rpx 10%;
 	height:100rpx;
 	display: flex;

@@ -8,7 +8,7 @@
   <view class="bt-news">
       <view class="list-item" hidden="{{isHideList}}">
         <view class="item-box" wx:for="{{devicesList}}" wx:key="index">
-          <text class="bt-name" >设备名称:   {{item.name}} {{item.deviceId}}</text>
+          <text class="bt-name" >{{item.name}}</text>
           <view class="btn-connection" 
            data-id="{{item.deviceId}}" 
            data-name="{{item.name || item.localName}}" bindtap="connectTo">
