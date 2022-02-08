@@ -53,6 +53,7 @@ Page({
 
   openBluetoothAdapter() {
     /* 打开蓝牙 */
+    let that = this;
     wx.openBluetoothAdapter({
       success(res) {
         wx.onBluetoothAdapterStateChange(function (res) {
@@ -183,8 +184,7 @@ Page({
   },
 
 
-  /* 每个服务都有特征值，特征值也有uuid，
-  获取特征值(是否能读写) */
+  /* 每个服务都有特征值，特征值也有uuid，获取特征值(是否能读写) */
   getBLEDeviceCharacteristics(deviceId, serviceId) {
     console.log(deviceId, 'serviceId=' + serviceId)
     let that = this;
@@ -199,7 +199,7 @@ Page({
             that.notifyBLECharacteristicValueChange(serviceId, model.uuid);
           }
           if (model.properties.write == true) { // 读写的uuid
-            let characteristicId=model.uuid;
+            let characteristicId = model.uuid;
             let writeNews = {
               deviceId,
               serviceId,
