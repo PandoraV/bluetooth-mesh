@@ -32,9 +32,10 @@ Page({
     });
 
     let that = this;
+    that.openBluetoothAdapter();
+    /* // 测试表明不用 gps 也可以，可是文档说 ble需要 gps 授权
     wx.getSystemInfo({ // 获取系统信息，提示打开 GPS
       success(res) {
-        // console.log(res);  // 显示系统信箱
         let gps = res.locationEnabled;
         if (!gps) {
           wx.showModal({
@@ -47,6 +48,7 @@ Page({
         }
       }
     })
+    */
 
   },
 
