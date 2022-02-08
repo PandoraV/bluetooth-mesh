@@ -21,7 +21,7 @@
         "autoAudits": false,
         "showShadowRootInWxmlPanel": true,
         "scopeDataCheck": false,
-        "uglifyFileName": false,
+        "uglifyFileName": true,
         "checkInvalidKey": true,
         "checkSiteMap": true,
         "uploadWithSourceMap": true,
@@ -47,7 +47,7 @@
         "ignoreUploadUnusedFiles": true
     },
     "compileType": "miniprogram",
-    "libVersion": "2.19.4",
+    "libVersion": "2.22.0",
     "appid": "wx35955da2b03ab745",
     "projectname": "wechatapp",
     "debugOptions": {

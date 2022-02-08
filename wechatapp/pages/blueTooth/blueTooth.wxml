@@ -1,7 +1,4 @@
 <view>
-  <view>
-		<button bindtap="searchBlue" type="primary">搜索蓝牙</button> 
-  </view> 
   <view class="bt-news">
       <view class="list-item" hidden="{{isHideList}}">
         <view class="item-box" wx:for="{{devicesList}}" wx:key="index">

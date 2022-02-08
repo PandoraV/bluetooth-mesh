@@ -5,8 +5,6 @@ Page({
    * 页面的初始数据
    */
   data: {
-
-    
     isHideList: false, //是否隐藏蓝牙列表
     isHideConnect: false, //是否隐藏连接模块
     deviceId: '',
@@ -16,27 +14,20 @@ Page({
       query: [0x02, 0x09, 0x00, 0x01, 0x6A, 0x00, 0x50, 0x06],
       stateTest: [0x01, 0x08, 0x02, 0x00, 0x56, 0x00, 0x59, 0x06],
     },
-
-
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-
-  // ****流程，大纲
-  onLoad: function (options) {
+  onLoad: function (option) {
+    console.log(option.id,option.name);
+    let deviceId = option.id; //设备id
+    let connectName = option.name; //连接的设备名称
+    this.connectTo(deviceId,connectName);
+    
   },
-
-
-
 
 
   //开始连接，获取deviceId
-  connectTo(e) {
+  connectTo(deviceId,connectName) {
     let that = this;
-    let deviceId = e.currentTarget.dataset.id; //设备id
-    let connectName = e.currentTarget.dataset.name; //连接的设备名称
     wx.showLoading({
       title: '连接中...',
     });

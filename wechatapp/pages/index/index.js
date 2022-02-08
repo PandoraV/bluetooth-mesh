@@ -6,12 +6,7 @@ Page({
   data: {
     devicesList: [],
   },
-  // 事件处理函数
-  bindViewTap() {
-    wx.navigateTo({
-      url: '../logs/logs'
-    })
-  },
+
   onLoad() {
     let that = this;
     that.openBluetoothAdapter();
@@ -33,7 +28,8 @@ Page({
     */
   },
 
-  openBluetoothAdapter() {  /* 打开蓝牙适配器 */
+  openBluetoothAdapter() {
+    /* 打开蓝牙适配器 */
     let that = this;
     wx.openBluetoothAdapter({
       success(res) {
@@ -73,7 +69,9 @@ Page({
             console.log(res);
             let devicesListArr = [];
             if (res.devices.length > 0) { //如果有蓝牙就把蓝牙信息放到渲染列表里面
-              that.setData({devicesList: [],}); // 清空列表里的设备
+              that.setData({
+                devicesList: [],
+              }); // 清空列表里的设备
               wx.hideLoading();
               res.devices.forEach(device => {
                 if (!device.name && !device.localName) {
@@ -107,6 +105,16 @@ Page({
           icon: 'none',
         })
         that.openBluetoothAdapter(); // 尝试再次打开蓝牙
+      }
+    })
+  },
+
+  connectTo: function (options) {
+    wx.navigateTo({
+      url: '../blueTooth/blueTooth?id=1110',
+      // 通过eventChannel向被打开页面传送数据，测试后不太行采用url传参
+      success: function (res) {
+        console.log(res);
       }
     })
   },
