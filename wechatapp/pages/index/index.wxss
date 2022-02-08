@@ -1,1 +1,30 @@
 /**index.wxss**/
+.bt-search{
+    margin: 10rpx;
+}
+.bt-news{
+	margin-top:25rpx;
+}
+
+.list-item{
+	height:500rpx;
+	overflow: scroll;
+}
+.item-box{
+	padding: 8rpx 10%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-bottom: 1px solid rgb(219, 219, 219);
+}
+.btn-connection{
+	width:100rpx;
+	height:60rpx;  
+	text-align: center;
+	line-height:60rpx;
+	color:#06ae56;
+	border: 1rpx solid rgb(219, 219, 219);
+	background-color: #eee;
+	border-radius: 2rpx;
+   
+}

@@ -6,14 +6,12 @@ App({
     logs.unshift(Date.now())
     wx.setStorageSync('logs', logs)
 
-    // 登录
-    wx.login({
-      success: res => {
-        // 发送 res.code 到后台换取 openId, sessionKey, unionId
-      }
-    })
+
+    //目前只支持低功耗蓝牙，文档上的两套api是可以结合使用的，安卓
+    wx.authorize({
+      scope: 'scope.bluetooth', // 向用户请求 访问蓝牙 授权
+    });
   },
   globalData: {
-    userInfo: null
   }
 })
