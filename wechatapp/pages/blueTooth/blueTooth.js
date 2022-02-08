@@ -62,7 +62,7 @@ Page({
           if (!res.available) { //蓝牙适配器是否可用
             wx.showModal({
               title: '温馨提示',
-              content: '蓝牙蓝牙适配器不可用，请重新启动',
+              content: '检测到蓝牙未开启，请打开蓝牙功能',
               showCancel: false
             })
           }
@@ -128,6 +128,7 @@ Page({
           title: '搜索蓝牙外围设备失败,请重新初始化蓝牙!',
           icon: 'none',
         })
+        that.openBluetoothAdapter(); // 尝试再次打开蓝牙
       }
     })
   },
