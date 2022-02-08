@@ -1,4 +1,14 @@
 <!--index.wxml-->
-<view class="container">
-  <button class="mini-btn" type="primary" size="mini" bindtap="gotoPage">按钮</button>
+<view>
+  <view>
+    <button bindtap="searchBlue" type="primary" class="bt-search">搜索设备</button>
+  </view>
+  <view class="bt-news">
+    <view class="list-item" hidden="{{isHideList}}">
+      <view class="item-box" wx:for="{{devicesList}}" wx:key="index">
+        <text class="bt-name">{{item.name}}</text>
+        <navigator class="btn-connection" url="../blueTooth/blueTooth?id={{item.deviceId}}&name={{item.name || item.localName}}" hover-class="navigator-hover">连接</navigator>
+      </view>
+    </view>
+  </view>
 </view>
