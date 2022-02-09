@@ -24,6 +24,7 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 #include <string.h>
+#include <stdlib.h>
 
 BLEServer *pServer = NULL;
 BLECharacteristic * pTxCharacteristic;
@@ -41,6 +42,9 @@ ulong send_millis = 0;
 #define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
 #define period_millis 1000 // 发信间隔
+#define ADDRESS_PRESENT_SLAVE 1 // 从机地址位
+#define info_num 2 // 传回上位机信息条数，测试时仅有温湿度两项
+std::string info_name = "\"temp\",\"humi\""; // 传回上位机的项目名称
 
 
 class MyServerCallbacks: public BLEServerCallbacks {  // 调用成员函数修改设备连接状态
@@ -99,7 +103,39 @@ void setup_json_string()
 
   current_millis = millis();
   tempstr = std::to_string(current_millis); // 时间戳
-  txValue += "c_mls:";
+  txValue += "\"c_mls\":";
+  txValue += tempstr;
+  txValue += ";";
+  
+  tempstr = std::to_string(info_num); // 条数
+  txValue += "\"i_num\":";
+  txValue += tempstr;
+  txValue += ";";
+
+  tempstr = info_name; // 项目名
+  txValue += "\"i_name\":\"";
+  txValue += tempstr;
+  txValue += "\";";
+
+  tempstr = std::to_string(period_millis); // 采样间隔
+  txValue += "\"p_mls\":";
+  txValue += tempstr;
+  txValue += ";";
+
+  tempstr = std::to_string(ADDRESS_PRESENT_SLAVE); // 当前从机地址
+  txValue += "\"add\":";
+  txValue += tempstr;
+  txValue += ";";
+
+  // 获取传感器数值
+  // TODO
+  tempstr = std::to_string(random(200,220)/10.0); // 温度
+  txValue += "\"temp\":";
+  txValue += tempstr;
+  txValue += ";";
+
+  tempstr = std::to_string(random(40,50)*1.0); // 湿度
+  txValue += "\"humi\":";
   txValue += tempstr;
   txValue += ";";
 
