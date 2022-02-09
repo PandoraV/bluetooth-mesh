@@ -10,11 +10,7 @@ Page({
     deviceId: '',
     connectName: '',
     writeNews: {}, //写数据三个id
-    queryData: {
-      query: [0x02, 0x09, 0x00, 0x01, 0x6A, 0x00, 0x50, 0x06],
-      stateTest: [0x01, 0x08, 0x02, 0x00, 0x56, 0x00, 0x59, 0x06],
-    },
-    msg: "None"// 收到的蓝牙消息
+    msg: "None" // 收到的蓝牙消息
   },
 
   onLoad: function (option) {
@@ -114,22 +110,16 @@ Page({
 
   writeBLECharacteristicValue() { // 向蓝牙设备发送的16进制数据
     let that = this;
-    let buffer = new ArrayBuffer(8);
-    let dataView = new DataView(buffer);
-    // console.log(dataView); //第一个参数是字节序号，表示从哪个字节开始写入，第二个参数为写入的数据。
-    let arr = that.data.queryData.query;
-    arr.forEach((item, i) => {
-      dataView.setInt8(i, arr[i]);
-    })
-    // console.log(buffer)
-    console.log(that.data.writeNews)
+    // 本示例是向蓝牙设备发送一个 0x00 的 16 进制数据
+    // 实际使用时，应根据具体设备协议发送数据
+    let buffer = new ArrayBuffer(1)
+    let dataView = new DataView(buffer)
+    dataView.setUint8(0, 0)
     wx.writeBLECharacteristicValue({
       deviceId: that.data.writeNews.deviceId,
       serviceId: that.data.writeNews.serviceId,
       characteristicId: that.data.writeNews.characteristicId,
       value: buffer,
-
-
       success: (res) => {
         console.log(res);
       },
