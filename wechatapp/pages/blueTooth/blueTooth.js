@@ -161,16 +161,9 @@ Page({
   //断开连接
   closeBLEConnection() {
     let that = this;
-    console.log(that.data)
     wx.closeBLEConnection({
       deviceId: this.data.deviceId,
       success() {
-        that.setData({
-          deviceId: '',
-          connectName: '',
-          isHideConnect: true,
-          msg: '',
-        });
         wx.navigateTo({ // 返回设备列表页面
           url: '../index/index',
         })
