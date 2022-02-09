@@ -1,9 +1,9 @@
 <view class="dev-info">
   <view>
-    <text class="dev-name">{{connectName}}</text>
+    <text class="dev-name" aria-role="text" aria-label="设备名称">{{connectName}}</text>
   </view>
   <view>
-    <text>UUID: </text>{{deviceId}}
+    <text aria-role="text" aria-label="设备 ID">UUID: </text>{{deviceId}}
   </view>
 
   <view class="page-section-spacing">
@@ -14,10 +14,10 @@
 
   <view class="connect-success" hidden="{{isHideConnect}}">
     <view class="write-data">
-      <button class="write-btn" size="mini" bindtap="writeBLECharacteristicValue">写入数据</button>
+      <button class="write-btn" size="mini" bindtap="writeBLECharacteristicValue" aria-role="button" aria-label="写入数据">写入数据</button>
     </view>
     <view class="closeBLEConnection-box">
-      <button class="closeBLEConnection" size="mini" bindtap="closeBLEConnection">断开连接</button>
+      <button class="closeBLEConnection" size="mini" bindtap="closeBLEConnection" aria-role="button" aria-label="断开连接">断开连接</button>
     </view>
   </view>
 </view>

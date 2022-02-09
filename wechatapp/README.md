@@ -13,7 +13,7 @@
 
 ## 特点
 
-- [] [无障碍访问](https://developers.weixin.qq.com/miniprogram/dev/component/aria-component.html)
+- [x] [无障碍访问](https://developers.weixin.qq.com/miniprogram/dev/component/aria-component.html)
 - [] [数据可视化](https://github.com/ecomfe/echarts-for-weixin)
 
 # 二、设备核心代码
