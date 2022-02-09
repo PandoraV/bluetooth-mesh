@@ -105,39 +105,39 @@ void setup_json_string()
   tempstr = std::to_string(current_millis); // 时间戳
   txValue += "\"c_mls\":";
   txValue += tempstr;
-  txValue += ";";
+  txValue += ",";
   
   tempstr = std::to_string(info_num); // 条数
   txValue += "\"i_num\":";
   txValue += tempstr;
-  txValue += ";";
+  txValue += ",";
 
   tempstr = info_name; // 项目名
   txValue += "\"i_name\":\"";
   txValue += tempstr;
-  txValue += "\";";
+  txValue += "\",";
 
   tempstr = std::to_string(period_millis); // 采样间隔
   txValue += "\"p_mls\":";
   txValue += tempstr;
-  txValue += ";";
+  txValue += ",";
 
   tempstr = std::to_string(ADDRESS_PRESENT_SLAVE); // 当前从机地址
   txValue += "\"add\":";
   txValue += tempstr;
-  txValue += ";";
+  txValue += ",";
 
   // 获取传感器数值
   // TODO
   tempstr = std::to_string(random(200,220)/10.0); // 温度
   txValue += "\"temp\":";
   txValue += tempstr;
-  txValue += ";";
+  txValue += ",";
 
   tempstr = std::to_string(random(40,50)*1.0); // 湿度
   txValue += "\"humi\":";
   txValue += tempstr;
-  txValue += ";";
+  // txValue += ",";
 
   txValue += "}";
 }
