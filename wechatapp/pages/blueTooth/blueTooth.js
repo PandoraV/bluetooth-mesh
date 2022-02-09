@@ -10,12 +10,19 @@ function stringToBytes(str) {
   return array.buffer;
 }
 
+/** ArrayBuffer转 utf8 字符串 */
+function ab2str(buf) {
+  return String.fromCharCode.apply(null, new Uint8Array(buf));
+}
+
+
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
+
     isHideList: false, //是否隐藏蓝牙列表
     isHideConnect: false, //是否隐藏连接模块
     deviceId: '',
@@ -146,7 +153,7 @@ Page({
       characteristicId,
       success(res) {
         wx.onBLECharacteristicValueChange(function (res) {
-          let str = that.ab2hex(res.value);
+          var str = ab2str(res.value);
           console.log(str);
           that.setData({
             msg: str
@@ -155,7 +162,6 @@ Page({
       }
     })
   },
-
 
 
   //断开连接
@@ -171,17 +177,6 @@ Page({
     })
   },
 
-
-  // ArrayBuffer转16进制字符串
-  ab2hex(buffer) {
-    var hexArr = Array.prototype.map.call(
-      new Uint8Array(buffer),
-      function (bit) {
-        return ('00' + bit.toString(16)).slice(-2)
-      }
-    )
-    return hexArr.join('');
-  },
 
   stopBluetoothDevicesDiscovery() {
     wx.stopBluetoothDevicesDiscovery({
