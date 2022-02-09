@@ -23,6 +23,7 @@
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
+#include <string.h>
 
 BLEServer *pServer = NULL;
 BLECharacteristic * pTxCharacteristic;
@@ -89,6 +90,22 @@ void sendMsg(std::string msg_to_TX)
   }
 }
 
+void setup_json_string()
+{
+  txValue = ""; // 清空txValue
+  txValue += "{";
+
+  std::string tempstr = "";
+
+  current_millis = millis();
+  tempstr = std::to_string(current_millis); // 时间戳
+  txValue += "c_mls:";
+  txValue += tempstr;
+  txValue += ";";
+
+  txValue += "}";
+}
+
 void setup() {
   Serial.begin(115200);
 
@@ -138,8 +155,8 @@ void loop() {
     if (current_millis - send_millis >= period_millis)
     {
       send_millis = current_millis;
-      std::string msg_to_TX = "Hello World!"; // TODO
-      sendMsg(msg_to_TX);
+      setup_json_string();
+      sendMsg(txValue);
     }
     else if (current_millis < send_millis)
     {
