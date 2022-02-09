@@ -87,14 +87,9 @@ Page({
               wx.hideLoading();
               wx.showModal({
                 title: '温馨提示',
-                content: '无法搜索到蓝牙设备，请打开GPS重新尝试',
+                content: '暂时无法搜索到蓝牙设备，请稍后重新尝试',
                 showCancel: false
               });
-              wx.closeBluetoothAdapter({
-                success(res) {
-                  console.log(res)
-                }
-              })
             }
           }
         })
@@ -107,15 +102,5 @@ Page({
         that.openBluetoothAdapter(); // 尝试再次打开蓝牙
       }
     })
-  },
-
-  connectTo: function (options) {
-    wx.navigateTo({
-      url: '../blueTooth/blueTooth?id=1110',
-      // 通过eventChannel向被打开页面传送数据，测试后不太行采用url传参
-      success: function (res) {
-        console.log(res);
-      }
-    })
-  },
+  }
 })
