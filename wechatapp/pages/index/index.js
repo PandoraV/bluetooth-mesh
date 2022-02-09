@@ -74,7 +74,7 @@ Page({
               }); // 清空列表里的设备
               wx.hideLoading();
               res.devices.forEach(device => {
-                if (!device.name && !device.localName) {
+                if (!device.name || !device.localName) { // 剔除没有名称的“未知设备”。高峰地铁车厢中大概有四百个
                   return
                 } else {
                   devicesListArr.push(device);
