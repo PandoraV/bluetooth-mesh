@@ -1,23 +1,39 @@
 /* pages/blueTooth/blueTooth.wxss */
-.connect-success{
-	margin-top:30rpx;
-	padding: 8rpx 10%;
-	
+.dev-info {
+	margin: 15rpx;
 }
-.write-data{
+
+.dev-name {
+	font-size: 22px;
+}
+
+.page-section-spacing {
+	margin-top: 60rpx;
+}
+
+.connect-success {
+	margin-top: 30rpx;
+	padding: 8rpx 10%;
+
+}
+
+.write-data {
 	width: 100%;
-	margin:15rpx 0;
+	margin: 15rpx 0;
 	text-align: center;
 }
-.write-data>.write-btn{
+
+.write-data>.write-btn {
 	font-size: 30rpx;
 	padding: 6rpx 30rpx;
 }
-.closeBLEConnection-box{
+
+.closeBLEConnection-box {
 	width: 100%;
 	text-align: center;
 }
-.closeBLEConnection-box>.closeBLEConnection{
+
+.closeBLEConnection-box>.closeBLEConnection {
 	font-size: 30rpx;
 	padding: 6rpx 30rpx;
 }

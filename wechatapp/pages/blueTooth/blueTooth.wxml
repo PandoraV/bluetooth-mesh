@@ -1,13 +1,15 @@
-<view>
+<view class="dev-info">
   <view>
-    <view>
-      <h1>{{connectName}}</h1>
-    </view>
-    <p>{{deviceId}}</p>
+    <text class="dev-name">{{connectName}}</text>
+  </view>
+  <view>
+    <text>UUID: </text>{{deviceId}}
   </view>
 
-  <view class="list-item">
-    <textarea>{{msg}}</textarea>
+  <view class="page-section-spacing">
+    <scroll-view scroll-y="true" style="height: 400rpx;">
+      {{msg}}
+    </scroll-view>
   </view>
 
   <view class="connect-success" hidden="{{isHideConnect}}">

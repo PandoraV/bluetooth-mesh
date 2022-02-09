@@ -14,7 +14,7 @@ Page({
       query: [0x02, 0x09, 0x00, 0x01, 0x6A, 0x00, 0x50, 0x06],
       stateTest: [0x01, 0x08, 0x02, 0x00, 0x56, 0x00, 0x59, 0x06],
     },
-    msg: '', // 收到的蓝牙消息
+    msg: "None"// 收到的蓝牙消息
   },
 
   onLoad: function (option) {
@@ -77,7 +77,6 @@ Page({
 
   /* 每个服务都有特征值，特征值也有uuid，获取特征值(是否能读写) */
   getBLEDeviceCharacteristics(deviceId, serviceId) {
-    console.log(deviceId, 'serviceId=' + serviceId)
     let that = this;
     wx.getBLEDeviceCharacteristics({
       deviceId,
@@ -150,8 +149,8 @@ Page({
       characteristicId,
       success(res) {
         wx.onBLECharacteristicValueChange(function (res) {
-          console.log(res);
           let str = that.ab2hex(res.value);
+          console.log(str);
           that.setData({
             msg: str
           });
