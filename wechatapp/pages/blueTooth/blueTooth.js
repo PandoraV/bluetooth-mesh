@@ -1,4 +1,15 @@
 // pages/blueTooth/blueTooth.js
+
+// 字符串转byte
+function stringToBytes(str) {
+  var array = new Uint8Array(str.length);
+  for (var i = 0, l = str.length; i < l; i++) {
+    array[i] = str.charCodeAt(i);
+  }
+  console.log(array);
+  return array.buffer;
+}
+
 Page({
 
   /**
@@ -108,13 +119,9 @@ Page({
   },
 
 
-  writeBLECharacteristicValue() { // 向蓝牙设备发送的16进制数据
+  writeBLECharacteristicValue() { // 向蓝牙设备发送数据
     let that = this;
-    // 本示例是向蓝牙设备发送一个 0x00 的 16 进制数据
-    // 实际使用时，应根据具体设备协议发送数据
-    let buffer = new ArrayBuffer(1)
-    let dataView = new DataView(buffer)
-    dataView.setUint8(0, 0)
+    var buffer = stringToBytes("Message from kearney!")
     wx.writeBLECharacteristicValue({
       deviceId: that.data.writeNews.deviceId,
       serviceId: that.data.writeNews.serviceId,
