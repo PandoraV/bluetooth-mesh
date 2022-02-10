@@ -48,14 +48,10 @@ ulong send_millis = 0;
 std::string info_name[10] = {
   "temp",
   "humi",
-  "NH3_con",
-  "NH3_pre",
-  "O3_con",
-  "O3_pre",
-  "NO_con",
-  "NO_pre",
-  "NO2_con",
-  "NO2_pre"
+  "NH3",
+  "O3",
+  "NO",
+  "NO2"
 };
 
 
