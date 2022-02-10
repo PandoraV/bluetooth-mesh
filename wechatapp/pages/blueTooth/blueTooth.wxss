@@ -7,14 +7,9 @@
 	font-size: 22px;
 }
 
-.page-section-spacing {
-	margin-top: 60rpx;
-}
-
 .connect-success {
 	margin-top: 30rpx;
 	padding: 8rpx 10%;
-
 }
 
 .write-data {

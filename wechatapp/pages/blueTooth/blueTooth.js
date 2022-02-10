@@ -156,7 +156,10 @@ Page({
       characteristicId,
       success(res) {
         wx.onBLECharacteristicValueChange(function (res) {
-          var str = ab2str(res.value);
+          var jsonstr = ab2str(res.value);
+          var jsonobj = JSON.parse(jsonstr);
+          var str = JSON.stringify(jsonobj);
+          console.log(str);
           that.setData({
             msg: str
           });
