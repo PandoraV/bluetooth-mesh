@@ -10,9 +10,12 @@ function stringToBytes(str) {
   return array.buffer;
 }
 
-/** ArrayBuffer转 utf8 字符串 */
+/** ArrayBuffer转 utf8 字符串  */
 function ab2str(buf) {
-  return String.fromCharCode.apply(null, new Uint8Array(buf));
+  let encodedString = String.fromCodePoint.apply(null, new Uint8Array(buf));
+  let decodedString = decodeURIComponent(escape(encodedString)); //没有这一步中文会乱码
+  console.log(decodedString);
+  return decodedString
 }
 
 
@@ -154,7 +157,6 @@ Page({
       success(res) {
         wx.onBLECharacteristicValueChange(function (res) {
           var str = ab2str(res.value);
-          console.log(str);
           that.setData({
             msg: str
           });
