@@ -14,7 +14,7 @@ function stringToBytes(str) {
 function ab2str(buf) {
   let encodedString = String.fromCodePoint.apply(null, new Uint8Array(buf));
   let decodedString = decodeURIComponent(escape(encodedString)); //没有这一步中文会乱码
-  console.log(decodedString);
+  // console.log(decodedString);
   return decodedString
 }
 
@@ -25,6 +25,7 @@ Page({
    * 页面的初始数据
    */
   data: {
+    isListen: true,
     isHideList: false, //是否隐藏蓝牙列表
     isHideConnect: false, //是否隐藏连接模块
     deviceId: '',
@@ -159,7 +160,7 @@ Page({
           var today = new Date();
           jsonobj.time = today.toLocaleString(); // 加入当地时间戳
           var str = JSON.stringify(jsonobj);
-          console.log(str);
+          // console.log(str);
           that.setData({
             msg: str
           });
@@ -195,6 +196,22 @@ Page({
         })
       }
     })
+  },
+
+  /** 是否监听设备 */
+  checkBoxChange(e) {
+    if (e.detail.value == '') { // 关闭监听
+      this.setData({
+        isListen: false
+      });
+      wx.offBLECharacteristicValueChange()
+    } else { // 开始监听 
+      this.setData({
+        isListen: true
+      });
+      // to do
+    }
+    console.info(this.data.isListen)
   },
 
 

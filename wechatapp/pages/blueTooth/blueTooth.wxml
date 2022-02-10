@@ -7,6 +7,9 @@
   </view>
 
   <view>
+    <checkbox-group bindchange="checkBoxChange">
+      <checkbox value="isListen"checked="{{isListen}}"/>监听
+    </checkbox-group>
     <text selectable="true">{{msg}}</text>
   </view>
 
