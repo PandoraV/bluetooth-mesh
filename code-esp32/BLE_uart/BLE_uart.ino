@@ -113,9 +113,9 @@ void setup_json_string()
   txValue += ",";
 
   tempstr = info_name; // 项目名
-  txValue += "\"i_name\":\"";
+  txValue += "\"i_name\":[";
   txValue += tempstr;
-  txValue += "\",";
+  txValue += "],";
 
   tempstr = std::to_string(period_millis); // 采样间隔
   txValue += "\"p_mls\":";
