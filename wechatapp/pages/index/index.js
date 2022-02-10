@@ -87,7 +87,7 @@ Page({
               wx.hideLoading();
               wx.showModal({
                 title: '温馨提示',
-                content: '附近好像没有蓝牙设备，请转移地点或者开启蓝牙设备后重新尝试',
+                content: '暂时无法搜索到蓝牙设备，请稍后重新尝试',
                 showCancel: false
               });
             }
