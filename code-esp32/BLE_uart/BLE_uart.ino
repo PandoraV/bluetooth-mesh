@@ -38,8 +38,8 @@ ulong send_millis = 0;
 // https://www.uuidgenerator.net/
 
 #define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
-#define CHARACTERISTIC_UUID_RX "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
-#define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+#define CHARACTERISTIC_UUID_RX "6E400002-B5A3-F393-E0A9-E50E24DCCA9E" // 收信
+#define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E" // 发信
 
 #define period_millis 1000 // 发信间隔
 #define ADDRESS_PRESENT_SLAVE 1 // 从机地址位
@@ -84,7 +84,6 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 将接收的字符串�
 void overFlow()
 {
   // 溢出函数
-  // TODO
 }
 
 void sendMsg(std::string msg_to_TX)
@@ -220,6 +219,7 @@ void loop() {
     else if (current_millis < send_millis)
     {
       overFlow();
+      send_millis = current_millis;
     }
 	}
 
