@@ -44,7 +44,7 @@ ulong send_millis = 0;
 #define period_millis 1000 // 发信间隔
 #define ADDRESS_PRESENT_SLAVE 1 // 从机地址位
 #define info_num 2 // 传回上位机信息条数，测试时仅有温湿度两项
-std::string info_name = "temp测试中文"; // 传回上位机的项目名称
+std::string info_name = "\"temp\",\"测试中文\""; // 传回上位机的项目名称
 
 
 class MyServerCallbacks: public BLEServerCallbacks {  // 调用成员函数修改设备连接状态
