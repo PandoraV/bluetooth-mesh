@@ -25,7 +25,6 @@ Page({
    * 页面的初始数据
    */
   data: {
-
     isHideList: false, //是否隐藏蓝牙列表
     isHideConnect: false, //是否隐藏连接模块
     deviceId: '',
@@ -52,7 +51,6 @@ Page({
       deviceId: deviceId, // 这里的 deviceId 需要已经通过 createBLEConnection 与对应设备建立链接
       success(res) {
         wx.hideLoading();
-        that.stopBluetoothDevicesDiscovery(); //停止搜索蓝牙
         console.log(res);
         if (res.errCode == 0) {
           that.setData({
@@ -159,7 +157,7 @@ Page({
           var jsonstr = ab2str(res.value);
           var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理 to do
           var today = new Date();
-          jsonobj.time=today.toLocaleString();  // 加入当地时间戳
+          jsonobj.time = today.toLocaleString(); // 加入当地时间戳
           var str = JSON.stringify(jsonobj);
           console.log(str);
           that.setData({
@@ -180,15 +178,6 @@ Page({
         wx.navigateTo({ // 返回设备列表页面
           url: '../index/index',
         })
-      }
-    })
-  },
-
-
-  stopBluetoothDevicesDiscovery() {
-    wx.stopBluetoothDevicesDiscovery({
-      success(res) {
-        console.log(res)
       }
     })
   },

@@ -83,6 +83,7 @@ Page({
               that.setData({
                 devicesList: devicesListArr,
               }); //渲染到页面中
+              that.stopBluetoothDevicesDiscovery(); //停止搜索蓝牙
             } else {
               wx.hideLoading();
               wx.showModal({
@@ -102,5 +103,13 @@ Page({
         that.openBluetoothAdapter(); // 尝试再次打开蓝牙
       }
     })
-  }
+  },
+
+  stopBluetoothDevicesDiscovery() {
+    wx.stopBluetoothDevicesDiscovery({
+      success(res) {
+        console.log(res)
+      }
+    })
+  },
 })
