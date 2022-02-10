@@ -157,7 +157,9 @@ Page({
       success(res) {
         wx.onBLECharacteristicValueChange(function (res) {
           var jsonstr = ab2str(res.value);
-          var jsonobj = JSON.parse(jsonstr);
+          var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理 to do
+          var today = new Date();
+          jsonobj.time = today.toLocaleString(); // 加入当地时间戳
           var str = JSON.stringify(jsonobj);
           console.log(str);
           that.setData({
