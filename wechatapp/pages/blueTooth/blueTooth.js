@@ -10,12 +10,9 @@ function stringToBytes(str) {
   return array.buffer;
 }
 
-/** ArrayBuffer转 utf8 字符串  */
+/** ArrayBuffer转 utf8 字符串 */
 function ab2str(buf) {
-  let encodedString = String.fromCodePoint.apply(null, new Uint8Array(buf));
-  let decodedString = decodeURIComponent(escape(encodedString)); //没有这一步中文会乱码
-  console.log(decodedString);
-  return decodedString
+  return String.fromCharCode.apply(null, new Uint8Array(buf));
 }
 
 
@@ -156,11 +153,7 @@ Page({
       characteristicId,
       success(res) {
         wx.onBLECharacteristicValueChange(function (res) {
-          var jsonstr = ab2str(res.value);
-          var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理 to do
-          var today = new Date();
-          jsonobj.time = today.toLocaleString(); // 加入当地时间戳
-          var str = JSON.stringify(jsonobj);
+          var str = ab2str(res.value);
           console.log(str);
           that.setData({
             msg: str
