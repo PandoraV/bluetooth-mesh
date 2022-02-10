@@ -44,7 +44,19 @@ ulong send_millis = 0;
 #define period_millis 1000 // 发信间隔
 #define ADDRESS_PRESENT_SLAVE 1 // 从机地址位
 #define info_num 2 // 传回上位机信息条数，测试时仅有温湿度两项
-std::string info_name = "\"temp\",\"测试中文\""; // 传回上位机的项目名称
+// std::string info_name = "temp测试中文"; // 传回上位机的项目名称
+std::string info_name[10] = {
+  "temp",
+  "humi",
+  "NH3_con",
+  "NH3_pre",
+  "O3_con",
+  "O3_pre",
+  "NO_con",
+  "NO_pre",
+  "NO2_con",
+  "NO2_pre"
+};
 
 
 class MyServerCallbacks: public BLEServerCallbacks {  // 调用成员函数修改设备连接状态
@@ -112,9 +124,20 @@ void setup_json_string()
   txValue += tempstr;
   txValue += ",";
 
-  tempstr = info_name; // 项目名
+  // tempstr = info_name; // 项目名
   txValue += "\"i_name\":[";
-  txValue += tempstr;
+  for (int i = 0; i < info_num; i++)
+  {
+    // 将info_name列表里前info_num个名称添加进去
+    tempstr = "\"";
+    tempstr += info_name[i];
+    tempstr += "\"";
+    if (i != info_num - 1)
+    {
+      tempstr += ",";
+    }
+    txValue += tempstr;
+  }
   txValue += "],";
 
   tempstr = std::to_string(period_millis); // 采样间隔
@@ -193,6 +216,10 @@ void loop() {
       send_millis = current_millis;
       setup_json_string();
       sendMsg(txValue);
+      // Serial.println("string delivered:");
+      // for (int i = 0; i < txValue.length(); i++) // 测试输出
+      //   Serial.print(txValue[i]);
+      // Serial.println();
     }
     else if (current_millis < send_millis)
     {
