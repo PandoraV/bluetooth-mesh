@@ -111,5 +111,5 @@ Page({
         console.log(res)
       }
     })
-  },
+  }
 })
