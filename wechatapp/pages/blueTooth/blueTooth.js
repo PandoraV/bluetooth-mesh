@@ -37,6 +37,19 @@ Page({
   onLoad: function (option) {
     let deviceId = option.id; //设备id
     let connectName = option.name; //连接的设备名称
+    var that = this;
+    wx.getStorage({ // 从缓存中读取历史数据
+      key: deviceId,
+      success(res) {
+        console.log(res.data)
+        that.setData({
+          msg: res.data,
+        })
+      },
+      fail(e) {
+        console.log(e)
+      }
+    })
     this.connectTo(deviceId, connectName);
 
   },
@@ -155,6 +168,15 @@ Page({
               msg: jsonstr + "\n" + that.data.msg
             });
           }
+          // 存储到缓存，最大数据长度为 1MB
+          wx.setStorage({
+            key: that.data.deviceId,
+            data: that.data.msg,
+            success(e) {},
+            fail(e) {
+              console.warn(e)
+            }
+          })
         })
       }
     })
