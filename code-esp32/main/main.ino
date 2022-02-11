@@ -17,7 +17,7 @@
   （2）驱动0.96寸OLED小屏显示数值。
 
   本装置用到的硬件包括：
-  - 温湿度传感器：DHT11
+  - 温湿度传感器：DHT11，其精度湿度±5%RH， 温度±2℃，量程湿度5~95%RH， 温度-20~+60℃
   - 0.96寸OLED小屏：型号SSD1306
   - 氨气传感器：0-1000ppm，分辨率0.1ppm
   - 臭氧传感器：0-100ppm，分辨率0.1ppm
@@ -75,7 +75,8 @@
   Initialize the OLED display using Arduino Wire:
   SSD1306Wire display(0x3c, SDA, SCL);   // ADDRESS, SDA, SCL  
   SSD1306Wire display(0x3c, D3, D5);  // ADDRESS, SDA, SCL  -  If not, they can be specified manually.
-  SSD1306Wire display(0x3c, SDA, SCL, GEOMETRY_128_32);  // ADDRESS, SDA, SCL, OLEDDISPLAY_GEOMETRY  -  Extra param required for 128x32 displays.
+  SSD1306Wire display(0x3c, SDA, SCL, GEOMETRY_128_32); 
+                                     // ADDRESS, SDA, SCL, OLEDDISPLAY_GEOMETRY  -  Extra param required for 128x32 displays.
   SH1106Wire display(0x3c, SDA, SCL);     // ADDRESS, SDA, SCL
 
   Initialize the OLED display using brzo_i2c:
@@ -105,7 +106,6 @@
   实测支持Arduino自己的delay()、millis()等原生函数。
 
   根据开源协议要求，本程序保留所参考部分样例相关版权信息注释。
-
 
    The MIT License (MIT)
 
