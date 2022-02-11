@@ -3,7 +3,7 @@
     <text selectable="true" class="dev-name" aria-role="text" aria-label="设备名称">{{connectName}}</text>
   </view>
   <view>
-    <text selectable="true" aria-role="text" aria-label="设备 ID">UUID: </text>{{deviceId}}
+    <text selectable="true" aria-role="text" aria-label="设备 ID">UUID: {{deviceId}} </text>
   </view>
 
   <view>
@@ -13,7 +13,7 @@
     <text selectable="true">{{msg}}</text>
   </view>
 
-  <view class="connect-success" >
+  <view class="connect-success">
     <form catchsubmit="sendInput" catchreset="formReset">
       <view class="weui-cell__bd" style="margin: 30rpx 0">
         <input class="weui-input" name="input" placeholder="P0N05" />
