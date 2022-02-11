@@ -33,7 +33,6 @@ Page({
     serviceId: "", // 服务 ID
     uuidListen: "", // 监听接收的 uuid
     uuidWrite: "", // 发送内容的uuid
-    writeNews: {}, //写数据三个id
     msg: "None" // 收到的蓝牙消息
   },
 
@@ -113,19 +112,9 @@ Page({
             that.notifyBLECharacteristicValueChange(serviceId, model.uuid);
           }
           if (model.properties.write == true) { // 读写的uuid
-            let characteristicId = model.uuid;
-            let writeNews = {
-              deviceId,
-              serviceId,
-              characteristicId
-            };
             that.setData({
-              uuidWrite: model.uuid,
-              writeNews: writeNews
-            });
+              uuidWrite: model.uuid            });
           }
-
-
         }
       },
       fail(err) {
@@ -141,9 +130,9 @@ Page({
     let that = this;
     var buffer = stringToBytes("Message from kearney!")
     wx.writeBLECharacteristicValue({
-      deviceId: that.data.writeNews.deviceId,
-      serviceId: that.data.writeNews.serviceId,
-      characteristicId: that.data.writeNews.characteristicId,
+      deviceId: that.data.deviceId,
+      serviceId: that.data.serviceId,
+      characteristicId: that.data.uuidWrite,
       value: buffer,
       success: (res) => {
         console.log(res);
