@@ -53,7 +53,7 @@ Page({
     wx.createBLEConnection({
       deviceId: deviceId, // 这里的 deviceId 需要已经通过 createBLEConnection 与对应设备建立链接
       success(res) {
-        wx.hideLoading();
+        // wx.hideLoading();
         console.log(res);
         if (res.errCode == 0) {
           that.setData({
@@ -200,6 +200,10 @@ Page({
   sendInput(e) {
     if (e.detail.value.input == '') { // 空数据提前终止发送
       console.warn("Empty input. Stop send!!!")
+      wx.showToast({
+        title: '检测不到数据，请输入内容后再次发送',
+        icon: 'none',
+      })
     } else {
       var buffer = stringToBytes(e.detail.value.input)
       wx.writeBLECharacteristicValue({
