@@ -30,6 +30,9 @@ Page({
     isHideConnect: false, //是否隐藏连接模块
     deviceId: '',
     connectName: '',
+    serviceId: "", // 服务 ID
+    uuidListen: "", // 监听接收的 uuid
+    uuidWrite: "", // 发送内容的uuid
     writeNews: {}, //写数据三个id
     msg: "None" // 收到的蓝牙消息
   },
@@ -45,9 +48,9 @@ Page({
   //开始连接，获取deviceId
   connectTo(deviceId, connectName) {
     let that = this;
-    wx.showLoading({
-      title: '连接中...',
-    });
+    // wx.showLoading({
+    //   title: '连接中...',
+    // });
     wx.createBLEConnection({
       deviceId: deviceId, // 这里的 deviceId 需要已经通过 createBLEConnection 与对应设备建立链接
       success(res) {
@@ -84,8 +87,10 @@ Page({
       success: (res) => { //services：设备服务列表 uuid：服务id
         console.log(res);
         serviceId = res.services[0].uuid;
+        this.setData({
+          serviceId: serviceId
+        });
         this.getBLEDeviceCharacteristics(deviceId, serviceId);
-
       },
     })
   },
@@ -102,6 +107,9 @@ Page({
         for (var i = 0; i < res.characteristics.length; i++) {
           var model = res.characteristics[i]
           if (model.properties.notify == true) { // 监听的uuid
+            this.setData({
+              uuidListen: model.uuid
+            });
             that.notifyBLECharacteristicValueChange(serviceId, model.uuid);
           }
           if (model.properties.write == true) { // 读写的uuid
@@ -112,6 +120,7 @@ Page({
               characteristicId
             };
             that.setData({
+              uuidWrite: model.uuid,
               writeNews: writeNews
             });
           }
@@ -209,9 +218,9 @@ Page({
       this.setData({
         isListen: true
       });
-      // to do
+      this.notifyBLECharacteristicValueChange(this.data.serviceId, this.data.uuidListen)
     }
-    console.info(this.data.isListen)
+    console.info("listen: ", this.data.isListen)
   },
 
 
