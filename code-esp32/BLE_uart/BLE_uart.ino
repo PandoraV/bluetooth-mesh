@@ -1,12 +1,19 @@
-/*
-    Video: https://www.youtube.com/watch?v=oCMOYS71NIU
-    Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
-    Ported to Arduino ESP32 by Evandro Copercini
+#include "DHT.h"
 
-   Create a BLE server that, once we receive a connection, will send periodic notifications.
-   The service advertises itself as: 6E400001-B5A3-F393-E0A9-E50E24DCCA9E
-   Has a characteristic of: 6E400002-B5A3-F393-E0A9-E50E24DCCA9E - used for receiving data with "WRITE" 
-   Has a characteristic of: 6E400003-B5A3-F393-E0A9-E50E24DCCA9E - used to send data with  "NOTIFY"
+#define DHTPIN 2     // Digital pin connected to the DHT sensor
+
+#define DHTTYPE DHT11   // DHT 11
+// #define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
+//#define DHTTYPE DHT21   // DHT 21 (AM2301)
+
+DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor.
+ulong dht_millis = 0; // DHT传感器采集时间
+ulong dht_duration = 2000; // DHT采集间隔
+float humidity;
+float temperature;
+
+/*
+    Ported to Arduino ESP32 by Evandro Copercini
 
    The design of creating the BLE server is:
    1. Create a BLE Server
@@ -15,10 +22,8 @@
    4. Create a BLE Descriptor on the characteristic
    5. Start the service.
    6. Start advertising.
-
-   In this example rxValue is the data received (only accessible inside that function).
-   And txValue is the data to be sent, in this example just a byte incremented every second. 
 */
+
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
@@ -30,7 +35,9 @@ BLEServer *pServer = NULL;
 BLECharacteristic * pTxCharacteristic;
 bool deviceConnected = false; // 当前有无设备连接
 bool oldDeviceConnected = false; // 是否已经有设备连接
+
 std::string txValue = "";
+
 ulong current_millis = 0;
 ulong send_millis = 0;
 
@@ -195,14 +202,16 @@ void setup() {
   pServer->getAdvertising()->start(); // 开始广播蓝牙
   Serial.println("Waiting a client connection to notify...");
 
+  dht.begin(); // 启动DHT检测类
+  Serial.println("DHT11 started!");
+
   current_millis = millis();
   send_millis = current_millis;
+  dht_millis = current_millis; // 需要等待时间让DHT传感器启动
 }
 
 void loop() {
-
   // 如果蓝牙发送过于频繁，会导致通信阻塞
-
   if (deviceConnected) {
 		// delay(1000); // bluetooth stack will go into congestion, if too many packets are sent
     current_millis = millis();
@@ -211,24 +220,23 @@ void loop() {
       send_millis = current_millis;
       setup_json_string();
       sendMsg(txValue);
-      // Serial.println("string delivered:");
-      // for (int i = 0; i < txValue.length(); i++) // 测试输出
-      //   Serial.print(txValue[i]);
-      // Serial.println();
+      Serial.println("string delivered:");
+      for (int i = 0; i < txValue.length(); i++) // 测试输出
+        Serial.print(txValue[i]);
+      Serial.println();
     }
     else if (current_millis < send_millis)
     {
-      overFlow();
+      // overFlow();
       send_millis = current_millis;
     }
 	}
-
   // disconnecting
   if (!deviceConnected && oldDeviceConnected) { 
     // 当前无设备连接，且ESP32记忆设备连接状态的标志位尚未更改，意思是已连接设备掉线了
     delay(500); // give the bluetooth stack the chance to get things ready
     pServer->startAdvertising(); // restart advertising
-    Serial.println("start advertising");
+    Serial.println("restart advertising");
     oldDeviceConnected = deviceConnected; // 将已经记忆的状态更新
   }
   // connecting
@@ -237,5 +245,33 @@ void loop() {
     // do stuff here on connecting
     oldDeviceConnected = deviceConnected;
     Serial.println("device connected");
+  }
+
+  // DHT
+  current_millis = millis();
+  if (current_millis - dht_millis >= dht_duration)
+  {
+    // 读取
+    dht_millis = current_millis;
+    float h = dht.readHumidity();
+    float t = dht.readTemperature();
+    if (isnan(h) || isnan(t)) { // 若返回为空值
+      Serial.println("Failed to read from DHT sensor!");
+      humidity = -1.0;
+      temperature = -1.0;
+    } else {
+      humidity = h;
+      temperature = t;
+      Serial.print("Humidity: ");
+      Serial.print(humidity);
+      Serial.print("%  Temperature: ");
+      Serial.print(temperature);
+      Serial.println("°C");
+    }
+  }
+  else if (current_millis < dht_millis)
+  {
+    // overFlow();
+    dht_millis = current_millis;
   }
 }
