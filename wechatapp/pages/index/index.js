@@ -4,7 +4,7 @@ const app = getApp()
 
 Page({
   data: {
-    devicesList: [],
+    devicesList: []
   },
 
   onLoad() {
