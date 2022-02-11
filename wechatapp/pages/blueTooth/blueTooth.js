@@ -127,24 +127,6 @@ Page({
   },
 
 
-  writeBLECharacteristicValue() { // 向蓝牙设备发送数据
-    let that = this;
-    var buffer = stringToBytes("Message from kearney!")
-    wx.writeBLECharacteristicValue({
-      deviceId: that.data.deviceId,
-      serviceId: that.data.serviceId,
-      characteristicId: that.data.uuidWrite,
-      value: buffer,
-      success: (res) => {
-        console.log(res);
-      },
-      fail: (err) => {
-        console.log(err)
-      }
-    })
-  },
-
-
   notifyBLECharacteristicValueChange(serviceId, characteristicId) {
     let that = this;
     wx.notifyBLECharacteristicValueChange({
@@ -211,6 +193,28 @@ Page({
       this.notifyBLECharacteristicValueChange(this.data.serviceId, this.data.uuidListen)
     }
     console.info("listen: ", this.data.isListen)
+  },
+
+
+  /**  向蓝牙设备发送数据 */
+  sendInput(e) {
+    if (e.detail.value.input == '') { // 空数据提前终止发送
+      console.warn("Empty input. Stop send!!!")
+    } else {
+      var buffer = stringToBytes(e.detail.value.input)
+      wx.writeBLECharacteristicValue({
+        deviceId: this.data.deviceId,
+        serviceId: this.data.serviceId,
+        characteristicId: this.data.uuidWrite,
+        value: buffer,
+        success: (res) => {
+          console.log(res);
+        },
+        fail: (err) => {
+          console.log(err)
+        }
+      })
+    }
   },
 
 

@@ -8,15 +8,22 @@
 
   <view>
     <checkbox-group bindchange="checkBoxChange">
-      <checkbox value="isListen"checked="{{isListen}}"/>监听
+      <checkbox value="isListen" checked="{{isListen}}" />监听
     </checkbox-group>
     <text selectable="true">{{msg}}</text>
   </view>
 
   <view class="connect-success" hidden="{{isHideConnect}}">
-    <view class="write-data">
-      <button class="write-btn" size="mini" bindtap="writeBLECharacteristicValue" aria-role="button" aria-label="写入数据">写入数据</button>
-    </view>
+
+    <form catchsubmit="sendInput" catchreset="formReset">
+      <view class="weui-cell__bd" style="margin: 30rpx 0">
+        <input class="weui-input" name="input" placeholder="P0N05" />
+      </view>
+      <view class="btn-area">
+        <button style="margin: 30rpx 0" type="primary" formType="submit" aria-role="button" aria-label="发送输入框内的数据">发送</button>
+      </view>
+    </form>
+    
     <view class="closeBLEConnection-box">
       <button class="closeBLEConnection" size="mini" bindtap="closeBLEConnection" aria-role="button" aria-label="断开连接">断开连接</button>
     </view>
