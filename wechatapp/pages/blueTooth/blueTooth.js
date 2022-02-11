@@ -26,8 +26,6 @@ Page({
    */
   data: {
     isListen: true,
-    isHideList: false, //是否隐藏蓝牙列表
-    isHideConnect: false, //是否隐藏连接模块
     deviceId: '',
     connectName: '',
     serviceId: "", // 服务 ID
@@ -59,7 +57,6 @@ Page({
           that.setData({
             deviceId: deviceId,
             connectName: connectName,
-            isHideConnect: false,
           })
           that.getBLEDeviceServices(deviceId); //获取已连接蓝牙的服务
         } else if (res.errCode == 10012) {
@@ -170,11 +167,7 @@ Page({
     let that = this;
     wx.closeBluetoothAdapter({
       success(res) {
-        that.setData({
-          devicesList: [],
-          isHideList: true, //是否隐藏蓝牙列表
-          isHideConnect: true, //是否隐藏连接模块
-        })
+        console.log(res)
       }
     })
   },

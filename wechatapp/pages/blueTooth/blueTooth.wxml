@@ -13,8 +13,7 @@
     <text selectable="true">{{msg}}</text>
   </view>
 
-  <view class="connect-success" hidden="{{isHideConnect}}">
-
+  <view class="connect-success" >
     <form catchsubmit="sendInput" catchreset="formReset">
       <view class="weui-cell__bd" style="margin: 30rpx 0">
         <input class="weui-input" name="input" placeholder="P0N05" />
@@ -23,7 +22,7 @@
         <button style="margin: 30rpx 0" type="primary" formType="submit" aria-role="button" aria-label="发送输入框内的数据">发送</button>
       </view>
     </form>
-    
+
     <view class="closeBLEConnection-box">
       <button class="closeBLEConnection" size="mini" bindtap="closeBLEConnection" aria-role="button" aria-label="断开连接">断开连接</button>
     </view>
