@@ -134,14 +134,23 @@ Page({
       success(res) {
         wx.onBLECharacteristicValueChange(function (res) {
           var jsonstr = ab2str(res.value);
-          var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理 to do
-          var today = new Date();
-          jsonobj.time = today.toLocaleString(); // 加入当地时间戳
-          var str = JSON.stringify(jsonobj);
-          // console.log(str);
-          that.setData({
-            msg: str
-          });
+          try {
+            var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理
+            if (jsonobj) {
+              var today = new Date();
+              jsonobj.time = today.toLocaleString(); // 加入当地时间戳
+              var str = JSON.stringify(jsonobj);
+              that.setData({
+                msg: str
+              });
+            }
+          } catch (e) {
+            console.warn("Illogical data of json: " + jsonstr)
+            wx.showToast({
+              title: '收到不合理的数据: ' + jsonstr,
+              icon: 'none',
+            })
+          }
         })
       }
     })
