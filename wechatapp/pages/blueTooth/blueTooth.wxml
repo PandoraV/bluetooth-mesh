@@ -10,15 +10,17 @@
     <checkbox-group bindchange="checkBoxChange">
       <checkbox value="isListen" checked="{{isListen}}" />监听
     </checkbox-group>
-    <text selectable="true">{{msg}}</text>
+    <scroll-view scroll-y="true" class="dev-msg" enable-back-to-top="true">
+      <text selectable="true" style="word-break:break-all;" aria-role="text" aria-label="来自设备的全部消息">{{msg}}</text>
+    </scroll-view>
   </view>
 
   <view class="connect-success">
     <form catchsubmit="sendInput" catchreset="formReset">
-      <view class="weui-cell__bd" style="margin: 30rpx 0">
+      <view>
         <input class="weui-input" name="input" placeholder="P0N05" />
       </view>
-      <view class="btn-area">
+      <view>
         <button style="margin: 30rpx 0" type="primary" formType="submit" aria-role="button" aria-label="发送输入框内的数据">发送</button>
       </view>
     </form>

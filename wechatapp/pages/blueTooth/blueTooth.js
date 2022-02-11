@@ -31,7 +31,7 @@ Page({
     serviceId: "", // 服务 ID
     uuidListen: "", // 监听接收的 uuid
     uuidWrite: "", // 发送内容的uuid
-    msg: "None" // 收到的蓝牙消息
+    msg: "" // 收到的蓝牙消息
   },
 
   onLoad: function (option) {
@@ -141,15 +141,19 @@ Page({
               jsonobj.time = today.toLocaleString(); // 加入当地时间戳
               var str = JSON.stringify(jsonobj);
               that.setData({
-                msg: str
+                msg: str + "\n" + that.data.msg
               });
             }
           } catch (e) {
+            console.warn(e)
             console.warn("Illogical data of json: " + jsonstr)
             wx.showToast({
               title: '收到不合理的数据: ' + jsonstr,
               icon: 'none',
             })
+            that.setData({
+              msg: jsonstr + "\n" + that.data.msg
+            });
           }
         })
       }

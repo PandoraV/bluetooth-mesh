@@ -7,8 +7,8 @@
 	font-size: 22px;
 }
 
-.page-section-spacing {
-	margin-top: 60rpx;
+.dev-msg {
+	height: 500rpx;
 }
 
 .connect-success {
