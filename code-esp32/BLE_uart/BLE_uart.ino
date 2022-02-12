@@ -48,7 +48,7 @@ ulong send_millis = 0;
 #define CHARACTERISTIC_UUID_RX "6E400002-B5A3-F393-E0A9-E50E24DCCA9E" // 收信
 #define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E" // 发信
 
-#define period_millis 1000 // 发信间隔
+ulong period_millis = 1000; // 发信间隔
 #define ADDRESS_PRESENT_SLAVE 1 // 从机地址位
 #define info_num 2 // 传回上位机信息条数，测试时仅有温湿度两项
 // std::string info_name = "temp测试中文"; // 传回上位机的项目名称
@@ -79,11 +79,107 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 将接收的字符串�
       if (rxValue.length() > 0) { // 若接收到的字符串不为空
         Serial.println("*********");
         Serial.print("Received Value: ");
-        for (int i = 0; i < rxValue.length(); i++) // 则逐个输出
+        int rx_len = rxValue.length();
+        for (int i = 0; i < rx_len; i++) // 则逐个输出
           Serial.print(rxValue[i]);
-
         Serial.println();
         Serial.println("*********");
+
+        // 判断命令合法性
+        if (rx_len < 4) // 是否包含全部关键位
+        {
+          Serial.println("the command is too short to be right");
+        }
+        else if (rxValue[1] > '9' || rxValue[1] < '0') // 传感器编号格式是否正确
+        {
+          Serial.println("the command is illegal at sensor site");
+        }
+        else if (rxValue[1] > '9' || rxValue[1] < '0') // 从机地址格式是否正确
+        {
+          Serial.println("the command is illegal at address site");
+        }
+
+        // 对接受到的命令进行处理
+        switch (rxValue[0])
+        {
+        case 'P':
+          // 调整采样间隔
+          switch (rxValue[1])
+          {
+          case '0':// 不指定传感器
+            {
+              // 看第三位地址位
+              int add_received;
+              add_received = rxValue[2] - '0';
+              if (add_received == ADDRESS_PRESENT_SLAVE)
+              {
+                // 取数
+                // 看是不是小数
+                if (rxValue[3] == '0')
+                {
+                  // 看有没有第五位
+                  if (rx_len == 4)
+                  {
+                    Serial.println("the command is illegal at data site");
+                  } else {
+                    ulong new_period_millis = 0;
+                    ulong hundred = 100;
+                    new_period_millis = hundred*(rxValue[4] - '0');
+                    for (int i = 5; i < rx_len; i++)
+                    {
+                      hundred /= 10;
+                      new_period_millis += hundred*(rxValue[i] - '0');
+                    }
+                    Serial.print("the sensor period has been updated to ");
+                    Serial.println(new_period_millis);
+                    period_millis = new_period_millis;
+                  }
+                } else {
+                  // 整数秒
+                  ulong new_period_millis = 0;
+                  for (int i=3; i<rx_len; i++)
+                  {
+                    if (rxValue[i] > '9' || rxValue[i] < '0')
+                    {
+                      Serial.println("the command is illegal at data site");
+                      new_period_millis = 0;
+                      break;
+                    }
+                    new_period_millis += 1000*(rxValue[i] - '0');
+                  }
+                  if (new_period_millis != 0)
+                  {
+                    period_millis = new_period_millis;
+                    Serial.print("the sensor period has been updated to ");
+                    Serial.println(new_period_millis);
+                  }
+                }
+              }
+              break;
+            }
+          case '1':// 氨气传感器
+            break;
+          case '2':// 臭氧传感器
+            break;
+          case '3':// 一氧化氮传感器
+            break;
+          case '4':// 二氧化氮传感器
+            break;
+          case '5':// 温湿度传感器
+            break;
+          
+          default: // 该编号无对应传感器！
+            Serial.println("Error! The sensor is not be recorded");
+            break;
+          }
+          break;
+        case 'T':
+          // 发送文本
+          break;
+        
+        default:
+          break;
+        }
       }
     }
 };
@@ -115,11 +211,11 @@ void setup_json_string()
 
   std::string tempstr = "";
 
-  current_millis = millis();
-  tempstr = std::to_string(current_millis); // 时间戳
-  txValue += "\"c_mls\":";
-  txValue += tempstr;
-  txValue += ",";
+  // current_millis = millis();
+  // tempstr = std::to_string(current_millis); // 时间戳
+  // txValue += "\"c_mls\":";
+  // txValue += tempstr;
+  // txValue += ",";
   
   tempstr = std::to_string(info_num); // 条数
   txValue += "\"i_num\":";
@@ -220,10 +316,10 @@ void loop() {
       send_millis = current_millis;
       setup_json_string();
       sendMsg(txValue);
-      Serial.println("string delivered:");
-      for (int i = 0; i < txValue.length(); i++) // 测试输出
-        Serial.print(txValue[i]);
-      Serial.println();
+      // Serial.println("string delivered:");
+      // for (int i = 0; i < txValue.length(); i++) // 测试输出
+      //   Serial.print(txValue[i]);
+      // Serial.println();
     }
     else if (current_millis < send_millis)
     {
