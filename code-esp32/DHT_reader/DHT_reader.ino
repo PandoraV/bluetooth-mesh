@@ -66,9 +66,12 @@ void loop() {
   Serial.print(t);
   Serial.print(F("°C "));
   Serial.print(f);
-  Serial.print(F("°F  Heat index: "));
-  Serial.print(hic);
-  Serial.print(F("°C "));
-  Serial.print(hif);
-  Serial.println(F("°F"));
+  Serial.print("\t the current second is ");
+  ulong current_millis = millis();
+  Serial.println(current_millis/1000);
+  // Serial.print(F("°F  Heat index: "));
+  // Serial.print(hic);
+  // Serial.print(F("°C "));
+  // Serial.print(hif);
+  // Serial.println(F("°F"));
 }

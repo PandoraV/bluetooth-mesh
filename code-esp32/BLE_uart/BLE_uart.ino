@@ -8,7 +8,7 @@
 
 DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor.
 ulong dht_millis = 0; // DHT传感器采集时间
-ulong dht_duration = 2000; // DHT采集间隔
+ulong dht_duration = 2500; // DHT采集间隔，实测约2300ms
 float humidity;
 float temperature;
 
