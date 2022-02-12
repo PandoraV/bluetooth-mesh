@@ -1,11 +1,9 @@
 #include "DHT.h"
 
 #define DHTPIN 2     // Digital pin connected to the DHT sensor
-
 #define DHTTYPE DHT11   // DHT 11
 // #define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
 //#define DHTTYPE DHT21   // DHT 21 (AM2301)
-
 DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor.
 ulong dht_millis = 0; // DHT传感器采集时间
 ulong dht_duration = 2500; // DHT采集间隔，实测约2300ms
@@ -13,7 +11,7 @@ float humidity;
 float temperature;
 
 /*
-    Ported to Arduino ESP32 by Evandro Copercini
+   Ported to Arduino ESP32 by Evandro Copercini
 
    The design of creating the BLE server is:
    1. Create a BLE Server
@@ -36,6 +34,7 @@ BLECharacteristic * pTxCharacteristic;
 bool deviceConnected = false; // 当前有无设备连接
 bool oldDeviceConnected = false; // 是否已经有设备连接
 
+int identity_verification = 0; // 手机验证，0是苹果，1是安卓
 std::string txValue = "";
 
 ulong current_millis = 0;
@@ -175,6 +174,9 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 将接收的字符串�
           break;
         case 'T':
           // 发送文本
+
+          // 识别苹果安卓 
+          // TODO
           break;
         
         default:
