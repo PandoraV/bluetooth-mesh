@@ -6,7 +6,7 @@
 //#define DHTTYPE DHT21   // DHT 21 (AM2301)
 DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor.
 ulong dht_millis = 0; // DHT传感器采集时间
-ulong dht_duration = 2500; // DHT采集间隔，实测约2300ms
+ulong dht_duration = 3000; // DHT采集间隔，实测约2300ms
 float humidity;
 float temperature;
 
@@ -27,7 +27,7 @@ float temperature;
 #include <BLEUtils.h>
 #include <BLE2902.h>
 #include <string.h>
-#include <stdlib.h>
+// #include <stdlib.h>
 
 BLEServer *pServer = NULL;
 BLECharacteristic * pTxCharacteristic;
@@ -251,16 +251,18 @@ void setup_json_string()
   txValue += ",";
 
   // 获取传感器数值
-  // TODO
-  tempstr = std::to_string(random(200,220)/10.0); // 温度
-  txValue += "\"temp\":";
-  txValue += tempstr;
-  txValue += ",";
+  if (info_num >= 2)
+  {
+    tempstr = std::to_string(temperature); // 温度
+    txValue += "\"temp\":";
+    txValue += tempstr;
+    txValue += ",";
 
-  tempstr = std::to_string(random(40,50)*1.0); // 湿度
-  txValue += "\"humi\":";
-  txValue += tempstr;
-  // txValue += ",";
+    tempstr = std::to_string(humidity); // 湿度
+    txValue += "\"humi\":";
+    txValue += tempstr;
+    // txValue += ",";
+  }
 
   txValue += "}";
 }
