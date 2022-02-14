@@ -38,10 +38,14 @@ bool oldDeviceConnected = false; // 是否已经有设备连接
 #define ANDROID_REC 1
 int identity_verification = APPLE_REC; // 手机验证，0是苹果，1是安卓
 bool deviceQueryed = false; // 当前是否已确认身份
+bool duringDelivering = false;
 std::string txValue = "";
+std::string tx_str_for_query = "";
 
 ulong current_millis = 0;
 ulong send_millis = 0;
+ulong queryDuration = 20; // 回信间隔
+ulong period_millis = 1000; // 发信间隔
 
 // See the following for generating UUIDs:
 // https://www.uuidgenerator.net/
@@ -50,7 +54,6 @@ ulong send_millis = 0;
 #define CHARACTERISTIC_UUID_RX "6E400002-B5A3-F393-E0A9-E50E24DCCA9E" // 收信
 #define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E" // 发信
 
-ulong period_millis = 1000; // 发信间隔
 #define ADDRESS_PRESENT_SLAVE 1 // 从机地址位
 #define info_num 2 // 传回上位机信息条数，测试时仅有温湿度两项
 // std::string info_name = "temp测试中文"; // 传回上位机的项目名称
@@ -63,6 +66,58 @@ std::string info_name[10] = {
   "NO2"
 };
 
+void overFlow()
+{
+  // 溢出函数
+}
+
+void sendMsg(std::string msg_to_TX)
+{
+  // 修改标志位，表明当前处于发信状态中
+  duringDelivering = true;
+
+  // 将字符串发出去
+  int msg_to_TX_length = msg_to_TX.length();
+  if (msg_to_TX_length <= ESP_GATT_MAX_ATTR_LEN)
+  {
+    pTxCharacteristic->setValue(msg_to_TX);
+    pTxCharacteristic->notify();
+
+    // Serial.println("string delivered:");
+    // for (int i = 0; i < msg_to_TX_length; i++) // 测试输出
+    //   Serial.print(msg_to_TX[i]);
+    // Serial.println();
+  }
+  else{
+    Serial.println("Length ERROR!");
+    // 将超过六百字的字符串分多次发过去，仅对苹果
+  }
+
+  // 结束发信
+  duringDelivering = false;
+}
+
+void reply_for_query()
+{
+  // 检查是否可调用发信函数
+
+  // 检查当前发信函数是否被调用
+  if (!duringDelivering) // 不在发送中
+  {
+    // 检查前后时间是否合适
+    current_millis = millis();
+    if (current_millis - send_millis >= queryDuration && 
+        current_millis - send_millis <= period_millis - queryDuration)
+    {
+      sendMsg(tx_str_for_query);
+    } else {
+      // 等待
+      sendMsg(tx_str_for_query);
+      // TODO
+      // 应设置独立线程等待到可以发信
+    }
+  }
+}
 
 class MyServerCallbacks: public BLEServerCallbacks {  // 调用成员函数修改设备连接状态
     void onConnect(BLEServer* pServer) { 
@@ -79,13 +134,11 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
       std::string rxValue = pCharacteristic->getValue();
 
       if (rxValue.length() > 0) { // 若接收到的字符串不为空
-        Serial.println("*********");
         Serial.print("Received Value: ");
         int rx_len = rxValue.length();
         for (int i = 0; i < rx_len; i++) // 则逐个输出
           Serial.print(rxValue[i]);
         Serial.println();
-        Serial.println("*********");
 
         // 判断命令合法性
         if (rx_len < 4) // 是否包含全部关键位
@@ -125,7 +178,7 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
                     Serial.println("the command is illegal at data site");
                   } else {
                     ulong new_period_millis = 0;
-                    ulong hundred = 100;
+                    ulong hundred = 100; // 毫秒为单位
                     new_period_millis = hundred*(rxValue[4] - '0');
                     for (int i = 5; i < rx_len; i++)
                     {
@@ -147,7 +200,7 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
                       new_period_millis = 0;
                       break;
                     }
-                    new_period_millis += 1000*(rxValue[i] - '0');
+                    new_period_millis += 1000*(rxValue[i] - '0'); // 毫秒为单位
                   }
                   if (new_period_millis != 0)
                   {
@@ -176,7 +229,7 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
           }
           break;
         case 'T':
-          // 发送文本
+          // 接收文本
 
           // 识别苹果安卓 
           if (rx_len == 5)
@@ -200,9 +253,24 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
             }
           }
           break;
-        case 'Q': {
-          // 查询时间间隔
-          // TODO
+        case 'Q': {   // 查询时间间隔
+          if (rx_len == 4)
+          {
+            if (rxValue[1] == ADDRESS_PRESENT_SLAVE + '0')
+            {
+              // 清空发送字符串
+              tx_str_for_query = "";
+              uint8_t tempChar = 1; // 发信数量为1，表明这是传回时间间隔
+              tx_str_for_query += tempChar + '0'; 
+              tempChar = ADDRESS_PRESENT_SLAVE; // 地址位
+              tx_str_for_query += tempChar + '0';
+              std::string tempStr = "";
+              tempStr = std::to_string(period_millis);
+              tx_str_for_query += tempStr;
+
+              reply_for_query();
+            }
+          }
         }
           break;
         default:
@@ -211,26 +279,6 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
       }
     }
 };
-
-void overFlow()
-{
-  // 溢出函数
-}
-
-void sendMsg(std::string msg_to_TX)
-{
-  // 将字符串发出去
-  if (msg_to_TX.length() <= ESP_GATT_MAX_ATTR_LEN)
-  {
-    pTxCharacteristic->setValue(msg_to_TX);
-    pTxCharacteristic->notify();
-  }
-  else{
-    Serial.println("Length ERROR!");
-    // 将超过六百字的字符串分两次发过去
-    // TODO
-  }
-}
 
 void setup_json_string()
 {
@@ -395,10 +443,6 @@ void loop() {
       send_millis = current_millis;
       setup_json_string();
       sendMsg(txValue);
-      // Serial.println("string delivered:");
-      // for (int i = 0; i < txValue.length(); i++) // 测试输出
-      //   Serial.print(txValue[i]);
-      // Serial.println();
     }
     else if (current_millis < send_millis)
     {
