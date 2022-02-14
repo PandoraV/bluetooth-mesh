@@ -34,7 +34,10 @@ BLECharacteristic * pTxCharacteristic;
 bool deviceConnected = false; // 当前有无设备连接
 bool oldDeviceConnected = false; // 是否已经有设备连接
 
-int identity_verification = 0; // 手机验证，0是苹果，1是安卓
+#define APPLE_REC 0
+#define ANDROID_REC 1
+int identity_verification = APPLE_REC; // 手机验证，0是苹果，1是安卓
+bool deviceQueryed = false; // 当前是否已确认身份
 std::string txValue = "";
 
 ulong current_millis = 0;
@@ -176,9 +179,32 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 将接收的字符串�
           // 发送文本
 
           // 识别苹果安卓 
-          // TODO
+          if (rx_len == 5)
+          {
+            if (rxValue[1] == '0' && rxValue[2] == '0' && rxValue[3] == 'A')
+            {
+              if (rxValue[4] == 'P')
+              {
+                // APPLE
+                identity_verification = APPLE_REC;
+                deviceQueryed = true;
+                Serial.println("current device has been recognized as APPLE!");
+              }
+              else if (rxValue[4] == 'N')
+              {
+                // Android
+                identity_verification = ANDROID_REC;
+                deviceQueryed = true;
+                Serial.println("current device has been recognized as ANDORID!");
+              }
+            }
+          }
           break;
-        
+        case 'Q': {
+          // 查询时间间隔
+          // TODO
+        }
+          break;
         default:
           break;
         }
@@ -312,7 +338,7 @@ void setup() {
 
 void loop() {
   // 如果蓝牙发送过于频繁，会导致通信阻塞
-  if (deviceConnected) {
+  if (deviceConnected && deviceQueryed) { // 当设备已连接且发送身份后，才返回
 		// delay(1000); // bluetooth stack will go into congestion, if too many packets are sent
     current_millis = millis();
     if (current_millis - send_millis >= period_millis)
@@ -338,6 +364,7 @@ void loop() {
     pServer->startAdvertising(); // restart advertising
     Serial.println("restart advertising");
     oldDeviceConnected = deviceConnected; // 将已经记忆的状态更新
+    deviceQueryed = false; // 清空设备种类记忆
   }
   // connecting
   if (deviceConnected && !oldDeviceConnected) {
@@ -362,11 +389,11 @@ void loop() {
     } else {
       humidity = h;
       temperature = t;
-      Serial.print("Humidity: ");
-      Serial.print(humidity);
-      Serial.print("%  Temperature: ");
-      Serial.print(temperature);
-      Serial.println("°C");
+      // Serial.print("Humidity: ");
+      // Serial.print(humidity);
+      // Serial.print("%  Temperature: ");
+      // Serial.print(temperature);
+      // Serial.println("°C");
     }
   }
   else if (current_millis < dht_millis)
