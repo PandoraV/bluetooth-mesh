@@ -2,13 +2,11 @@
 
 #define DHTPIN 2     // Digital pin connected to the DHT sensor
 #define DHTTYPE DHT11   // DHT 11
-// #define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
-//#define DHTTYPE DHT21   // DHT 21 (AM2301)
 DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor.
 ulong dht_millis = 0; // DHT传感器采集时间
 ulong dht_duration = 3000; // DHT采集间隔，实测约2300ms
-float humidity = -1.0;
-float temperature = -1.0;
+float humidity = -1.0;     // 湿度
+float temperature = -1.0;  // 温度
 
 /*
    Ported to Arduino ESP32 by Evandro Copercini
@@ -38,12 +36,12 @@ bool oldDeviceConnected = false; // 是否已经有设备连接
 #define ANDROID_REC 1
 int identity_verification = APPLE_REC; // 手机验证，0是苹果，1是安卓
 bool deviceQueryed = false; // 当前是否已确认身份
-bool duringDelivering = false;
-std::string txValue = "";
+bool duringDelivering = false;  // 是否处于发信函数调用状态
+std::string txValue = "";  
 std::string tx_str_for_query = "";
 
 ulong current_millis = 0;
-ulong send_millis = 0;
+ulong send_millis = 0;    // 上次发信的时间
 ulong queryDuration = 20; // 回信间隔
 ulong period_millis = 1000; // 发信间隔
 
