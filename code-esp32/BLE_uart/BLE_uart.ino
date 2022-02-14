@@ -8,6 +8,10 @@ ulong dht_duration = 3000; // DHT采集间隔，实测约2300ms
 float humidity = -1.0;     // 湿度
 float temperature = -1.0;  // 温度
 
+#include <Wire.h>               // Only needed for Arduino 1.6.5 and earlier
+#include "SSD1306Wire.h"        // legacy: #include "SSD1306.h"
+SSD1306Wire display(0x3c, SDA, SCL);   // ADDRESS, SDA, SCL 
+
 /*
    Ported to Arduino ESP32 by Evandro Copercini
 
@@ -63,6 +67,32 @@ std::string info_name[10] = {
   "NO",
   "NO2"
 };
+
+void drawFontFace(void *parameter) {
+  delay(1000);
+  Serial.println("OLED thread started!");
+
+  int i = 1;
+  while(i == 1) {
+    // clear the display
+    display.clear();
+
+    // create more fonts at http://oleddisplay.squix.ch/
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
+    display.setFont(ArialMT_Plain_10);
+    display.drawString(0, 0, "Hello world");
+    display.setFont(ArialMT_Plain_16);
+    display.drawString(0, 10, "Hello world");
+    display.setFont(ArialMT_Plain_24);
+    display.drawString(0, 26, "Hello world");
+
+    // write the buffer to the display
+    display.display();
+    delay(100);
+  }
+  Serial.println("OLED thread ended.");
+  vTaskDelete(NULL);
+}
 
 void overFlow()
 {
@@ -429,6 +459,21 @@ void setup() {
   current_millis = millis();
   send_millis = current_millis;
   dht_millis = current_millis; // 需要等待时间让DHT传感器启动
+  
+  // Initialising the UI will init the display too.
+  display.init();
+
+  display.flipScreenVertically();
+
+  xTaskCreate(
+    drawFontFace,   /* Task function. */
+    "TaskOne",      /* String with name of task. */
+    10000,          /* Stack size in bytes. */
+    NULL,           /* Parameter passed as input of the task */
+    1,              /* Priority of the task. */
+    NULL            /* Task handle. */
+  );     
+
 }
 
 void loop() {
