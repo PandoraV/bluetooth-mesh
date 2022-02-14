@@ -7,8 +7,8 @@
 DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor.
 ulong dht_millis = 0; // DHT传感器采集时间
 ulong dht_duration = 3000; // DHT采集间隔，实测约2300ms
-float humidity;
-float temperature;
+float humidity = -1.0;
+float temperature = -1.0;
 
 /*
    Ported to Arduino ESP32 by Evandro Copercini
@@ -74,7 +74,7 @@ class MyServerCallbacks: public BLEServerCallbacks {  // 调用成员函数修�
     }
 };
 
-class MyCallbacks: public BLECharacteristicCallbacks { // 将接收的字符串按字符逐个打印出来
+class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符串
     void onWrite(BLECharacteristic *pCharacteristic) {
       std::string rxValue = pCharacteristic->getValue();
 
@@ -235,62 +235,111 @@ void sendMsg(std::string msg_to_TX)
 void setup_json_string()
 {
   txValue = ""; // 清空txValue
-  txValue += "{";
 
-  std::string tempstr = "";
-
-  // current_millis = millis();
-  // tempstr = std::to_string(current_millis); // 时间戳
-  // txValue += "\"c_mls\":";
-  // txValue += tempstr;
-  // txValue += ",";
-  
-  tempstr = std::to_string(info_num); // 条数
-  txValue += "\"i_num\":";
-  txValue += tempstr;
-  txValue += ",";
-
-  // tempstr = info_name; // 项目名
-  txValue += "\"i_name\":[";
-  for (int i = 0; i < info_num; i++)
+  if (identity_verification == APPLE_REC) // 为苹果生成
   {
-    // 将info_name列表里前info_num个名称添加进去
-    tempstr = "\"";
-    tempstr += info_name[i];
-    tempstr += "\"";
-    if (i != info_num - 1)
-    {
-      tempstr += ",";
-    }
-    txValue += tempstr;
-  }
-  txValue += "],";
+    // 构建json
+    txValue += "{";
 
-  tempstr = std::to_string(period_millis); // 采样间隔
-  txValue += "\"p_mls\":";
-  txValue += tempstr;
-  txValue += ",";
+    std::string tempstr = "";
 
-  tempstr = std::to_string(ADDRESS_PRESENT_SLAVE); // 当前从机地址
-  txValue += "\"add\":";
-  txValue += tempstr;
-  txValue += ",";
-
-  // 获取传感器数值
-  if (info_num >= 2)
-  {
-    tempstr = std::to_string(temperature); // 温度
-    txValue += "\"temp\":";
+    // current_millis = millis();
+    // tempstr = std::to_string(current_millis); // 时间戳
+    // txValue += "\"c_mls\":";
+    // txValue += tempstr;
+    // txValue += ",";
+    
+    tempstr = std::to_string(info_num); // 条数
+    txValue += "\"i_num\":";
     txValue += tempstr;
     txValue += ",";
 
-    tempstr = std::to_string(humidity); // 湿度
-    txValue += "\"humi\":";
-    txValue += tempstr;
-    // txValue += ",";
-  }
+    // tempstr = info_name; // 项目名
+    txValue += "\"i_name\":[";
+    for (int i = 0; i < info_num; i++)
+    {
+      // 将info_name列表里前info_num个名称添加进去
+      tempstr = "\"";
+      tempstr += info_name[i];
+      tempstr += "\"";
+      if (i != info_num - 1)
+      {
+        tempstr += ",";
+      }
+      txValue += tempstr;
+    }
+    txValue += "],";
 
-  txValue += "}";
+    tempstr = std::to_string(period_millis); // 采样间隔
+    txValue += "\"p_mls\":";
+    txValue += tempstr;
+    txValue += ",";
+
+    tempstr = std::to_string(ADDRESS_PRESENT_SLAVE); // 当前从机地址
+    txValue += "\"add\":";
+    txValue += tempstr;
+    txValue += ",";
+
+    // 获取传感器数值
+    if (info_num >= 2)
+    {
+      tempstr = std::to_string(temperature); // 温度
+      txValue += "\"temp\":";
+      txValue += tempstr;
+      txValue += ",";
+
+      tempstr = std::to_string(humidity); // 湿度
+      txValue += "\"humi\":";
+      txValue += tempstr;
+      // txValue += ",";
+    }
+
+    txValue += "}";
+
+  } else {
+    // 为安卓
+    uint8_t tempChar = 0;
+
+    tempChar = '0' + info_num; // 数据条数
+    txValue += tempChar;
+
+    tempChar = '0' + ADDRESS_PRESENT_SLAVE; // 地址位
+    txValue += tempChar;
+
+    if (info_num >= 2) // 温湿度传感器
+    {
+      if (humidity < 0 || temperature < 0)
+      {
+        tempChar = 0;
+        for (int i=0; i<4; i++)
+          txValue += tempChar;
+      }
+      else {
+        // 先温度
+        tempChar = (int)temperature;
+        txValue += tempChar;
+        // Serial.print("temperature(HIGH): ");
+        // Serial.print((int)tempChar);
+
+        tempChar = (int)((temperature - (float)tempChar)*10);
+        txValue += tempChar;
+        // Serial.print("\ttemperature(LOW): ");
+        // Serial.println((int)tempChar);
+
+        // 再湿度
+        tempChar = (int)humidity;
+        txValue += tempChar;
+        // Serial.print("\thumidity(HIGH): ");
+        // Serial.print((int)tempChar);
+
+        tempChar = (int)((humidity - (float)tempChar)*10);
+        txValue += tempChar;
+        // Serial.print("\thimidity(LOW): ");
+        // Serial.println((int)tempChar);
+      }
+    }
+  }
+  
 }
 
 void setup() {
