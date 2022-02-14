@@ -44,6 +44,12 @@ Arduino ESP32 BLE_uart
 
 具体表现为 IOS 调用后可以完整接收内容，Andriod 只能接收到前 20 个内容，后续接收的包也只是相同的前 20个。猜测是系统和蓝牙设备对单次传输的数据大小的限制。目前预测可行的解决办法是进行分包处理。将一次的内容分几次发送分几次接收。
 
+思考了一下可行的解决方案：
+
+1. 压缩全部发送内容，使其一次发完所需内容。如去掉 key，只保留 value。
+2. 关闭主动广播，只有上位机请求数据才发送对应的内容。例如手机先请求温湿度，然后再请求臭氧浓度。分开多次请求不同的数据，就像 AT 指令的模式一样，但不是采取 AT 固件的方式，发送 gettemp 返回温度， 发送 geto3 返回臭氧浓度等。采取定时器不断请求数据。
+3. 修改 MTU 到合适的范围。不同 BLE 版本的 MTU 最高值不同，不同安卓设备表现出来的结果也不同，需要获取设备所支持的 max mtu，如果超过协议的大小就警告。为此需要弄清楚 esp32c3 的 BLE 版本和确定通信协议的最小单元。
+
 [小程序蓝牙-监听方法接收数据丢失问题 wangzl2018-06-05](https://developers.weixin.qq.com/community/develop/doc/0000e430aa8ca01cd7d621c055b800)
 
 [小程序蓝牙接收监听数据丢失 chuntao 2019-04-27](https://developers.weixin.qq.com/community/develop/doc/0002ae08960c680f7978789355b800?_at=1644591707718)
@@ -59,3 +65,7 @@ wx.writeBLECharacteristicValue 回调 fail 则重新发送，直至发送完毕�
   安卓平台上，在调用 wx.notifyBLECharacteristicValueChange 成功后立即调用本接口，在部分机型上会发生 10008 系统错误
 
 [小程序蓝牙wx.onBLECharacteristicValueChange监听数据包异常？逢 01-27](https://developers.weixin.qq.com/community/develop/doc/000e00871345e8978e6d682785b000)
+
+[在BLE蓝牙中一次写入超过20字节数据包的方法和技巧 hhyyqq5800 于 2019-12-15](https://blog.csdn.net/hhyyqq/article/details/103548820):Android
+
+[wx.setBLEMTU(Object object)](https://developers.weixin.qq.com/miniprogram/dev/api/device/bluetooth-ble/wx.setBLEMTU.html):需要提高基础库到 2.11.0，由于此功能仅针对 android 设备，因此在 ios 上可保持我现在的 wx 版本。 
