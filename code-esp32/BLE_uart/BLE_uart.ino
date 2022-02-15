@@ -68,9 +68,11 @@ std::string info_name[10] = {
   "NO2"
 };
 
-void drawFontFace(void *parameter) {
+void drawFontFace(void *parameter) { // OLED驱动函数
   delay(1000);
   Serial.println("OLED thread started!");
+
+  ulong temp_num = 0;
 
   int i = 1;
   while(i == 1) {
@@ -79,19 +81,22 @@ void drawFontFace(void *parameter) {
 
     // create more fonts at http://oleddisplay.squix.ch/
     display.setTextAlignment(TEXT_ALIGN_LEFT);
-    display.setFont(ArialMT_Plain_10);
-    display.drawString(0, 0, "Hello world");
     display.setFont(ArialMT_Plain_16);
-    display.drawString(0, 10, "Hello world");
-    display.setFont(ArialMT_Plain_24);
-    display.drawString(0, 26, "Hello world");
+    display.drawString(0, 0, "temp: " + String(temperature) + "°C");
+    display.drawString(0, 16, "humi: " + String(humidity) + "%");
+    
+    // 屏幕刷新帧数
+    display.setFont(ArialMT_Plain_10);
+    display.setTextAlignment(TEXT_ALIGN_RIGHT);
+    display.drawString(128, 54, String(temp_num));
+    temp_num++;
 
     // write the buffer to the display
     display.display();
     delay(100);
   }
-  Serial.println("OLED thread ended.");
-  vTaskDelete(NULL);
+  Serial.println("OLED thread ended."); // 不会执行
+  vTaskDelete(NULL); // 删除线程 释放内存
 }
 
 void overFlow()
@@ -99,7 +104,7 @@ void overFlow()
   // 溢出函数
 }
 
-void sendMsg(std::string msg_to_TX)
+void sendMsg(std::string msg_to_TX) // 蓝牙发送信息函数
 {
   // 修改标志位，表明当前处于发信状态中
   duringDelivering = true;
@@ -125,7 +130,7 @@ void sendMsg(std::string msg_to_TX)
   duringDelivering = false;
 }
 
-void reply_for_query()
+void reply_for_query() // 查询命令回信
 {
   // 检查是否可调用发信函数
 
@@ -308,7 +313,7 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
     }
 };
 
-void setup_json_string()
+void setup_json_string() // 构建发送的json字符串
 {
   txValue = ""; // 清空txValue
 
@@ -415,17 +420,14 @@ void setup_json_string()
       }
     }
   }
-  
 }
 
 void setup() {
   Serial.begin(115200);
 
-  // Create the BLE Device
-  BLEDevice::init("UART Service");
+  BLEDevice::init("UART Service");                // Create the BLE Device
 
-  // Create the BLE Server
-  pServer = BLEDevice::createServer();
+  pServer = BLEDevice::createServer();            // Create the BLE Server
   pServer->setCallbacks(new MyServerCallbacks()); // 将连接状态响应函数设置为第一个类
 
   // Create the BLE Service
@@ -467,7 +469,7 @@ void setup() {
 
   xTaskCreate(
     drawFontFace,   /* Task function. */
-    "TaskOne",      /* String with name of task. */
+    "Display",      /* String with name of task. */
     10000,          /* Stack size in bytes. */
     NULL,           /* Parameter passed as input of the task */
     1,              /* Priority of the task. */
