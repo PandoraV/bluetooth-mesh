@@ -336,20 +336,20 @@ void setup_json_string() // 构建发送的json字符串
     txValue += ",";
 
     // tempstr = info_name; // 项目名
-    txValue += "\"i_name\":[";
-    for (int i = 0; i < info_num; i++)
-    {
-      // 将info_name列表里前info_num个名称添加进去
-      tempstr = "\"";
-      tempstr += info_name[i];
-      tempstr += "\"";
-      if (i != info_num - 1)
-      {
-        tempstr += ",";
-      }
-      txValue += tempstr;
-    }
-    txValue += "],";
+    // txValue += "\"i_name\":[";
+    // for (int i = 0; i < info_num; i++)
+    // {
+    //   // 将info_name列表里前info_num个名称添加进去
+    //   tempstr = "\"";
+    //   tempstr += info_name[i];
+    //   tempstr += "\"";
+    //   if (i != info_num - 1)
+    //   {
+    //     tempstr += ",";
+    //   }
+    //   txValue += tempstr;
+    // }
+    // txValue += "],";
 
     tempstr = std::to_string(period_millis); // 采样间隔
     txValue += "\"p_mls\":";
