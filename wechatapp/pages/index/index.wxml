@@ -7,7 +7,7 @@
     <view class="list-item" hidden="{{isHideList}}">
       <view class="item-box" wx:for="{{devicesList}}" wx:key="index">
         <text class="bt-name">{{item.name}}</text>
-        <navigator class="btn-connection" url="../blueTooth/blueTooth?id={{item.deviceId}}&name={{item.name || item.localName}}" hover-class="navigator-hover" aria-role="button" aria-label="连接该设备">连接</navigator>
+        <navigator class="btn-connection" url="../blueTooth/blueTooth?id={{item.deviceId}}&name={{item.localName || item.name}}" hover-class="navigator-hover" aria-role="button" aria-label="连接该设备">连接</navigator>
       </view>
     </view>
   </view>
