@@ -117,6 +117,22 @@ Page({
             connectName: connectName,
           })
           that.getBLEDeviceServices(deviceId); //获取已连接蓝牙的服务
+          // 获取当前设备系统种类
+          var isApple = true;
+          wx.getSystemInfo({
+            success: (result) => {
+              var current_system =  result.platform;
+              if (current_system[0] == 'i')
+              {
+                isApple = true;
+              } else {
+                isApple = false;
+              }
+              // 向下位机发送身份标识
+              // TODO
+            }
+          })
+          // console.log(isApple);
         } else if (res.errCode == 10012) {
           wx.showToast({
             title: '连接超时，请重试！',
@@ -191,7 +207,11 @@ Page({
       characteristicId,
       success(res) {
         wx.onBLECharacteristicValueChange(function (res) {
+          // 将接受到的数据转成字节数组
+          var bytes_received = new Uint8Array(res.value);
+          // console.log(new Uint8Array(res.value));
           var jsonstr = ab2str(res.value);
+
           try {
             var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理
             if (jsonobj) {
