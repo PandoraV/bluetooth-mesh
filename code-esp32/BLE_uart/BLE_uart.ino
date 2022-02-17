@@ -402,7 +402,7 @@ void setup_json_string() // 构建发送的json字符串
         // Serial.print("temperature(HIGH): ");
         // Serial.print((int)tempChar);
 
-        tempChar = (int)((temperature - (float)tempChar)*10);
+        tempChar = (temperature*10 - tempChar*10);
         txValue += tempChar;
         // Serial.print("\ttemperature(LOW): ");
         // Serial.println((int)tempChar);
@@ -413,7 +413,7 @@ void setup_json_string() // 构建发送的json字符串
         // Serial.print("\thumidity(HIGH): ");
         // Serial.print((int)tempChar);
 
-        tempChar = (int)((humidity - (float)tempChar)*10);
+        tempChar = (humidity*10 - tempChar*10);
         txValue += tempChar;
         // Serial.print("\thimidity(LOW): ");
         // Serial.println((int)tempChar);
