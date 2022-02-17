@@ -116,11 +116,12 @@ Ref: https://github.com/espressif/arduino-esp32/blob/master/variants/esp32c3/pin
 
 **值得注意**的是，Arduino中ESP32的GPIO口的标号对应其在程序中调用的数字。
 
-## 三、
+## 三、编程注意事项
+
 蓝牙BLE_uart开发注意事项：
 
-ESP32的蓝牙驱动不兼容Arduino本身的一些库，由于其使用C++进行开发，一些关键词的调用需指明命名空间。
+- ESP32的蓝牙驱动不兼容Arduino本身的一些库，由于其使用C++进行开发，一些关键词的调用需指明命名空间。
 
-对于字符串string关键字，首先ESP不支持Arduino的String关键字，其次调用时须指明是std命名空间里的，如std:string
+- 对于字符串string关键字，首先ESP不支持Arduino的String关键字，其次调用时须指明是std命名空间里的，如std:string
 
-实测支持Arduino自己的delay()、millis()等原生函数。
+- 实测支持Arduino自己的delay()、millis()等原生函数。
