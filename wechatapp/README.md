@@ -41,13 +41,14 @@ Arduino ESP32 BLE_uart
 ### ab2str
 
 ```javascript
-{"c_mls":34251,"i_num":2,"i_name":["temp","测试中文"],"p_mls":1000,"add":1,"temp":20.800000,"humi":46.000000}
+{"c_mls":34251,"i_num":2,"p_mls":1000,"add":1,"temp":20.800000,"humi":46.000000}
 ```
 
-上位机接收后会在其中加入`当地时间戳（time）`，如下所示:
+上位机接收后会在其中加入`当地时间戳（time）`。格式（"hhmmss"）只要24小的时分秒，不要中文、不要年月日、不要冒号分隔符。如下所示:
+
 
 ```javascript
-{"c_mls":309785,"i_num":2,"i_name":["temp","测试中文"],"p_mls":1000,"add":1,"temp":20.5,"humi":40,"time":"2022/2/16上午9:39:13"}
+{"c_mls":309785,"i_num":2,"p_mls":1000,"add":1,"temp":20.5,"humi":40,"time":"143623"}
 ```
 
 ### str2ab

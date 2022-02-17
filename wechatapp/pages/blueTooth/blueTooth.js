@@ -14,8 +14,34 @@ function stringToBytes(str) {
 function ab2str(buf) {
   let encodedString = String.fromCodePoint.apply(null, new Uint8Array(buf));
   let decodedString = decodeURIComponent(escape(encodedString)); //没有这一步中文会乱码
-  // console.log(decodedString);
+  // console.log(decodedString); // 输出转换结果，调试用
   return decodedString
+}
+
+/* 
+  对Date的扩展，将 Date 转化为指定格式的String
+  月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，
+  年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
+  例子：
+  (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423
+  (new Date()).Format("yyyy-M-d h:m:s.S") ==> 2006-7-2 8:9:4.18
+  refer:https://blog.csdn.net/yuezhuo_752/article/details/86580998
+ */
+Date.prototype.Format = function (fmt) {
+  var o = {
+    "M+": this.getMonth() + 1, // 月份
+    "d+": this.getDate(), // 日
+    "h+": this.getHours(), // 小时
+    "m+": this.getMinutes(), // 分
+    "s+": this.getSeconds(), // 秒
+    "q+": Math.floor((this.getMonth() + 3) / 3), // 季度
+    "S": this.getMilliseconds() // 毫秒
+  };
+  if (/(y+)/.test(fmt))
+    fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+  for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+  return fmt;
 }
 
 
@@ -31,7 +57,8 @@ Page({
     serviceId: "", // 服务 ID
     uuidListen: "", // 监听接收的 uuid
     uuidWrite: "", // 发送内容的uuid
-    msg: "" // 收到的蓝牙消息
+    msg: "", // 最新一条消息
+    allData: [] // 收到的全部蓝牙消息
   },
 
   onLoad: function (option) {
@@ -43,7 +70,7 @@ Page({
       success(res) {
         console.log(res.data)
         that.setData({
-          msg: res.data,
+          allData: res.data,
         })
       },
       fail(e) {
@@ -150,11 +177,15 @@ Page({
           try {
             var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理
             if (jsonobj) {
-              var today = new Date();
-              jsonobj.time = today.toLocaleString(); // 加入当地时间戳
+              var timenow = new Date().Format("hhmmss");  // 格式见 readme
+              jsonobj.time = timenow; // 加入当地时间戳
               var str = JSON.stringify(jsonobj);
+              console.log(jsonobj); // 加入 time 之后的字符串，调试用
+              var tmpmsg = that.data.allData
+              tmpmsg.push(jsonobj)
               that.setData({
-                msg: str + "\n" + that.data.msg
+                allData: tmpmsg,
+                msg: str
               });
             }
           } catch (e) {
@@ -164,14 +195,11 @@ Page({
               title: '收到不合理的数据: ' + jsonstr,
               icon: 'none',
             })
-            that.setData({
-              msg: jsonstr + "\n" + that.data.msg
-            });
           }
           // 存储到缓存，最大数据长度为 1MB
           wx.setStorage({
             key: that.data.deviceId,
-            data: that.data.msg,
+            data: that.data.allData,
             success(e) {},
             fail(e) {
               console.warn(e)
