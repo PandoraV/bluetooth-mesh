@@ -129,7 +129,33 @@ Page({
                 isApple = false;
               }
               // 向下位机发送身份标识
-              // TODO
+              var buffer = "";
+              if (isApple) {
+                buffer = "T00AP";
+              } else {
+                buffer = "T00AN";
+              }
+              var buffer_array = new ArrayBuffer(5);
+              var buffer_view  = new Uint8Array(buffer_array);
+              for (var i=0; i<5; i++) {
+                buffer_view[i] = buffer.charCodeAt(i);
+              }
+              console.log("array:" + buffer_array.value);
+              console.log("view:" + buffer_view);
+              setTimeout(() => {
+                wx.writeBLECharacteristicValue({
+                  deviceId: that.data.deviceId,
+                  serviceId: that.data.serviceId,
+                  characteristicId: that.data.uuidWrite,
+                  value: buffer_array,
+                  success: (res) => {
+                    console.log(res);
+                  },
+                  fail: (err) => {
+                    console.log(err)
+                  }
+                })
+              }, 1000);
             }
           })
           // console.log(isApple);
