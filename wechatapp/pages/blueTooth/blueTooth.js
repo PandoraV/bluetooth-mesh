@@ -310,12 +310,27 @@ Page({
                 jsonstr += "\":";
                 jsonstr += String(humidity);
 
-                console.log(jsonstr);
+                // console.log(jsonstr);
                 // 还包括气体传感器
                 // TODO
               }
             }
             jsonstr += "}";
+
+            var jsonobj = JSON.parse(jsonstr); // 解析json
+            
+            var timenow = new Date().Format("hhmmss"); // 格式见 readme
+            jsonobj.time = timenow; // 加入当地时间戳
+            var str = JSON.stringify(jsonobj);
+            // console.log(jsonobj); // 加入 time 之后的字符串，调试用
+            var csv = jsonFake2csv(jsonobj)
+            var tmpmsg = that.data.allData
+            tmpmsg=tmpmsg+csv
+            // console.log(tmpmsg)
+            that.setData({
+              allData: tmpmsg,
+              msg: str
+            });
           }
 
           // 存储到缓存，最大数据长度为 1MB
