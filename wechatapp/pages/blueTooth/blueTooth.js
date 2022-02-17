@@ -76,7 +76,8 @@ Page({
     uuidListen: "", // 监听接收的 uuid
     uuidWrite: "", // 发送内容的uuid
     msg: "", // 最新一条消息
-    allData: "" // 收到的全部蓝牙消息
+    allData: "", // 收到的全部蓝牙消息
+    period_millis: 1000 // 当前采样时间间隔，默认1秒
   },
 
   onLoad: function (option) {
