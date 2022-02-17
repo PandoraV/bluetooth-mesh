@@ -66,6 +66,29 @@ Arduino ESP32 BLE_uart
 
 ### json2csv
 
+- https://www.cnblogs.com/sunlightlee/p/10247501.html
+- https://segmentfault.com/a/1190000011389463
+
+```json
+{i_num: 2, p_mls: 1000, add: 1, temp: -1, humi: -1,time:161926}
+{i_num: 2, p_mls: 1000, add: 1, temp: -1, humi: -1,time:161927}
+```
+
+i-num 不必要存储
+收到的 json 立马转成 csv 的一行数据，表头不存储在缓存中，表头的固定顺序为 csv 的固定列
+
+> p_mls,add,temp,humi,NH3,O3,NO,NO2,time
+
+to do 快满了自动删除旧的数据
+
+最后数据的导出模样如下，由表头和缓存结合而成，换行符为 `\r\n`
+
+```csv
+p_mls,add,temp,humi,NH3,O3,NO,NO2,time
+1000,1,-1,-1,,,,,161926
+1000,1,-1,-1,,,,,161927
+```
+
 # 四、页面设计
 
 - 设备搜索页：显示周围的所有设备，是否已连接

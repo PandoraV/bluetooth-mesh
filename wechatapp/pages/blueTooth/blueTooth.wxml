@@ -18,7 +18,8 @@
   <view class="connect-success">
     <form catchsubmit="sendInput" catchreset="formReset">
       <view>
-        <input class="weui-input" name="input" placeholder="P0N05" />
+      <!-- T00AP 暂时作为我se调试用，后期全部采用字节码的方式 -->
+        <input class="weui-input" name="input" placeholder="T00AP" value="T00AP"/>
       </view>
       <view>
         <button style="margin: 30rpx 0" type="primary" formType="submit" aria-role="button" aria-label="发送输入框内的数据">发送</button>

@@ -44,6 +44,24 @@ Date.prototype.Format = function (fmt) {
   return fmt;
 }
 
+function jsonFake2csv(jsonobj) {
+  var keys = ["p_mls", "add", "temp", "humi", "NH3", "O3", "NO", "NO2", "time"] // 顺序很重要，代表csv的列
+  var res = "" // csv 数据结果
+  for (var i = 0; i < keys.length; i++) { //遍历数组
+    if (jsonobj[keys[i]]) {
+      // if(keys[i]!="time"){  // 用 time 判断是不是最后一列
+      if ((i + 1) != keys.length) { // 用 length 判断是不是最后一列
+        res = res + jsonobj[keys[i]] + ','
+      } else { // 最后一列
+        res = res + jsonobj[keys[i]] + '\r\n' // 添加三种系统的换行符号
+      }
+    } else { // json 中没有对于的数据
+      res = res + ','
+    }
+  }
+  // console.info(res)
+  return res
+}
 
 Page({
 
@@ -58,7 +76,7 @@ Page({
     uuidListen: "", // 监听接收的 uuid
     uuidWrite: "", // 发送内容的uuid
     msg: "", // 最新一条消息
-    allData: [] // 收到的全部蓝牙消息
+    allData: "" // 收到的全部蓝牙消息
   },
 
   onLoad: function (option) {
@@ -177,12 +195,14 @@ Page({
           try {
             var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理
             if (jsonobj) {
-              var timenow = new Date().Format("hhmmss");  // 格式见 readme
+              var timenow = new Date().Format("hhmmss"); // 格式见 readme
               jsonobj.time = timenow; // 加入当地时间戳
               var str = JSON.stringify(jsonobj);
-              console.log(jsonobj); // 加入 time 之后的字符串，调试用
+              // console.log(jsonobj); // 加入 time 之后的字符串，调试用
+              var csv = jsonFake2csv(jsonobj)
               var tmpmsg = that.data.allData
-              tmpmsg.push(jsonobj)
+              tmpmsg=tmpmsg+csv
+              // console.log(tmpmsg)
               that.setData({
                 allData: tmpmsg,
                 msg: str
