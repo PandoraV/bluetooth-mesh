@@ -200,6 +200,19 @@ Page({
 
   notifyBLECharacteristicValueChange(serviceId, characteristicId) {
     let that = this;
+    var isApple = true;
+    wx.getSystemInfo({  // 看平台 此部分代码将在后续版本中移除
+      success: (result) => {
+        var current_system =  result.platform;
+        if (current_system[0] == 'i')
+        {
+          isApple = true;
+        } else {
+          isApple = false;
+        }
+      }
+    })
+    // console.log(isApple);
     wx.notifyBLECharacteristicValueChange({
       state: true, // 启用 notify 功能
       deviceId: this.data.deviceId,
@@ -207,35 +220,57 @@ Page({
       characteristicId,
       success(res) {
         wx.onBLECharacteristicValueChange(function (res) {
-          // 将接受到的数据转成字节数组
-          var bytes_received = new Uint8Array(res.value);
-          // console.log(new Uint8Array(res.value));
-          var jsonstr = ab2str(res.value);
-
-          try {
-            var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理
-            if (jsonobj) {
-              var timenow = new Date().Format("hhmmss"); // 格式见 readme
-              jsonobj.time = timenow; // 加入当地时间戳
-              var str = JSON.stringify(jsonobj);
-              // console.log(jsonobj); // 加入 time 之后的字符串，调试用
-              var csv = jsonFake2csv(jsonobj)
-              var tmpmsg = that.data.allData
-              tmpmsg=tmpmsg+csv
-              // console.log(tmpmsg)
-              that.setData({
-                allData: tmpmsg,
-                msg: str
-              });
+          if (isApple) // 此部分代码将在后续部分调换位置
+          {
+            var jsonstr = ab2str(res.value);
+            try {
+              var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理
+              if (jsonobj) {
+                var timenow = new Date().Format("hhmmss"); // 格式见 readme
+                jsonobj.time = timenow; // 加入当地时间戳
+                var str = JSON.stringify(jsonobj);
+                // console.log(jsonobj); // 加入 time 之后的字符串，调试用
+                var csv = jsonFake2csv(jsonobj)
+                var tmpmsg = that.data.allData
+                tmpmsg=tmpmsg+csv
+                // console.log(tmpmsg)
+                that.setData({
+                  allData: tmpmsg,
+                  msg: str
+                });
+              }
+            } catch (e) {
+              if (jsonstr.length > 0) { // 访问数组防止溢出
+                if (jsonstr[0] == '{') // 这一部分代码只在调试时运行，此部分代码将在后续版本中移除
+                {
+                  if (!isApple){
+                    // ANDROID
+                    wx.showToast({
+                      title: '收到数据与平台不匹配' + jsonstr,
+                      icon: 'none',
+                    })
+                    // 向下位机发信
+                  }
+                  
+                }
+              }
+              if (isApple)
+              {
+                console.warn(e)
+                console.warn("Illogical data of json: " + jsonstr)
+                wx.showToast({
+                  title: '发生丢包: ' + jsonstr,
+                  icon: 'none',
+                })
+              }
             }
-          } catch (e) {
-            console.warn(e)
-            console.warn("Illogical data of json: " + jsonstr)
-            wx.showToast({
-              title: '收到不合理的数据: ' + jsonstr,
-              icon: 'none',
-            })
+          } else { // ANDROID
+            // 将接受到的数据转成字节数组
+            var bytes_received = new Uint8Array(res.value);
+            // console.log(new Uint8Array(res.value));
+            
           }
+
           // 存储到缓存，最大数据长度为 1MB
           wx.setStorage({
             key: that.data.deviceId,
