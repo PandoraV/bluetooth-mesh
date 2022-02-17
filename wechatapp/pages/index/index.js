@@ -74,7 +74,7 @@ Page({
               }); // 清空列表里的设备
               wx.hideLoading();
               res.devices.forEach(device => {
-                if (!device.localName || !device.name) { // 剔除没有名称的“未知设备”
+                if (!device.localName || !device.name) { // 剔除掉没有 localName 或者没有 name 的设备
                   return
                 } else {
                   devicesListArr.push(device);

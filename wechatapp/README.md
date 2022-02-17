@@ -36,6 +36,17 @@ Arduino ESP32 BLE_uart
 
 调试发现是存在 localName 而 name 为“未知设备”。在视图里是 `{{item.name || item.localName}}` 优先渲染了 name, 这次对调了一下，先渲染 localName
 
+切勿通过 item.name=="未知设备" 来过滤设备，不然就会再现「无SIM卡」之 bug
+
+```javascript
+// 没有 localName，某些设备可能没有
+{name: "未知设备", RSSI: -92, deviceId: "5BCF6A2A-B024-3B75-88E2-9EA4F4943446"}
+{deviceId: "DA730933-AEFA-B2D6-4DAA-D935C5D9DB08", name: "未知设备", advertisData: ArrayBuffer(29), RSSI: -74}
+
+// 有 localName 而 name 是未知
+{deviceId: "AD6B3F3E-809E-47C8-6537-813137813BA4", advertisServiceUUIDs: Array(1), localName: "Mi Smart Band 6", name: "未知设备", advertisData: ArrayBuffer(26), …}
+```
+
 ## 数据格式转换
 
 ### ab2str
