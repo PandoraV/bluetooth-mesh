@@ -314,6 +314,16 @@ void setup_json_string() // 构建发送的json字符串
   tempChar = '0' + ADDRESS_PRESENT_SLAVE; // 地址位
   txValue += tempChar;
 
+  // 时间间隔
+  tempChar = period_millis / 256;
+  txValue += tempChar;
+  // Serial.print("plm high byte:");
+  // Serial.print((int)tempChar);
+  tempChar = period_millis - tempChar*256;
+  txValue += tempChar;
+  // Serial.print("\tplm low byte:");
+  // Serial.println((int)tempChar);
+
   if (info_num >= 2) // 温湿度传感器
   {
     if (humidity < 0 || temperature < 0)

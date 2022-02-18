@@ -84,7 +84,7 @@ function js2key(jsonobj) {
       res[keyobj[k]] = jsonobj[k]
     }
   }
-  console.info(res)
+  // console.info(res)
   return JSON.stringify(res, null, 2)
 }
 
@@ -307,39 +307,46 @@ Page({
     var received_length = bytes_received.length;
     var i_num = bytes_received[0] - '0';
     var address = bytes_received[1] - '0';
+    var period_millis = 0;
     var humidity = 0.0;
     var temperature = 0.0;
     var gas_precision = 0.0;
-    var keys = ["i_num", "add", "temp", "humi", "NH3", "O3", "NO", "NO2", "time"]
+    var keys = ["i_num", "add", "p_mls", "temp", "humi", "NH3", "O3", "NO", "NO2", "time"]
     var jsonstr = "{\"";
     jsonstr += keys[1];
     jsonstr += "\":";
-    jsonstr += address;
+    jsonstr += address + '0';
+    // 时间间隔
+    period_millis = bytes_received[2]*256 + bytes_received[3];
+    jsonstr += ",\"";
+    jsonstr += keys[2];
+    jsonstr += "\":";
+    jsonstr += String(period_millis);
     if (i_num == 1) {
       // 是传回的时间间隔
       // TODO
     } else {
       if (i_num >= 2) {
         // 只有温湿度传感器
-        if (bytes_received[2] == 0 && bytes_received[3] == 0) {
+        if (bytes_received[4] == 0 && bytes_received[5] == 0) {
           // 温湿度传感器工作异常
           humidity = -1;
           temperature = -1;
         } else {
-          temperature += bytes_received[2] * 1.0 + bytes_received[3] * 0.1;
-          humidity += bytes_received[4] * 1.0 + bytes_received[5] * 0.1;
+          temperature += bytes_received[4] * 1.0 + bytes_received[5] * 0.1;
+          humidity += bytes_received[6] * 1.0 + bytes_received[7] * 0.1;
           // console.log("temp:"+temperature);
           // console.log(String(temperature));
         }
         // 将数字转成字符串
         jsonstr += ",";
         jsonstr += "\"";
-        jsonstr += keys[2];
+        jsonstr += keys[3];
         jsonstr += "\":";
         jsonstr += String(temperature);
         jsonstr += ",";
         jsonstr += "\"";
-        jsonstr += keys[3];
+        jsonstr += keys[4];
         jsonstr += "\":";
         jsonstr += String(humidity);
 
@@ -353,7 +360,7 @@ Page({
     try {
       var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理
       if (jsonobj) {
-        jsonobj.p_mls = that.data.period_millis // 更新为全局变量的数值
+        // jsonobj.p_mls = that.data.period_millis // 更新为全局变量的数值
         var timenow = new Date().Format("hhmmss"); // 格式见 readme
         jsonobj.time = timenow; // 加入当地时间戳
 
@@ -367,29 +374,12 @@ Page({
         });
       }
     } catch (e) {
-      // if (jsonstr.length > 0) { // 访问数组防止溢出
-      //   if (jsonstr[0] == '{') // 这一部分代码只在调试时运行，此部分代码将在后续版本中移除
-      //   {
-      //     if (!isApple){
-      //       // ANDROID
-      //       wx.showToast({
-      //         title: '收到数据与平台不匹配' + jsonstr,
-      //         icon: 'none',
-      //       })
-      //       // 向下位机发信
-      //     }
-
-      //   }
-      // }
-      // if (isApple)
-      // {
       console.warn(e)
-      console.warn("Illogical data of json: " + jsonstr)
+      console.warn("Illegal data of json: " + jsonstr)
       wx.showToast({
         title: '发生丢包: ' + jsonstr,
         icon: 'none',
       })
-      // }
     }
 
 
