@@ -112,6 +112,10 @@ p_mls,add,temp,humi,NH3,O3,NO,NO2,time
 
 一键导出为文件尚在考虑中
 
+https://developers.weixin.qq.com/community/develop/doc/000a0091e203a879c307fbf5456400
+>  csv 在后台生成好，然后 wx.downloadFile()+wx.openDocument()
+ https://www.papaparse.com/
+
 # 四、页面设计
 
 - 设备搜索页：显示周围的所有设备，是否已连接
@@ -131,6 +135,8 @@ p_mls,add,temp,humi,NH3,O3,NO,NO2,time
 1. 压缩全部发送内容，使其一次发完所需内容。如去掉 key，只保留 value。
 2. 关闭主动广播，只有上位机请求数据才发送对应的内容。例如手机先请求温湿度，然后再请求臭氧浓度。分开多次请求不同的数据，就像 AT 指令的模式一样，但不是采取 AT 固件的方式，发送 gettemp 返回温度， 发送 geto3 返回臭氧浓度等。采取定时器不断请求数据。
 3. 修改 MTU 到合适的范围。不同 BLE 版本的 MTU 最高值不同，不同安卓设备表现出来的结果也不同，需要获取设备所支持的 max mtu，如果超过协议的大小就警告。为此需要弄清楚 esp32c3 的 BLE 版本和确定通信协议的最小单元。
+
+最后采取方案 1，字节码传输，需要额外解码。MTU 安卓实验未开展。
 
 [小程序蓝牙-监听方法接收数据丢失问题 wangzl2018-06-05](https://developers.weixin.qq.com/community/develop/doc/0000e430aa8ca01cd7d621c055b800)
 
