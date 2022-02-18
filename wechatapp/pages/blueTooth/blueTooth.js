@@ -69,22 +69,22 @@ function jsonFake2csv(jsonobj) {
 /* 将 json 的 key 转换为对应的中文，返回有换行、有中文的 string */
 function js2key(jsonobj) {
   var keyobj = {
-    "i_num": "数据条数",
     "p_mls": "采样时间间隔",
-    "add": "从机地址",
     "temp": "温度",
     "humi": "湿度",
     "NH3": "氨气浓度",
     "O3": "臭氧浓度",
-    "NO": "氮氧化物浓度",
-    "NO2": "氮氧化物浓度",
+    "NO": "一氧化氮浓度",
+    "NO2": "二氧化氮浓度",
     "time": "时间"
   }
   var res = {}
   for (var k in jsonobj) {
-    res[keyobj[k]] = jsonobj[k]
+    if (keyobj[k]) { // 过滤 地址
+      res[keyobj[k]] = jsonobj[k]
+    }
   }
-  // console.info(res)
+  console.info(res)
   return JSON.stringify(res, null, 2)
 }
 
@@ -161,19 +161,13 @@ Page({
               } else {
                 buffer = "T00AN";
               }
-              var buffer_array = new ArrayBuffer(5);
-              var buffer_view = new Uint8Array(buffer_array);
-              for (var i = 0; i < 5; i++) {
-                buffer_view[i] = buffer.charCodeAt(i);
-              }
-              console.log("array:" + buffer_array.value);
-              console.log("view:" + buffer_view);
+              buffer = stringToBytes(buffer)
               setTimeout(() => {
                 wx.writeBLECharacteristicValue({
                   deviceId: that.data.deviceId,
                   serviceId: that.data.serviceId,
                   characteristicId: that.data.uuidWrite,
-                  value: buffer_array,
+                  value: buffer,
                   success: (res) => {
                     console.log(res);
                   },
@@ -249,21 +243,9 @@ Page({
 
   },
 
-
+  /* 根据 uuid 订阅蓝牙消息 */
   notifyBLECharacteristicValueChange(serviceId, characteristicId) {
     let that = this;
-    var isApple = true;
-    wx.getSystemInfo({ // 看平台 此部分代码将在后续版本中移除
-      success: (result) => {
-        var current_system = result.platform;
-        if (current_system[0] == 'i') {
-          isApple = true;
-        } else {
-          isApple = false;
-        }
-      }
-    })
-    // console.log(isApple);
     wx.notifyBLECharacteristicValueChange({
       state: true, // 启用 notify 功能
       deviceId: this.data.deviceId,
@@ -271,124 +253,7 @@ Page({
       characteristicId,
       success(res) {
         wx.onBLECharacteristicValueChange(function (res) {
-          if (isApple) // 此部分代码将在后续部分调换位置
-          {
-            try {
-              var jsonstr = ab2str(res.value);
-              var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理
-              if (jsonobj) {
-                var timenow = new Date().Format("hhmmss"); // 格式见 readme
-                jsonobj.time = timenow; // 加入当地时间戳
-                // console.log(jsonobj); // 加入 time 之后的字符串，调试用
-                var csv = jsonFake2csv(jsonobj)
-                var tmpmsg = that.data.allData
-                tmpmsg = tmpmsg + csv
-                // console.log(tmpmsg)
-                that.setData({
-                  allData: tmpmsg,
-                  msg: js2key(jsonobj)
-                });
-              }
-            } catch (e) {
-              // if (jsonstr.length > 0) { // 访问数组防止溢出
-              //   if (jsonstr[0] == '{') // 这一部分代码只在调试时运行，此部分代码将在后续版本中移除
-              //   {
-              //     if (!isApple){
-              //       // ANDROID
-              //       wx.showToast({
-              //         title: '收到数据与平台不匹配' + jsonstr,
-              //         icon: 'none',
-              //       })
-              //       // 向下位机发信
-              //     }
-
-              //   }
-              // }
-              // if (isApple)
-              // {
-              console.warn(e)
-              console.warn("Illogical data of json: " + jsonstr)
-              wx.showToast({
-                title: '发生丢包: ' + jsonstr,
-                icon: 'none',
-              })
-              // }
-            }
-          } else { // ANDROID
-            // 将接受到的数据转成字节数组
-            var bytes_received = new Uint8Array(res.value);
-            // console.log(new Uint8Array(res.value));
-            var received_length = bytes_received.length;
-            var i_num = bytes_received[0] - '0';
-            var address = bytes_received[1] - '0';
-            var humidity = 0.0;
-            var temperature = 0.0;
-            var gas_precision = 0.0;
-            var keys = ["i_num", "add", "temp", "humi", "NH3", "O3", "NO", "NO2", "time"]
-            var jsonstr = "{\"";
-            jsonstr += keys[1];
-            jsonstr += "\":";
-            jsonstr += address;
-            if (i_num == 1) {
-              // 是传回的时间间隔
-              // TODO
-            } else {
-              if (i_num >= 2) {
-                // 只有温湿度传感器
-                if (bytes_received[2] == 0 && bytes_received[3] == 0) {
-                  // 温湿度传感器工作异常
-                  humidity = -1;
-                  temperature = -1;
-                } else {
-                  temperature += bytes_received[2] * 1.0 + bytes_received[3] * 0.1;
-                  humidity += bytes_received[4] * 1.0 + bytes_received[5] * 0.1;
-                  // console.log("temp:"+temperature);
-                  // console.log(String(temperature));
-                }
-                // 将数字转成字符串
-                jsonstr += ",";
-                jsonstr += "\"";
-                jsonstr += keys[2];
-                jsonstr += "\":";
-                jsonstr += String(temperature);
-                jsonstr += ",";
-                jsonstr += "\"";
-                jsonstr += keys[3];
-                jsonstr += "\":";
-                jsonstr += String(humidity);
-
-                // console.log(jsonstr);
-                // 还包括气体传感器
-                // TODO
-              }
-            }
-            jsonstr += "}";
-
-            var jsonobj = JSON.parse(jsonstr); // 解析json
-
-            var timenow = new Date().Format("hhmmss"); // 格式见 readme
-            jsonobj.time = timenow; // 加入当地时间戳
-            var str = JSON.stringify(jsonobj);
-            // console.log(jsonobj); // 加入 time 之后的字符串，调试用
-            var csv = jsonFake2csv(jsonobj)
-            var tmpmsg = that.data.allData
-            tmpmsg = tmpmsg + csv
-            // console.log(tmpmsg)
-            that.setData({
-              allData: tmpmsg,
-              msg: str
-            });
-          }
-
-          // 存储到缓存，最大数据长度为 1MB
-          wx.setStorage({
-            key: that.data.deviceId,
-            data: that.data.allData,
-            success(e) {},
-            fail(e) {
-              console.warn(e)
-            }
-          })
+          that.msgHandle(res.value)
         })
       }
     })
@@ -461,6 +326,141 @@ Page({
     }
   },
 
+  /* 处理接收到的数据 */
+  msgHandle(msg) {
+    let that = this;
+    var isApple = true;
+    wx.getSystemInfo({ // 看平台 此部分代码将在后续版本中移除
+      success: (result) => {
+        var current_system = result.platform;
+        if (current_system[0] == 'i') {
+          isApple = true;
+        } else {
+          isApple = false;
+        }
+      }
+    })
+    // console.log(isApple);
+    if (isApple) // 此部分代码将在后续部分调换位置
+    {
+      try {
+        var jsonstr = ab2str(msg);
+        var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理
+        if (jsonobj) {
+          jsonobj.p_mls = that.data.period_millis // 更新为全局变量的数值
+          var timenow = new Date().Format("hhmmss"); // 格式见 readme
+          jsonobj.time = timenow; // 加入当地时间戳
+          // console.log(jsonobj); // 加入 time 之后的字符串，调试用
+          var csv = jsonFake2csv(jsonobj)
+          var tmpmsg = that.data.allData
+          tmpmsg = tmpmsg + csv
+          // console.log(tmpmsg)
+          that.setData({
+            allData: tmpmsg,
+            msg: js2key(jsonobj)
+          });
+        }
+      } catch (e) {
+        // if (jsonstr.length > 0) { // 访问数组防止溢出
+        //   if (jsonstr[0] == '{') // 这一部分代码只在调试时运行，此部分代码将在后续版本中移除
+        //   {
+        //     if (!isApple){
+        //       // ANDROID
+        //       wx.showToast({
+        //         title: '收到数据与平台不匹配' + jsonstr,
+        //         icon: 'none',
+        //       })
+        //       // 向下位机发信
+        //     }
+
+        //   }
+        // }
+        // if (isApple)
+        // {
+        console.warn(e)
+        console.warn("Illogical data of json: " + jsonstr)
+        wx.showToast({
+          title: '发生丢包: ' + jsonstr,
+          icon: 'none',
+        })
+        // }
+      }
+    } else { // ANDROID
+      // 将接受到的数据转成字节数组
+      var bytes_received = new Uint8Array(msg);
+      var received_length = bytes_received.length;
+      var i_num = bytes_received[0] - '0';
+      var address = bytes_received[1] - '0';
+      var humidity = 0.0;
+      var temperature = 0.0;
+      var gas_precision = 0.0;
+      var keys = ["i_num", "add", "temp", "humi", "NH3", "O3", "NO", "NO2", "time"]
+      var jsonstr = "{\"";
+      jsonstr += keys[1];
+      jsonstr += "\":";
+      jsonstr += address;
+      if (i_num == 1) {
+        // 是传回的时间间隔
+        // TODO
+      } else {
+        if (i_num >= 2) {
+          // 只有温湿度传感器
+          if (bytes_received[2] == 0 && bytes_received[3] == 0) {
+            // 温湿度传感器工作异常
+            humidity = -1;
+            temperature = -1;
+          } else {
+            temperature += bytes_received[2] * 1.0 + bytes_received[3] * 0.1;
+            humidity += bytes_received[4] * 1.0 + bytes_received[5] * 0.1;
+            // console.log("temp:"+temperature);
+            // console.log(String(temperature));
+          }
+          // 将数字转成字符串
+          jsonstr += ",";
+          jsonstr += "\"";
+          jsonstr += keys[2];
+          jsonstr += "\":";
+          jsonstr += String(temperature);
+          jsonstr += ",";
+          jsonstr += "\"";
+          jsonstr += keys[3];
+          jsonstr += "\":";
+          jsonstr += String(humidity);
+
+          // console.log(jsonstr);
+          // 还包括气体传感器
+          // TODO
+        }
+      }
+      jsonstr += "}";
+
+      var jsonobj = JSON.parse(jsonstr); // 解析json
+
+      var timenow = new Date().Format("hhmmss"); // 格式见 readme
+      jsonobj.time = timenow; // 加入当地时间戳
+      var str = JSON.stringify(jsonobj);
+      // console.log(jsonobj); // 加入 time 之后的字符串，调试用
+      var csv = jsonFake2csv(jsonobj)
+      var tmpmsg = that.data.allData
+      tmpmsg = tmpmsg + csv
+      // console.log(tmpmsg)
+      that.setData({
+        allData: tmpmsg,
+        msg: str
+      });
+    }
+
+    // 存储到缓存，最大数据长度为 1MB
+    wx.setStorage({
+      key: that.data.deviceId,
+      data: that.data.allData,
+      success(e) {},
+      fail(e) {
+        console.warn(e)
+      }
+    })
+
+  },
 
   /**
    * 生命周期函数--监听页面初次渲染完成
