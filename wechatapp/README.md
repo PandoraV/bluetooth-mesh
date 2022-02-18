@@ -51,6 +51,8 @@ Arduino ESP32 BLE_uart
 
 ### ab2str
 
+`function ab2str(buf)` （pages/blueTooth/blueTooth.js）
+
 ```javascript
 {"c_mls":34251,"i_num":2,"p_mls":1000,"add":1,"temp":20.800000,"humi":46.000000}
 ```
@@ -64,7 +66,11 @@ Arduino ESP32 BLE_uart
 
 ### str2ab
 
+`function stringToBytes(str)`（pages/blueTooth/blueTooth.js）
+
 ### json2csv
+
+`function jsonFake2csv(jsonobj)`（pages/blueTooth/blueTooth.js）
 
 - https://www.cnblogs.com/sunlightlee/p/10247501.html
 - https://segmentfault.com/a/1190000011389463
@@ -88,6 +94,23 @@ p_mls,add,temp,humi,NH3,O3,NO,NO2,time
 1000,1,-1,-1,,,,,161926
 1000,1,-1,-1,,,,,161927
 ```
+## 数据存储
+
+数据缓存和文件存储，容量上限是 10 M，区别是啥还不太清楚，缓存删除小程序就没有了
+
+目前采取的是数据缓存存储
+
+- [wx.setStorage(Object object)](https://developers.weixin.qq.com/miniprogram/dev/api/storage/wx.setStorage.html):单个 key 允许存储的最大数据长度为 1MB，所有数据存储上限为 10MB
+
+- [writeFileSync](https://developers.weixin.qq.com/miniprogram/dev/api/file/FileSystemManager.writeFileSync.html)
+- [appendFileSync](https://developers.weixin.qq.com/miniprogram/dev/api/file/FileSystemManager.appendFileSync.html)
+- [readZipEntry](https://developers.weixin.qq.com/miniprogram/dev/api/file/FileSystemManager.readZipEntry.html)
+
+## 数据导出
+
+目前采取的办法是在页面渲染好 csv 格式，复制导出。
+
+一键导出为文件尚在考虑中
 
 # 四、页面设计
 

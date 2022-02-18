@@ -1,0 +1,11 @@
+.dev-info {
+	margin: 15rpx;
+}
+
+.dev-name {
+	font-size: 22px;
+}
+
+.dev-msg {
+	height: 700rpx;
+}

@@ -1,0 +1,14 @@
+<view class="dev-info">
+  <view>
+    <text selectable="true" class="dev-name" aria-role="text" aria-label="设备名称">{{connectName}}</text>
+  </view>
+  <view>
+    <text selectable="true" aria-role="text" aria-label="设备 ID">UUID: {{deviceId}} </text>
+  </view>
+
+  <view>
+    <scroll-view scroll-y="true" class="dev-msg" enable-back-to-top="true">
+      <text selectable="true" user-select="true" style="word-break:break-all;" aria-role="text" aria-label="来自设备的全部消息">{{csvColumn}}{{allData}}</text>
+    </scroll-view>
+  </view>
+</view>

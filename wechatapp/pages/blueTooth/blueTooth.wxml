@@ -5,6 +5,9 @@
   <view>
     <text selectable="true" aria-role="text" aria-label="设备 ID">UUID: {{deviceId}} </text>
   </view>
+  <view>
+    <navigator class="btn-connection" url="../data/data?id={{deviceId}}&name={{connectName}}" hover-class="navigator-hover" aria-role="button" aria-label="连接该设备">查看数据</navigator>
+  </view>
 
   <view>
     <checkbox-group bindchange="checkBoxChange">
@@ -18,8 +21,8 @@
   <view class="connect-success">
     <form catchsubmit="sendInput" catchreset="formReset">
       <view>
-      <!-- T00AP 暂时作为我se调试用，后期全部采用字节码的方式 -->
-        <input class="weui-input" name="input" placeholder="T00AP" value="T00AP"/>
+        <!-- T00AP 暂时作为我se调试用，后期全部采用字节码的方式 -->
+        <input class="weui-input" name="input" placeholder="T00AP" value="T00AP" />
       </view>
       <view>
         <button style="margin: 30rpx 0" type="primary" formType="submit" aria-role="button" aria-label="发送输入框内的数据">发送</button>
