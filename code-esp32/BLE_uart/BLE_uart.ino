@@ -36,18 +36,15 @@ BLECharacteristic * pTxCharacteristic;
 bool deviceConnected = false; // 当前有无设备连接
 bool oldDeviceConnected = false; // 是否已经有设备连接
 
-#define APPLE_REC 0
-#define ANDROID_REC 1
-int identity_verification = 1; // 手机验证，0是苹果，1是安卓
-bool deviceQueryed = true; // 当前是否已确认身份
 bool duringDelivering = false;  // 是否处于发信函数调用状态
 std::string txValue = "";  
 std::string tx_str_for_query = "";
 
+#define DEFAULT_PERIOD_MILLIS 1000
 ulong current_millis = 0;
 ulong send_millis = 0;    // 上次发信的时间
 ulong queryDuration = 20; // 回信间隔
-ulong period_millis = 1000; // 发信间隔
+ulong period_millis = DEFAULT_PERIOD_MILLIS; // 发信间隔
 
 // See the following for generating UUIDs:
 // https://www.uuidgenerator.net/
@@ -58,7 +55,7 @@ ulong period_millis = 1000; // 发信间隔
 
 #define ADDRESS_PRESENT_SLAVE 1 // 从机地址位
 #define info_num 2 // 传回上位机信息条数，测试时仅有温湿度两项
-
+// std::string info_name = "temp测试中文"; // 传回上位机的项目名称
 std::string info_name[10] = {
   "temp",
   "humi",
@@ -263,28 +260,6 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
           break;
         case 'T':
           // 接收文本
-
-          // 识别苹果安卓 
-          if (rx_len == 5)
-          {
-            if (rxValue[1] == '0' && rxValue[2] == '0' && rxValue[3] == 'A')
-            {
-              if (rxValue[4] == 'P')
-              {
-                // APPLE
-                identity_verification = APPLE_REC;
-                deviceQueryed = true;
-                Serial.println("current device has been recognized as APPLE!");
-              }
-              else if (rxValue[4] == 'N')
-              {
-                // Android
-                identity_verification = ANDROID_REC;
-                deviceQueryed = true;
-                Serial.println("current device has been recognized as ANDORID!");
-              }
-            }
-          }
           break;
         case 'Q': {   // 查询时间间隔
           if (rx_len == 4)
@@ -317,109 +292,50 @@ void setup_json_string() // 构建发送的json字符串
 {
   txValue = ""; // 清空txValue
 
-  if (identity_verification == APPLE_REC) // 为苹果生成
+  // 为安卓
+  uint8_t tempChar = 0;
+
+  tempChar = '0' + info_num; // 数据条数
+  txValue += tempChar;
+
+  tempChar = '0' + ADDRESS_PRESENT_SLAVE; // 地址位
+  txValue += tempChar;
+
+  if (info_num >= 2) // 温湿度传感器
   {
-    // 构建json
-    txValue += "{";
-
-    std::string tempstr = "";
-
-    // current_millis = millis();
-    // tempstr = std::to_string(current_millis); // 时间戳
-    // txValue += "\"c_mls\":";
-    // txValue += tempstr;
-    // txValue += ",";
-    
-    tempstr = std::to_string(info_num); // 条数
-    txValue += "\"i_num\":";
-    txValue += tempstr;
-    txValue += ",";
-
-    // tempstr = info_name; // 项目名
-    // txValue += "\"i_name\":[";
-    // for (int i = 0; i < info_num; i++)
-    // {
-    //   // 将info_name列表里前info_num个名称添加进去
-    //   tempstr = "\"";
-    //   tempstr += info_name[i];
-    //   tempstr += "\"";
-    //   if (i != info_num - 1)
-    //   {
-    //     tempstr += ",";
-    //   }
-    //   txValue += tempstr;
-    // }
-    // txValue += "],";
-
-    tempstr = std::to_string(period_millis); // 采样间隔
-    txValue += "\"p_mls\":";
-    txValue += tempstr;
-    txValue += ",";
-
-    tempstr = std::to_string(ADDRESS_PRESENT_SLAVE); // 当前从机地址
-    txValue += "\"add\":";
-    txValue += tempstr;
-    txValue += ",";
-
-    // 获取传感器数值
-    if (info_num >= 2)
+    if (humidity < 0 || temperature < 0)
     {
-      tempstr = std::to_string(temperature); // 温度
-      txValue += "\"temp\":";
-      txValue += tempstr;
-      txValue += ",";
-
-      tempstr = std::to_string(humidity); // 湿度
-      txValue += "\"humi\":";
-      txValue += tempstr;
-      // txValue += ",";
+      tempChar = 0;
+      for (int i=0; i<4; i++)
+        txValue += tempChar;
     }
+    else {
+      // 先温度
+      tempChar = (int)temperature;
+      txValue += tempChar;
+      // Serial.print("temperature(HIGH): ");
+      // Serial.print((int)tempChar);
 
-    txValue += "}";
+      tempChar = (temperature*10 - tempChar*10);
+      txValue += tempChar;
+      // Serial.print("\ttemperature(LOW): ");
+      // Serial.println((int)tempChar);
 
-  } else {
-    // 为安卓
-    uint8_t tempChar = 0;
+      // 再湿度
+      tempChar = (int)humidity;
+      txValue += tempChar;
+      // Serial.print("\thumidity(HIGH): ");
+      // Serial.print((int)tempChar);
 
-    tempChar = '0' + info_num; // 数据条数
-    txValue += tempChar;
-
-    tempChar = '0' + ADDRESS_PRESENT_SLAVE; // 地址位
-    txValue += tempChar;
-
-    if (info_num >= 2) // 温湿度传感器
-    {
-      if (humidity < 0 || temperature < 0)
-      {
-        tempChar = 0;
-        for (int i=0; i<4; i++)
-          txValue += tempChar;
-      }
-      else {
-        // 先温度
-        tempChar = (int)temperature;
-        txValue += tempChar;
-        // Serial.print("temperature(HIGH): ");
-        // Serial.print((int)tempChar);
-
-        tempChar = (temperature*10 - tempChar*10);
-        txValue += tempChar;
-        // Serial.print("\ttemperature(LOW): ");
-        // Serial.println((int)tempChar);
-
-        // 再湿度
-        tempChar = (int)humidity;
-        txValue += tempChar;
-        // Serial.print("\thumidity(HIGH): ");
-        // Serial.print((int)tempChar);
-
-        tempChar = (humidity*10 - tempChar*10);
-        txValue += tempChar;
-        // Serial.print("\thimidity(LOW): ");
-        // Serial.println((int)tempChar);
-      }
+      tempChar = (humidity*10 - tempChar*10);
+      txValue += tempChar;
+      // Serial.print("\thimidity(LOW): ");
+      // Serial.println((int)tempChar);
     }
+    // 其他传感器
+    // TODO
   }
+  
 }
 
 void setup() {
@@ -480,7 +396,7 @@ void setup() {
 
 void loop() {
   // 如果蓝牙发送过于频繁，会导致通信阻塞
-  if (deviceConnected && deviceQueryed) { // 当设备已连接且发送身份后，才返回
+  if (deviceConnected) { // 当设备已连接且发送身份后，才返回
 		// delay(1000); // bluetooth stack will go into congestion, if too many packets are sent
     current_millis = millis();
     if (current_millis - send_millis >= period_millis)
@@ -502,7 +418,7 @@ void loop() {
     pServer->startAdvertising(); // restart advertising
     Serial.println("restart advertising");
     oldDeviceConnected = deviceConnected; // 将已经记忆的状态更新
-    deviceQueryed = false; // 清空设备种类记忆
+    period_millis = DEFAULT_PERIOD_MILLIS; // 恢复默认采样时间间隔
   }
   // connecting
   if (deviceConnected && !oldDeviceConnected) {
