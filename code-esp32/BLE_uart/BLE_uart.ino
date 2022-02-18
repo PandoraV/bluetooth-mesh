@@ -12,6 +12,12 @@ float temperature = -1.0;  // 温度
 #include "SSD1306Wire.h"        // legacy: #include "SSD1306.h"
 SSD1306Wire display(0x3c, SDA, SCL);   // ADDRESS, SDA, SCL 
 
+// 软串口 
+HardwareSerial tempSerial(1); // RX, TX
+uint8_t active_model_command[9] = {}; // 主动上报模式命令
+uint8_t query_model_command[9] = {}; // 询问上报模式
+uint8_t request_for_sensor_command[9] = {}; // 询问当前浓度
+
 /*
    Ported to Arduino ESP32 by Evandro Copercini
 
@@ -103,6 +109,49 @@ void overFlow()
   // 溢出函数
 }
 
+float getTemp(String temp) {
+  int commaPosition = -1;
+  String info[9];  // 用字符串数组存储
+  for (int i = 0; i < 10; i++) { // TODO
+    commaPosition = temp.indexOf(',');
+    if (commaPosition != -1)
+    {
+      info[i] = temp.substring(0, commaPosition);
+      temp = temp.substring(commaPosition + 1, temp.length());
+    }
+    else {
+      if (temp.length() > 0) {  // 最后一个会执行这个
+        info[i] = temp.substring(0, commaPosition);
+      }
+    }
+  }
+  return (info[3].toInt() * 256 + info[4].toInt()) / 10.0; // TODO
+}
+
+void gas_sensor_serial(void *parameter) // 气体传感器软串口
+{
+  // tempSerial.listen();  // 监听温度串口
+  for (int i = 0 ; i < 9; i++) {  // 发送测温命令
+    tempSerial.write(request_for_sensor_command[i]);   // write输出
+  }
+  delay(100);  // 等待测温数据返回
+  String tempData = "";
+  while (tempSerial.available()) {//从串口中读取数据
+    uint8_t received_bytes = (uint8_t)tempSerial.read();  // read读取
+    Serial.print(received_bytes, HEX);
+    Serial.print(',');
+    tempData += received_bytes;
+    tempData += ',';
+  }
+  if (tempData.length() > 0) { //先输出一下接收到的数据
+    float temp = getTemp(tempData);
+    Serial.println();
+    Serial.println(tempData);
+    Serial.println(temp);
+  }
+  tempSerial.end();
+}
+
 void sendMsg(std::string msg_to_TX) // 蓝牙发送信息函数
 {
   // 修改标志位，表明当前处于发信状态中
@@ -144,8 +193,8 @@ void reply_for_query() // 查询命令回信
       sendMsg(tx_str_for_query);
     } else {
       // 等待
-      sendMsg(tx_str_for_query);
       // TODO
+      sendMsg(tx_str_for_query);
       // 应设置独立线程等待到可以发信
     }
   }
@@ -288,6 +337,8 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
               std::string tempStr = "";
               tempStr = std::to_string(period_millis);
               tx_str_for_query += tempStr;
+              Serial.print("current period millis is ");
+              Serial.println(period_millis);
 
               reply_for_query();
             }
@@ -305,7 +356,6 @@ void setup_json_string() // 构建发送的json字符串
 {
   txValue = ""; // 清空txValue
 
-  // 为安卓
   uint8_t tempChar = 0;
 
   tempChar = '0' + info_num; // 数据条数
@@ -355,8 +405,26 @@ void setup_json_string() // 构建发送的json字符串
       // Serial.print("\thimidity(LOW): ");
       // Serial.println((int)tempChar);
     }
-    // 其他传感器
-    // TODO
+  }
+  // 其他传感器
+  if (info_num > 2)
+  {
+    if (info_num >= 3)
+    {
+      // 氨气传感器
+    }
+    if (info_num >= 4)
+    {
+      // 臭氧传感器
+    }
+    if (info_num >= 5)
+    {
+      // NO传感器
+    }
+    if (info_num >= 6)
+    {
+      // NO2传感器
+    }
   }
   
 }
@@ -415,6 +483,8 @@ void setup() {
     NULL            /* Task handle. */
   );     
 
+  // 软串口启动
+  tempSerial.begin(115200);
 }
 
 void loop() {
