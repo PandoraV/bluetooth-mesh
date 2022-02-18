@@ -157,3 +157,28 @@ wx.writeBLECharacteristicValue 回调 fail 则重新发送，直至发送完毕�
 [在BLE蓝牙中一次写入超过20字节数据包的方法和技巧 hhyyqq5800 于 2019-12-15](https://blog.csdn.net/hhyyqq/article/details/103548820):Android
 
 [wx.setBLEMTU(Object object)](https://developers.weixin.qq.com/miniprogram/dev/api/device/bluetooth-ble/wx.setBLEMTU.html):需要提高基础库到 2.11.0，由于此功能仅针对 android 设备，因此在 ios 上可保持我现在的 wx 版本。 
+
+## 文件下载 href
+
+- [javascript实现生成并下载txt文件 z__a 2018-09-11](https://blog.csdn.net/zhang__ao/article/details/82625606)
+
+```js
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+  element.style.display = 'none';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}
+ 
+ 
+download("hello.txt","This is the content of my file :)");
+```
+
+在 html 测试是可以下载的，但是到小程序了就不行，href 都会被微信过滤掉，看来还是要整后端
+
+```html
+<a href="data:text/plain;charset=utf-8,This%20is%20the%20content%20of%20my%20file%20%3A)" download="test.txt">down</a>
+```
