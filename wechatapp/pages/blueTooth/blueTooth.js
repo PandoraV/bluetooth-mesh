@@ -66,6 +66,29 @@ function jsonFake2csv(jsonobj) {
   return res
 }
 
+/* 将 json 的 key 转换为对应的中文 */
+function js2key(jsonobj) {
+  var keyobj = {
+    "i_num": "数据条数",
+    "p_mls": "采样时间间隔",
+    "add": "从机地址",
+    "temp": "温度",
+    "humi": "湿度",
+    "NH3": "氨气浓度",
+    "O3": "臭氧浓度",
+    "NO": "氮氧化物浓度",
+    "NO2": "氮氧化物浓度",
+    "time": "时间"
+  }
+  var res = {}
+  for (var k in jsonobj) {
+    res[keyobj[k]] = jsonobj[k]
+  }
+  // console.info(res)
+  return JSON.stringify(res)
+}
+
+
 Page({
 
   /**
@@ -125,9 +148,8 @@ Page({
           var isApple = true;
           wx.getSystemInfo({
             success: (result) => {
-              var current_system =  result.platform;
-              if (current_system[0] == 'i')
-              {
+              var current_system = result.platform;
+              if (current_system[0] == 'i') {
                 isApple = true;
               } else {
                 isApple = false;
@@ -140,8 +162,8 @@ Page({
                 buffer = "T00AN";
               }
               var buffer_array = new ArrayBuffer(5);
-              var buffer_view  = new Uint8Array(buffer_array);
-              for (var i=0; i<5; i++) {
+              var buffer_view = new Uint8Array(buffer_array);
+              for (var i = 0; i < 5; i++) {
                 buffer_view[i] = buffer.charCodeAt(i);
               }
               console.log("array:" + buffer_array.value);
@@ -231,11 +253,10 @@ Page({
   notifyBLECharacteristicValueChange(serviceId, characteristicId) {
     let that = this;
     var isApple = true;
-    wx.getSystemInfo({  // 看平台 此部分代码将在后续版本中移除
+    wx.getSystemInfo({ // 看平台 此部分代码将在后续版本中移除
       success: (result) => {
-        var current_system =  result.platform;
-        if (current_system[0] == 'i')
-        {
+        var current_system = result.platform;
+        if (current_system[0] == 'i') {
           isApple = true;
         } else {
           isApple = false;
@@ -258,15 +279,14 @@ Page({
               if (jsonobj) {
                 var timenow = new Date().Format("hhmmss"); // 格式见 readme
                 jsonobj.time = timenow; // 加入当地时间戳
-                var str = JSON.stringify(jsonobj);
                 // console.log(jsonobj); // 加入 time 之后的字符串，调试用
                 var csv = jsonFake2csv(jsonobj)
                 var tmpmsg = that.data.allData
-                tmpmsg=tmpmsg+csv
+                tmpmsg = tmpmsg + csv
                 // console.log(tmpmsg)
                 that.setData({
                   allData: tmpmsg,
-                  msg: str
+                  msg: js2key(jsonobj)
                 });
               }
             } catch (e) {
@@ -281,17 +301,17 @@ Page({
               //       })
               //       // 向下位机发信
               //     }
-                  
+
               //   }
               // }
               // if (isApple)
               // {
-                console.warn(e)
-                console.warn("Illogical data of json: " + jsonstr)
-                wx.showToast({
-                  title: '发生丢包: ' + jsonstr,
-                  icon: 'none',
-                })
+              console.warn(e)
+              console.warn("Illogical data of json: " + jsonstr)
+              wx.showToast({
+                title: '发生丢包: ' + jsonstr,
+                icon: 'none',
+              })
               // }
             }
           } else { // ANDROID
@@ -309,22 +329,19 @@ Page({
             jsonstr += keys[1];
             jsonstr += "\":";
             jsonstr += address;
-            if (i_num == 1)
-            {
+            if (i_num == 1) {
               // 是传回的时间间隔
               // TODO
             } else {
-              if (i_num >= 2)
-              {
+              if (i_num >= 2) {
                 // 只有温湿度传感器
-                if (bytes_received[2] == 0 && bytes_received[3] == 0)
-                {
+                if (bytes_received[2] == 0 && bytes_received[3] == 0) {
                   // 温湿度传感器工作异常
                   humidity = -1;
                   temperature = -1;
                 } else {
-                  temperature += bytes_received[2]*1.0 + bytes_received[3]*0.1;
-                  humidity += bytes_received[4]*1.0 + bytes_received[5]*0.1;
+                  temperature += bytes_received[2] * 1.0 + bytes_received[3] * 0.1;
+                  humidity += bytes_received[4] * 1.0 + bytes_received[5] * 0.1;
                   // console.log("temp:"+temperature);
                   // console.log(String(temperature));
                 }
@@ -348,14 +365,14 @@ Page({
             jsonstr += "}";
 
             var jsonobj = JSON.parse(jsonstr); // 解析json
-            
+
             var timenow = new Date().Format("hhmmss"); // 格式见 readme
             jsonobj.time = timenow; // 加入当地时间戳
             var str = JSON.stringify(jsonobj);
             // console.log(jsonobj); // 加入 time 之后的字符串，调试用
             var csv = jsonFake2csv(jsonobj)
             var tmpmsg = that.data.allData
-            tmpmsg=tmpmsg+csv
+            tmpmsg = tmpmsg + csv
             // console.log(tmpmsg)
             that.setData({
               allData: tmpmsg,
