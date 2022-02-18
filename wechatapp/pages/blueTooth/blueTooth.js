@@ -362,11 +362,28 @@ Page({
 
         // console.log(jsonstr);
         // 还包括气体传感器
-        // TODO
+        for (var i = 3; i <= i_num; i++)
+        {
+          gas_precision = 0; // 清空
+          var index = 2*(i + 1);
+          if (bytes_received.charCodeAt(index) == 0) { // 传感器工作异常
+            gas_precision = -1;
+          } else {
+            gas_precision += bytes_received.charCodeAt(index)*256; // 高字节
+            index++;
+            gas_precision += bytes_received.charCodeAt(index); // 低字节
+            gas_precision *= 0.1;
+          }
+          jsonstr += ",";
+          jsonstr += "\"";
+          jsonstr += keys[i + 2];
+          jsonstr += "\":";
+          jsonstr += String(gas_precision);
+        }
       }
     }
     jsonstr += "}";
-    console.log(jsonstr)
+    // console.log(jsonstr)
 
     if (i_num > 1) {// 对于更新时间间隔，不调用json解析
       try {
