@@ -66,7 +66,7 @@ function jsonFake2csv(jsonobj) {
   return res
 }
 
-/* 将 json 的 key 转换为对应的中文 */
+/* 将 json 的 key 转换为对应的中文，返回有换行、有中文的 string */
 function js2key(jsonobj) {
   var keyobj = {
     "i_num": "数据条数",
@@ -85,7 +85,7 @@ function js2key(jsonobj) {
     res[keyobj[k]] = jsonobj[k]
   }
   // console.info(res)
-  return JSON.stringify(res)
+  return JSON.stringify(res, null, 2)
 }
 
 
