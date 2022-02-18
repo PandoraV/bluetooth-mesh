@@ -361,6 +361,7 @@ Page({
       var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理
       if (jsonobj) {
         // jsonobj.p_mls = that.data.period_millis // 更新为全局变量的数值
+        that.data.period_millis = period_millis;
         var timenow = new Date().Format("hhmmss"); // 格式见 readme
         jsonobj.time = timenow; // 加入当地时间戳
 
