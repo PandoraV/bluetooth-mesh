@@ -266,8 +266,28 @@ Page({
   },
 
 
-  /**  向蓝牙设备发送数据 */
-  sendInput(e) {
+  /** 向蓝牙设备发送数据 
+   * @param str 要发送的数据，字符串格式
+   */
+  sendMsg2BLE(str) {
+    var buffer = stringToBytes(str)
+    wx.writeBLECharacteristicValue({
+      deviceId: this.data.deviceId,
+      serviceId: this.data.serviceId,
+      characteristicId: this.data.uuidWrite,
+      value: buffer,
+      success: (res) => {
+        console.log(res);
+      },
+      fail: (err) => {
+        console.log(err)
+      }
+    })
+
+  },
+
+  /* 发送按钮回调函数 */
+  btnSend(e) {
     if (e.detail.value.input == '') { // 空数据提前终止发送
       console.warn("Empty input. Stop send!!!")
       wx.showToast({
@@ -275,19 +295,7 @@ Page({
         icon: 'none',
       })
     } else {
-      var buffer = stringToBytes(e.detail.value.input)
-      wx.writeBLECharacteristicValue({
-        deviceId: this.data.deviceId,
-        serviceId: this.data.serviceId,
-        characteristicId: this.data.uuidWrite,
-        value: buffer,
-        success: (res) => {
-          console.log(res);
-        },
-        fail: (err) => {
-          console.log(err)
-        }
-      })
+      this.sendMsg2BLE(e.detail.value.input)
     }
   },
 

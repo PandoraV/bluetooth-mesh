@@ -19,7 +19,7 @@
   </view>
 
   <view class="connect-success">
-    <form catchsubmit="sendInput" catchreset="formReset">
+    <form catchsubmit="btnSend" catchreset="formReset">
       <view>
         <input class="weui-input" name="input" placeholder="T00AN" value="T00AN" />
       </view>
