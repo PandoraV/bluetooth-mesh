@@ -277,7 +277,7 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
         case 'Q': {   // 查询时间间隔
           if (rx_len == 4)
           {
-            if (rxValue[1] == ADDRESS_PRESENT_SLAVE + '0')
+            if (rxValue[2] == ADDRESS_PRESENT_SLAVE + '0')
             {
               // 清空发送字符串
               tx_str_for_query = "";
