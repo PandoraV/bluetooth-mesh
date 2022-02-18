@@ -21,7 +21,7 @@
   <view class="connect-success">
     <form catchsubmit="btnSend" catchreset="formReset">
       <view>
-        <input class="weui-input" name="input" placeholder="T00AN" value="T00AN" />
+        <input class="weui-input" name="input" placeholder="Q010" value="Q010" />
       </view>
       <view>
         <button style="margin: 30rpx 0" type="primary" formType="submit" aria-role="button" aria-label="发送输入框内的数据">发送</button>

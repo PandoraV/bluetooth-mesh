@@ -305,8 +305,10 @@ Page({
     // 将接受到的数据转成字节数组
     var bytes_received = new Uint8Array(msg);
     var received_length = bytes_received.length;
-    var i_num = bytes_received[0] - '0';
-    var address = bytes_received[1] - '0';
+    var i_num = 0;
+    i_num += bytes_received[0] - 48;
+    var address = 0;
+    address += bytes_received[1] - 48;
     var period_millis = 0;
     var humidity = 0.0;
     var temperature = 0.0;
@@ -315,16 +317,24 @@ Page({
     var jsonstr = "{\"";
     jsonstr += keys[1];
     jsonstr += "\":";
-    jsonstr += address + '0';
+    jsonstr += address;
     // 时间间隔
-    period_millis = bytes_received[2]*256 + bytes_received[3];
+    if (i_num > 1)
+      period_millis = bytes_received[2]*256 + bytes_received[3];
     jsonstr += ",\"";
     jsonstr += keys[2];
     jsonstr += "\":";
     jsonstr += String(period_millis);
     if (i_num == 1) {
       // 是传回的时间间隔
-      // TODO
+      period_millis = 0;
+      for (var i = 2; i < received_length; i++)
+      {
+        period_millis *= 10;
+        period_millis += bytes_received[i] - 48;
+      }
+      that.data.period_millis = period_millis;
+      console.log("the plms is " + period_millis);
     } else {
       if (i_num >= 2) {
         // 只有温湿度传感器
@@ -356,43 +366,48 @@ Page({
       }
     }
     jsonstr += "}";
+    console.log(jsonstr)
 
-    try {
-      var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理
-      if (jsonobj) {
-        // jsonobj.p_mls = that.data.period_millis // 更新为全局变量的数值
-        that.data.period_millis = period_millis;
-        var timenow = new Date().Format("hhmmss"); // 格式见 readme
-        jsonobj.time = timenow; // 加入当地时间戳
+    if (i_num > 1) {// 对于更新时间间隔，不调用json解析
+      try {
+        var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理
+        if (jsonobj) {
+          // jsonobj.p_mls = that.data.period_millis // 更新为全局变量的数值
+          that.data.period_millis = period_millis;
+          var timenow = new Date().Format("hhmmss"); // 格式见 readme
+          jsonobj.time = timenow; // 加入当地时间戳
 
-        var csv = jsonFake2csv(jsonobj)
-        var tmpmsg = that.data.allData
-        tmpmsg = tmpmsg + csv
-        // console.log(tmpmsg)
-        that.setData({
-          allData: tmpmsg,
-          msg: js2key(jsonobj)
-        });
+          var csv = jsonFake2csv(jsonobj)
+          var tmpmsg = that.data.allData
+          tmpmsg = tmpmsg + csv
+          // console.log(tmpmsg)
+          that.setData({
+            allData: tmpmsg,
+            msg: js2key(jsonobj)
+          });
+        }
+      } catch (e) {
+        console.warn(e)
+        console.log(bytes_received);
+        console.warn("Illegal data of json: " + jsonstr)
+        wx.showToast({
+          title: '发生丢包: ' + jsonstr,
+          icon: 'none',
+        })
       }
-    } catch (e) {
-      console.warn(e)
-      console.warn("Illegal data of json: " + jsonstr)
-      wx.showToast({
-        title: '发生丢包: ' + jsonstr,
-        icon: 'none',
-      })
     }
 
-
     // 存储到缓存，最大数据长度为 1MB
-    wx.setStorage({
-      key: that.data.deviceId,
-      data: that.data.allData,
-      success(e) {},
-      fail(e) {
-        console.warn(e)
-      }
-    })
+    if (i_num > 1) {
+      wx.setStorage({
+        key: that.data.deviceId,
+        data: that.data.allData,
+        success(e) {},
+        fail(e) {
+          console.warn(e)
+        }
+      })
+    }
   },
 
   /**
