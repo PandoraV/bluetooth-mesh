@@ -38,8 +38,8 @@ bool oldDeviceConnected = false; // 是否已经有设备连接
 
 #define APPLE_REC 0
 #define ANDROID_REC 1
-int identity_verification = APPLE_REC; // 手机验证，0是苹果，1是安卓
-bool deviceQueryed = false; // 当前是否已确认身份
+int identity_verification = 1; // 手机验证，0是苹果，1是安卓
+bool deviceQueryed = true; // 当前是否已确认身份
 bool duringDelivering = false;  // 是否处于发信函数调用状态
 std::string txValue = "";  
 std::string tx_str_for_query = "";
@@ -58,7 +58,7 @@ ulong period_millis = 1000; // 发信间隔
 
 #define ADDRESS_PRESENT_SLAVE 1 // 从机地址位
 #define info_num 2 // 传回上位机信息条数，测试时仅有温湿度两项
-// std::string info_name = "temp测试中文"; // 传回上位机的项目名称
+
 std::string info_name[10] = {
   "temp",
   "humi",
