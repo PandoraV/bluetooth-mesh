@@ -44,6 +44,9 @@ Date.prototype.Format = function (fmt) {
   return fmt;
 }
 
+/* 将 json 对象解析为 csv 格式的一行数据，数据顺序按照  keys 排列
+@param jsonobj： json对象
+@return res：csv 格式的一行数据的字符串形式*/
 function jsonFake2csv(jsonobj) {
   var keys = ["p_mls", "add", "temp", "humi", "NH3", "O3", "NO", "NO2", "time"] // 顺序很重要，代表csv的列
   var res = "" // csv 数据结果
