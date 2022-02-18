@@ -41,6 +41,8 @@ std::string txValue = "";
 std::string tx_str_for_query = "";
 
 #define DEFAULT_PERIOD_MILLIS 1000
+#define MINIMUM_PERIOD_MILLIS 500
+#define MAXIMUM_PERIOD_MILLIS 65535
 ulong current_millis = 0;
 ulong send_millis = 0;    // 上次发信的时间
 ulong queryDuration = 20; // 回信间隔
@@ -215,9 +217,14 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
                       hundred /= 10;
                       new_period_millis += hundred*(rxValue[i] - '0');
                     }
-                    Serial.print("the sensor period has been updated to ");
-                    Serial.println(new_period_millis);
-                    period_millis = new_period_millis;
+                    if (new_period_millis < MINIMUM_PERIOD_MILLIS)
+                    {
+                      Serial.print("the new period " + String(new_period_millis) + " is smaller than the minimum value");
+                    } else {
+                      Serial.print("the sensor period has been updated to ");
+                      Serial.println(new_period_millis);
+                      period_millis = new_period_millis;
+                    }
                   }
                 } else {
                   // 整数秒
@@ -230,13 +237,19 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
                       new_period_millis = 0;
                       break;
                     }
+                    new_period_millis *= 10; // 进位
                     new_period_millis += 1000*(rxValue[i] - '0'); // 毫秒为单位
                   }
                   if (new_period_millis != 0)
                   {
-                    period_millis = new_period_millis;
-                    Serial.print("the sensor period has been updated to ");
-                    Serial.println(new_period_millis);
+                    if (new_period_millis > MAXIMUM_PERIOD_MILLIS)
+                    {
+                      Serial.print("the new period " + String(new_period_millis) + " is larger than the maximum value");
+                    } else {
+                      period_millis = new_period_millis;
+                      Serial.print("the sensor period has been updated to ");
+                      Serial.println(new_period_millis);
+                    }
                   }
                 }
               }
