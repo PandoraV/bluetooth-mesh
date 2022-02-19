@@ -120,7 +120,7 @@ Page({
       path: that.data.dataFilePath,
       success(res) {
         // 文件存在，不进行操作
-        console.error(res)
+        // console.error(res)
       },
       fail(res) {
         // 文件不存在或其他错误
@@ -421,7 +421,7 @@ Page({
             data: jsonFake2csv(jsonobj),
             encoding: 'utf8',
             success(res) {
-              console.log(res)
+              // console.log(res)
             },
             fail(res) {
               console.error(res)
@@ -445,7 +445,7 @@ Page({
 
   },
 
-  /* 导出 csv 数据文件，如果微信版本过低，就提示只能查看数据没法导出为文件 */
+  /* 导出 csv 数据文件，如果微信版本过低，就提示升级 */
   exportData() {
     if (wx.shareFileMessage) { // 可直接导出 csv,测试通过
       wx.shareFileMessage({
@@ -458,12 +458,9 @@ Page({
       // 待进一步测试，初步测试表明在data.js无法读取到该文件
       wx.showModal({
         title: '温馨提示',
-        content: '当前微信版本过低，无法导出为文件，仅可查看文件数据',
+        content: '当前微信版本过低，无法导出为文件，请升级后再使用',
         showCancel: false
       })
-      // wx.navigateTo({
-      //   url: "../data/data?id=" + this.data.deviceId + "&name=" + this.data.connectName
-      // })
     }
   },
 

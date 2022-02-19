@@ -2,8 +2,7 @@
   "pages": [
     "pages/index/index",
     "pages/logs/logs",
-    "pages/blueTooth/blueTooth",
-    "pages/data/data"
+    "pages/blueTooth/blueTooth"
   ],
   "window": {
     "backgroundTextStyle": "light",
