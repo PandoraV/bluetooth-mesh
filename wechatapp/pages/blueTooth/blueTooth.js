@@ -308,7 +308,7 @@ Page({
   /* 发送按钮回调函数 */
   btnSend(e) {
     if (e.detail.value.input == '') { // 空数据提前终止发送
-      console.warn("Empty input. Stop send!!!")
+      console.warn("Empty input. Stop sending!!!")
       wx.showToast({
         title: '检测不到数据，请输入内容后再次发送',
         icon: 'none',
