@@ -88,6 +88,7 @@ function js2key(jsonobj) {
   return JSON.stringify(res, null, 2)
 }
 
+const fs = wx.getFileSystemManager()
 
 Page({
 
@@ -102,28 +103,46 @@ Page({
     uuidListen: "", // 监听接收的 uuid
     uuidWrite: "", // 发送内容的uuid
     msg: "", // 最新一条消息
-    allData: "", // 收到的全部蓝牙消息
+    dataFilePath: "", // 收到的全部蓝牙消息的 csv 文件路径
     period_millis: 1000 // 当前采样时间间隔，默认1秒
   },
 
   onLoad: function (option) {
     let deviceId = option.id; //设备id
     let connectName = option.name; //连接的设备名称
+
     var that = this;
-    wx.getStorage({ // 从缓存中读取历史数据
-      key: deviceId,
+    that.setData({ // 设置数据文件路径
+      dataFilePath: `${wx.env.USER_DATA_PATH}/` + that.data.deviceId + '.csv'
+    })
+    // 没有对应的数据文件就创建新的，有的话就不再新建了
+    fs.access({
+      path: that.data.dataFilePath,
       success(res) {
-        console.log(res.data)
-        that.setData({
-          allData: res.data,
-        })
+        // 文件存在，不进行操作
+        console.error(res)
       },
-      fail(e) {
-        console.log(e)
+      fail(res) {
+        // 文件不存在或其他错误
+        console.error(res)
+        fs.writeFile({ // 不存在就创建文件，加入 csv 表头
+          filePath: that.data.dataFilePath,
+          data: "p_mls,add,temp,humi,NH3,O3,NO,NO2,time\r\n", // 写入表头
+          encoding: 'utf8',
+          success(res) {
+            console.log(res)
+          },
+          fail(res) { // 创建文件失败
+            console.error(res)
+            wx.showToast({
+              title: '创建存储文件失败，请向管理员反馈',
+              icon: 'none'
+            })
+          }
+        })
       }
     })
     this.connectTo(deviceId, connectName);
-
   },
 
 
@@ -151,7 +170,7 @@ Page({
         }
       },
       fail(error) {
-        wx.hideLoading();
+        // wx.hideLoading();
         wx.showToast({
           title: error,
         })
@@ -320,7 +339,7 @@ Page({
     jsonstr += address;
     // 时间间隔
     if (i_num > 1)
-      period_millis = bytes_received[2]*256 + bytes_received[3];
+      period_millis = bytes_received[2] * 256 + bytes_received[3];
     jsonstr += ",\"";
     jsonstr += keys[2];
     jsonstr += "\":";
@@ -328,8 +347,7 @@ Page({
     if (i_num == 1) {
       // 是传回的时间间隔
       period_millis = 0;
-      for (var i = 2; i < received_length; i++)
-      {
+      for (var i = 2; i < received_length; i++) {
         period_millis *= 10;
         period_millis += bytes_received[i] - 48;
       }
@@ -362,14 +380,13 @@ Page({
 
         // console.log(jsonstr);
         // 还包括气体传感器
-        for (var i = 3; i <= i_num; i++)
-        {
+        for (var i = 3; i <= i_num; i++) {
           gas_precision = 0; // 清空
-          var index = 2*(i + 1);
+          var index = 2 * (i + 1);
           if (bytes_received.charCodeAt(index) == 0) { // 传感器工作异常
             gas_precision = -1;
           } else {
-            gas_precision += bytes_received.charCodeAt(index)*256; // 高字节
+            gas_precision += bytes_received.charCodeAt(index) * 256; // 高字节
             index++;
             gas_precision += bytes_received.charCodeAt(index); // 低字节
             gas_precision *= 0.1;
@@ -385,7 +402,7 @@ Page({
     jsonstr += "}";
     // console.log(jsonstr)
 
-    if (i_num > 1) {// 对于更新时间间隔，不调用json解析
+    if (i_num > 1) { // 对于更新时间间隔，不调用json解析
       try {
         var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理
         if (jsonobj) {
@@ -394,14 +411,26 @@ Page({
           var timenow = new Date().Format("hhmmss"); // 格式见 readme
           jsonobj.time = timenow; // 加入当地时间戳
 
-          var csv = jsonFake2csv(jsonobj)
-          var tmpmsg = that.data.allData
-          tmpmsg = tmpmsg + csv
-          // console.log(tmpmsg)
-          that.setData({
-            allData: tmpmsg,
+          that.setData({ // 更新页面上的最新数据
             msg: js2key(jsonobj)
           });
+
+          // 向数据文件末尾添加新 csv 数据
+          fs.appendFile({
+            filePath: that.data.dataFilePath,
+            data: jsonFake2csv(jsonobj),
+            encoding: 'utf8',
+            success(res) {
+              console.log(res)
+            },
+            fail(res) {
+              console.error(res)
+              wx.showToast({
+                title: '添加数据记录失败，请向管理员反馈',
+                icon: 'none'
+              })
+            }
+          })
         }
       } catch (e) {
         console.warn(e)
@@ -414,16 +443,27 @@ Page({
       }
     }
 
-    // 存储到缓存，最大数据长度为 1MB
-    if (i_num > 1) {
-      wx.setStorage({
-        key: that.data.deviceId,
-        data: that.data.allData,
-        success(e) {},
-        fail(e) {
-          console.warn(e)
-        }
+  },
+
+  /* 导出 csv 数据文件，如果微信版本过低，就提示只能查看数据没法导出为文件 */
+  exportData() {
+    if (wx.shareFileMessage) { // 可直接导出 csv,测试通过
+      wx.shareFileMessage({
+        filePath: this.data.dataFilePath,
+        fileName: this.data.deviceId + '.csv',
+        success() {},
+        fail: console.error,
       })
+    } else {
+      // 待进一步测试，初步测试表明在data.js无法读取到该文件
+      wx.showModal({
+        title: '温馨提示',
+        content: '当前微信版本过低，无法导出为文件，仅可查看文件数据',
+        showCancel: false
+      })
+      // wx.navigateTo({
+      //   url: "../data/data?id=" + this.data.deviceId + "&name=" + this.data.connectName
+      // })
     }
   },
 

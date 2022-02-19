@@ -5,9 +5,6 @@
   <view>
     <text selectable="true" aria-role="text" aria-label="设备 ID">UUID: {{deviceId}} </text>
   </view>
-  <view>
-    <navigator class="btn-connection" url="../data/data?id={{deviceId}}&name={{connectName}}" hover-class="navigator-hover" aria-role="button" aria-label="连接该设备">查看数据</navigator>
-  </view>
 
   <view>
     <checkbox-group bindchange="checkBoxChange">
@@ -27,9 +24,10 @@
         <button style="margin: 30rpx 0" type="primary" formType="submit" aria-role="button" aria-label="发送输入框内的数据">发送</button>
       </view>
     </form>
+  </view>
 
-    <view class="closeBLEConnection-box">
-      <button class="closeBLEConnection" size="mini" bindtap="closeBLEConnection" aria-role="button" aria-label="断开连接">断开连接</button>
-    </view>
+  <view class="btns">
+    <button class="btnCtrl" type="warn" size="mini" bindtap="closeBLEConnection" aria-role="button" aria-label="断开连接">断开连接</button>
+    <button class="btnCtrl" type="default" size="mini" bindtap="exportData" aria-role="button" aria-label="导出所有数据">导出数据</button>
   </view>
 </view>

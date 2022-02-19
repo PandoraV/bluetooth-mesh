@@ -6,11 +6,12 @@
 
 | 手机型号  | 系统版本  | 微信版本   | 基础库版本       |
 |:---------:|:---------:|:------:|:-----------:|
-| iPhone SE | IOS 12.4 | 7.0.10 | 2.10.4[526] |
-| iPhone SE | IOS 12.1.2 | 8.0.14 |  |
+| iPhone SE | IOS 12.4 | 8.0.18 | 2.22.0[657] |
 | 华为 mate 20 pro(UD) | 鸿蒙 2.0.0.209 | 8.0.14 |  |
 
 下位机：ESP32
+
+目前功能要求最高的是由 FileSystemManager.access 所依赖的基础库版本为 2.19.2，低版本不会限制使用该小程序，只是效果上可能无法达到理想的结果
 
 ## 特点
 
@@ -48,22 +49,6 @@ Arduino ESP32 BLE_uart
 ```
 
 ## 数据格式转换
-
-### ab2str
-
-`function ab2str(buf)` （pages/blueTooth/blueTooth.js）
-
-```javascript
-{"c_mls":34251,"i_num":2,"p_mls":1000,"add":1,"temp":20.800000,"humi":46.000000}
-```
-
-上位机接收后会在其中加入`当地时间戳（time）`。格式（"hhmmss"）只要24小的时分秒，不要中文、不要年月日、不要冒号分隔符。如下所示:
-
-
-```javascript
-{"c_mls":309785,"i_num":2,"p_mls":1000,"add":1,"temp":20.5,"humi":40,"time":"143623"}
-```
-
 ### str2ab
 
 `function stringToBytes(str)`（pages/blueTooth/blueTooth.js）
@@ -77,44 +62,44 @@ Arduino ESP32 BLE_uart
 
 ```json
 {i_num: 2, p_mls: 1000, add: 1, temp: -1, humi: -1,time:161926}
-{i_num: 2, p_mls: 1000, add: 1, temp: -1, humi: -1,time:161927}
 ```
 
-i-num 不必要存储
-收到的 json 立马转成 csv 的一行数据，表头不存储在缓存中，表头的固定顺序为 csv 的固定列
+收到的 json 立马转成 csv 的一行数据
 
-> p_mls,add,temp,humi,NH3,O3,NO,NO2,time
+`1000,1,-1,-1,,,,,161926`
 
-to do 快满了自动删除旧的数据
+## 数据存储
 
-最后数据的导出模样如下，由表头和缓存结合而成，换行符为 `\r\n`
+> 快满了自动删除旧的数据待开发待测试
+
+最初采用缓存存储的方式存储 csv 数据，后因其容量过小，更换为文件存储的方式。
+
+- 文件名：设备ID.csv
+- 例子：`${wx.env.USER_DATA_PATH}/hello.csv`
+- 内容：
 
 ```csv
 p_mls,add,temp,humi,NH3,O3,NO,NO2,time
 1000,1,-1,-1,,,,,161926
 1000,1,-1,-1,,,,,161927
 ```
-## 数据存储
 
-数据缓存和文件存储，容量上限是 10 M，区别是啥还不太清楚，缓存删除小程序就没有了
+i-num 不必要存储
 
-目前采取的是数据缓存存储
+本地用户文件最多可存储 200MB，由于本地缓存文件不具备写权限，不建议使用
 
-- [wx.setStorage(Object object)](https://developers.weixin.qq.com/miniprogram/dev/api/storage/wx.setStorage.html):单个 key 允许存储的最大数据长度为 1MB，所有数据存储上限为 10MB
 
-- [writeFileSync](https://developers.weixin.qq.com/miniprogram/dev/api/file/FileSystemManager.writeFileSync.html)
-- [appendFileSync](https://developers.weixin.qq.com/miniprogram/dev/api/file/FileSystemManager.appendFileSync.html)
-- [readZipEntry](https://developers.weixin.qq.com/miniprogram/dev/api/file/FileSystemManager.readZipEntry.html)
+- [文件系统](https://developers.weixin.qq.com/miniprogram/dev/framework/ability/file-system.html)
 
 ## 数据导出
 
-目前采取的办法是在页面渲染好 csv 格式，复制导出。
+> 复制导出待测试
 
-一键导出为文件尚在考虑中
+高于此版本支持一键导出 csv 文件，低于此版本的情况下只能在页面的文本里渲染好 csv 格式内容，由用户复制导出。
 
-https://developers.weixin.qq.com/community/develop/doc/000a0091e203a879c307fbf5456400
->  csv 在后台生成好，然后 wx.downloadFile()+wx.openDocument()
- https://www.papaparse.com/
+shareFileMessage 基础库版本： `2.16.1`。
+
+[「已解决」前端生成txt或者csv文件后导出（分享）？](https://developers.weixin.qq.com/community/develop/doc/000a2ef2788900f7458dd37f555c00):wx.shareFileMessage
 
 # 四、页面设计
 
@@ -122,7 +107,6 @@ https://developers.weixin.qq.com/community/develop/doc/000a0091e203a879c307fbf54
 - 设备状态实时状态页：展示设备当前监测数据，具备指令操作功能
 - 设备历史数据记录页：展示历史数据，提供保存接口(json转csv)
 
-由 Page 过渡到 Tab
 
 # 五、FAQ
 
