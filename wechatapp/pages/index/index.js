@@ -76,6 +76,8 @@ Page({
             console.log(res);
             let devicesListArr = [];
             if (res.devices.length > 0) { //如果有蓝牙就把蓝牙信息放到渲染列表里面
+              that.stopBluetoothDevicesDiscovery(); //停止搜索蓝牙
+              wx.hideLoading();
               that.setData({
                 devicesList: [],
               }); // 清空列表里的设备
@@ -90,7 +92,6 @@ Page({
               that.setData({
                 devicesList: devicesListArr,
               }); //渲染到页面中
-              that.stopBluetoothDevicesDiscovery(); //停止搜索蓝牙
             } else {
               wx.hideLoading();
               wx.showModal({
@@ -103,8 +104,9 @@ Page({
         })
       },
       fail: function (res) {
+        that.stopBluetoothDevicesDiscovery(); //停止搜索蓝牙
         wx.showToast({
-          title: '搜索蓝牙外围设备失败,请重新初始化蓝牙!',
+          title: '搜索蓝牙外围设备失败，请尝试重新搜索' + res.errCode,
           icon: 'none',
         })
         that.openBluetoothAdapter(); // 尝试再次打开蓝牙
@@ -118,5 +120,10 @@ Page({
         console.log(res)
       }
     })
-  }
+  },
+
+  /* 下拉动作回调：重新搜索蓝牙设备 */
+  onPullDownRefresh: function () {
+    this.searchBlue();
+  },
 })

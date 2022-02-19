@@ -5,6 +5,7 @@
     "pages/blueTooth/blueTooth"
   ],
   "window": {
+    "enablePullDownRefresh": true,
     "backgroundTextStyle": "light",
     "backgroundColor": "#fff",
     "navigationBarBackgroundColor": "#fff",
