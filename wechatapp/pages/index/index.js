@@ -8,7 +8,6 @@ Page({
   },
 
   onLoad() {
-    this.openBluetoothAdapter();
     wx.getSetting({ // 查询是否授权，避免反复授权
       success(res) {
         if (!res.authSetting['scope.bluetooth']) { // 未授权
@@ -18,7 +17,7 @@ Page({
         }
       }
     })
-
+    this.openBluetoothAdapter();
     /* // 测试表明不用 gps 也可以，可是文档说 ble需要 gps 授权
     wx.getSystemInfo({ // 获取系统信息，提示打开 GPS
       success(res) {
