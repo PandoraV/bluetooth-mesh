@@ -485,6 +485,8 @@ void setup() {
 
   // 软串口启动
   tempSerial.begin(115200);
+  pinMode(19, OUTPUT);
+  digitalWrite(19, LOW);
 }
 
 void loop() {
