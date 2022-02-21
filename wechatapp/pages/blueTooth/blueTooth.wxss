@@ -16,6 +16,11 @@
 	padding: 8rpx 10%;
 }
 
+.duration-command {
+	margin-top: 30rpx;
+	padding: 8rpx 10%;
+}
+
 .btns {
 	text-align: center;
 }

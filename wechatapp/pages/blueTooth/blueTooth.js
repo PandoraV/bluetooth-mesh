@@ -111,7 +111,8 @@ Page({
     uuidWrite: "", // 发送内容的uuid
     msg: "", // 最新一条消息
     dataFilePath: "", // 收到的全部蓝牙消息的 csv 文件路径
-    period_millis: 1000 // 当前采样时间间隔，默认1秒
+    period_millis: 1000, // 当前采样时间间隔，默认1秒
+    slave_address: '0' // 从机地址，以后可以改成列表
   },
 
   onLoad: function (option) {
@@ -351,10 +352,19 @@ Page({
         if (inputNum >= 500 && inputNum <= 65535)
         {
           // 发送
+          var sendCommand = "Q0"
+          sendCommand += this.data.address
+          sendCommand += inputNum
+          console.log("new duration has been switched into " + inputNum)
+          this.msgHandle(sendCommand)
+          wx.showToast({
+            title: '时间间隔已经调整为' + inputNum + "毫秒",
+            icon: 'none',
+          })
         } else {
           // 数字不合法
           wx.showToast({
-            title: '数字格式有问题',
+            title: '大小不满足500到65535的范围',
             icon: 'none',
           })
         }
@@ -372,6 +382,7 @@ Page({
     i_num += bytes_received[0] - 48;
     var address = 0;
     address += bytes_received[1] - 48;
+    that.data.slave_address = address
     var period_millis = 0;
     var humidity = 0.0;
     var temperature = 0.0;

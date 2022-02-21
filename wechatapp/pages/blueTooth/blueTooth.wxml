@@ -18,10 +18,21 @@
   <view class="connect-success">
     <form catchsubmit="btnSend" catchreset="formReset">
       <view>
-        <input class="weui-input" name="input" placeholder="Q010" value="Q010" />
+        <input class="weui-input" name="input" placeholder="纯文本信息" value="" />
       </view>
       <view>
-        <button style="margin: 30rpx 0" type="primary" formType="submit" aria-role="button" aria-label="发送输入框内的数据">发送</button>
+        <button style="margin: 30rpx 0" type="primary" formType="submit" aria-role="button" aria-label="发送输入框内的数据">发送文本</button>
+      </view>
+    </form>
+  </view>
+  
+  <view class="duration-command">
+    <form catchsubmit="timeDurationSend" catchreset="formReset">
+      <view>
+        <input class="weui-input" name="input" placeholder="调整时间间隔，500~65535，单位毫秒" value="" />
+      </view>
+      <view>
+        <button style="margin: 30rpx 0" type="primary" formType="submit" aria-role="button" aria-label="发送输入框内的数据">发送命令</button>
       </view>
     </form>
   </view>
