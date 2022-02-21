@@ -51,15 +51,22 @@ function jsonFake2csv(jsonobj) {
   var keys = ["time", "temp", "humi", "NH3", "O3", "NO", "NO2"] // 顺序很重要，代表csv的列
   var res = "" // csv 数据结果
   for (var i = 0; i < keys.length; i++) { //遍历数组
+    if (res != "" && i != keys.length - 1) {
+      res += ',' // 中间加逗号
+    } else {
+      res += '\r\n' // 结尾加换行符
+    }
+    
     if (jsonobj[keys[i]]) {
-      // if(keys[i]!="time"){  // 用 time 判断是不是最后一列
-      if ((i + 1) != keys.length) { // 用 length 判断是不是最后一列
-        res = res + jsonobj[keys[i]] + ','
-      } else { // 最后一列
-        res = res + jsonobj[keys[i]] + '\r\n' // 添加三种系统的换行符号
+      if (jsonobj[keys[i]] != -1) {
+        res += jsonobj[keys[i]]
+      } else if (keys[i] == "temp" || keys[i] == "humi") {
+        res += jsonobj[keys[i]]
+      } else {
+        continue
       }
     } else { // json 中没有对于的数据
-      res = res + ','
+      continue
     }
   }
   // console.info(res)
@@ -129,7 +136,7 @@ Page({
       complete() {
         fs.writeFile({ // 不存在就创建文件，加入 csv 表头
           filePath: that.data.dataFilePath,
-          data: "temp,humi,NH3,O3,NO,NO2,time\r\n", // 写入表头
+          data: "time,temp,humi,NH3,O3,NO,NO2\r\n", // 写入表头
           encoding: 'utf8',
           success(res) {
             console.log(res)
