@@ -320,6 +320,41 @@ Page({
     }
   },
 
+  // 调整时间间隔的回调函数
+  timeDurationSend(e) {
+    // TODO
+    if (e.detail.value.input == '') {
+      wx.showToast({
+        title: '检测不到数据，请输入内容后再次发送',
+        icon: 'none',
+      })
+    } else {
+      // 将输入转为数字
+      var inputNum = 0
+      try {
+        inputNum = Number(e.detail.value.input)
+      } catch(e) {
+        wx.showToast({
+          title: '数字格式有问题',
+          icon: 'none',
+        })
+      }
+      if  (inputNum != 0) { // 为0则表示上一步出了问题
+        // 判断是否合法
+        if (inputNum >= 500 && inputNum <= 65535)
+        {
+          // 发送
+        } else {
+          // 数字不合法
+          wx.showToast({
+            title: '数字格式有问题',
+            icon: 'none',
+          })
+        }
+      }
+    }
+  },
+
   /* 处理接收到的数据，对数据进行解码 */
   msgHandle(msg) {
     let that = this;
@@ -355,6 +390,10 @@ Page({
       }
       that.data.period_millis = period_millis;
       console.log("the plms is " + period_millis);
+      wx.showToast({
+        title: "当前时间间隔为" + period_millis,
+        icon: 'none'
+      })
     } else {
       if (i_num >= 2) {
         // 只有温湿度传感器
