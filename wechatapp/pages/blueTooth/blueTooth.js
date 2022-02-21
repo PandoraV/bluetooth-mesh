@@ -120,36 +120,13 @@ Page({
       path: that.data.dataFilePath,
       success(res) {
         // 文件存在，将缓存移除
-        // console.log("移除缓存")
-        // fs.removeSavedFile({
-        //   filePath: that.data.dataFilePath,
-        //   success(res) {
-        //     // 创建新文件
-        //     fs.writeFile({ // 不存在就创建文件，加入 csv 表头
-        //       filePath: that.data.dataFilePath,
-        //       data: "temp,humi,NH3,O3,NO,NO2,time\r\n", // 写入表头
-        //       encoding: 'utf8',
-        //       success(res) {
-        //         console.log(res)
-        //       },
-        //       fail(res) { // 创建文件失败
-        //         console.error(res)
-        //         wx.showToast({
-        //           title: '创建存储文件失败，请向管理员反馈',
-        //           icon: 'none'
-        //         })
-        //       }
-        //     })
-        //   },
-        //   fail(res) {
-        //     // 移除文件失败
-        //     console.error(res)
-        //   }
-        // })
+        console.log("cache removed")
       },
       fail(res) {
         // 文件不存在或其他错误
-        // console.log(res)
+        console.log("no existed document founded in the path")
+      },
+      complete() {
         fs.writeFile({ // 不存在就创建文件，加入 csv 表头
           filePath: that.data.dataFilePath,
           data: "temp,humi,NH3,O3,NO,NO2,time\r\n", // 写入表头
