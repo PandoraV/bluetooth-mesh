@@ -48,7 +48,7 @@ Date.prototype.Format = function (fmt) {
 @param jsonobj： json对象
 @return res：csv 格式的一行数据的字符串形式*/
 function jsonFake2csv(jsonobj) {
-  var keys = ["p_mls", "add", "temp", "humi", "NH3", "O3", "NO", "NO2", "time"] // 顺序很重要，代表csv的列
+  var keys = ["temp", "humi", "NH3", "O3", "NO", "NO2", "time"] // 顺序很重要，代表csv的列
   var res = "" // csv 数据结果
   for (var i = 0; i < keys.length; i++) { //遍历数组
     if (jsonobj[keys[i]]) {
@@ -119,15 +119,40 @@ Page({
     fs.access({
       path: that.data.dataFilePath,
       success(res) {
-        // 文件存在，不进行操作
-        // console.error(res)
+        // 文件存在，将缓存移除
+        // console.log("移除缓存")
+        // fs.removeSavedFile({
+        //   filePath: that.data.dataFilePath,
+        //   success(res) {
+        //     // 创建新文件
+        //     fs.writeFile({ // 不存在就创建文件，加入 csv 表头
+        //       filePath: that.data.dataFilePath,
+        //       data: "temp,humi,NH3,O3,NO,NO2,time\r\n", // 写入表头
+        //       encoding: 'utf8',
+        //       success(res) {
+        //         console.log(res)
+        //       },
+        //       fail(res) { // 创建文件失败
+        //         console.error(res)
+        //         wx.showToast({
+        //           title: '创建存储文件失败，请向管理员反馈',
+        //           icon: 'none'
+        //         })
+        //       }
+        //     })
+        //   },
+        //   fail(res) {
+        //     // 移除文件失败
+        //     console.error(res)
+        //   }
+        // })
       },
       fail(res) {
         // 文件不存在或其他错误
-        console.error(res)
+        // console.log(res)
         fs.writeFile({ // 不存在就创建文件，加入 csv 表头
           filePath: that.data.dataFilePath,
-          data: "p_mls,add,temp,humi,NH3,O3,NO,NO2,time\r\n", // 写入表头
+          data: "temp,humi,NH3,O3,NO,NO2,time\r\n", // 写入表头
           encoding: 'utf8',
           success(res) {
             console.log(res)
