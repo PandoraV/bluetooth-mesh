@@ -48,7 +48,7 @@ Date.prototype.Format = function (fmt) {
 @param jsonobj： json对象
 @return res：csv 格式的一行数据的字符串形式*/
 function jsonFake2csv(jsonobj) {
-  var keys = ["temp", "humi", "NH3", "O3", "NO", "NO2", "time"] // 顺序很重要，代表csv的列
+  var keys = ["time", "temp", "humi", "NH3", "O3", "NO", "NO2"] // 顺序很重要，代表csv的列
   var res = "" // csv 数据结果
   for (var i = 0; i < keys.length; i++) { //遍历数组
     if (jsonobj[keys[i]]) {
