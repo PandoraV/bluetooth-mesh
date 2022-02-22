@@ -66,17 +66,17 @@ OLED声明定义：
 ``` C++
 // Include the correct display library
 
-For a connection via I2C using the Arduino Wire include:
+// For a connection via I2C using the Arduino Wire include:
 #include <Wire.h>               // Only needed for Arduino 1.6.5 and earlier
 #include "SSD1306Wire.h"        // legacy: #include "SSD1306.h"
 OR #include "SH1106Wire.h"   // legacy: #include "SH1106.h"
 
-For a connection via I2C using brzo_i2c (must be installed) include:
+// For a connection via I2C using brzo_i2c (must be installed) include:
 #include <brzo_i2c.h>        // Only needed for Arduino 1.6.5 and earlier
 #include "SSD1306Brzo.h"
 OR #include "SH1106Brzo.h"
 
-For a connection via SPI include:
+// For a connection via SPI include:
 #include <SPI.h>             // Only needed for Arduino 1.6.5 and earlier
 #include "SSD1306Spi.h"
 OR #include "SH1106SPi.h"
@@ -85,19 +85,19 @@ OR #include "SH1106SPi.h"
 OLED初始化与连线：
 
 ```C++
-Initialize the OLED display using Arduino Wire:
+// Initialize the OLED display using Arduino Wire:
 SSD1306Wire display(0x3c, SDA, SCL);   // ADDRESS, SDA, SCL  
 SSD1306Wire display(0x3c, D3, D5);  // ADDRESS, SDA, SCL  -  If not, they can be specified manually.
 SSD1306Wire display(0x3c, SDA, SCL, GEOMETRY_128_32); 
                                     // ADDRESS, SDA, SCL, OLEDDISPLAY_GEOMETRY  -  Extra param required for 128x32 displays.
 SH1106Wire display(0x3c, SDA, SCL);     // ADDRESS, SDA, SCL
 
-Initialize the OLED display using brzo_i2c:
+// Initialize the OLED display using brzo_i2c:
 SSD1306Brzo display(0x3c, D3, D5);  // ADDRESS, SDA, SCL
 or
 SH1106Brzo display(0x3c, D3, D5);   // ADDRESS, SDA, SCL
 
-Initialize the OLED display using SPI:
+// Initialize the OLED display using SPI:
 D5 -> CLK
 D7 -> MOSI (DOUT)
 D0 -> RES
@@ -112,7 +112,7 @@ SH1106Spi display(D0, D2);       // RES, DC
 
 后续的SDA和SCL引脚在开发板提供者的引脚定义头文件中写明，pins_arduino.h 对于ESP32C3，两个引脚分别为引脚是**8（SDA）**和**9（SCL）**，分别对应**GPIO8**和**GPIO9**。
 
-Ref: https://github.com/espressif/arduino-esp32/blob/master/variants/esp32c3/pins_arduino.h
+- Ref: https://github.com/espressif/arduino-esp32/blob/master/variants/esp32c3/pins_arduino.h
 
 **值得注意**的是，Arduino中ESP32的GPIO口的标号对应其在程序中调用的数字。
 
@@ -120,13 +120,13 @@ Ref: https://github.com/espressif/arduino-esp32/blob/master/variants/esp32c3/pin
 
 使用TTL通信或485通信，波特率2400/4800/9600可选，出厂默认9600。外部设置金属网对电磁干扰进行屏蔽。使用modbus-RTU通信协议，与ESP通信须使用485转TTL模组，具体通信格式见通信协议。
 
-传感器使用注意事项：
+#### 传感器使用注意事项：
 
 - 不要直接焊接模组的插针，可以焊接插针的管座
 - 不可经受过度撞击和震动
 - 初次上电使用需预热三分钟
 
-与传感器的通信：
+#### 与传感器的通信：
 
 与传感器的通信使用软串口通信，在ESP8266中须引用`<SoftwareSerial.h>`头文件，在ESP32中不须引用头文件，已经默认在core中编译了头文件`<HardwareSerial.h>`，在代码中引用会报错。ESP的串口可以另外指定引脚，而不一定强制使用官方封装的引脚；但8266和32的引脚声明又略有区别。
 
@@ -165,10 +165,10 @@ void loop()
 ```
 其中，开始监听的`listen`函数和`end`函数可不写，且是ESP8266独占函数，在ESP32中不可使用。
 
-
 ESP32中定义如下，传入参数`1`表明板子上总共有几路可使用的串口通信引脚。
 
 ```C++
+// #include <HardwareSerial.h> // 引用的头文件，可以在他的cpp里看具体的函数接口定义
 HardwareSerial mySerial1(1); //软串口，用来与传感器进行通信
 ```
 
