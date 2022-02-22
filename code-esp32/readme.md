@@ -2,14 +2,14 @@
 
 ## 一、基本介绍
 
-本程序使用ESP32C3本程序功能包括：
+### 本程序使用ESP32C3本程序功能
 
-（1）通过`BLE`（低功耗蓝牙），向上位机发送当前监测传感器的实时数值，
+- （1）通过`BLE`（低功耗蓝牙），向上位机发送当前监测传感器的实时数值，
 包括`氨气`、`氮氧化物（NO和NO2）`、`臭氧`三种，及`温湿度`；
     
-（2）驱动0.96寸OLED小屏显示数值。
+- （2）驱动0.96寸OLED小屏显示数值。
 
-本装置用到的硬件包括：
+### 本装置用到的硬件
 
 - 温湿度传感器：`DHT11`，量程湿度`5~95%RH`， 温度`-20~60℃`，驱动电压与单片机逻辑电平相同（`5V`/`3.3V`）
 - `0.96`寸OLED小屏：型号`SSD1306`，分辨率`128*64`，驱动电压`3.3V`
@@ -20,17 +20,25 @@
 
 后四个有害气体传感器采购自精讯畅通厂家直销店，负责人为魏经理。
 
-本程序用到的样例包括：
+### 本程序用到的样例
+
+全部引用样例如下，部分样例在工程目录文件下有备份。
 
 - 乐鑫Arduino-ESP32仓库的示例代码 BLE_uart
 - ThingPulse公司`ESP8266 and ESP32 OLED`库的OLED样例代码 SSD1306SimpleDemo
-- Layada的DHT驱动库 DHTtester
+- Layada的DHT驱动库 DHTteste
+- CSDN社区@cyw_2018 ESP32多线程
+- CSDN社区@xiaoshihd ESP32+RS485测量教程
+- CSDN社区@青睚白鹿 ESP32连接RS485土壤湿度传感器上传至MySQL
 
 参考链接分别为：
 
 - https://github.com/espressif/arduino-esp32
 - https://github.com/ThingPulse/esp8266-oled-ssd1306
 - https://github.com/adafruit/DHT-sensor-library
+- https://blog.csdn.net/qq_41595493/article/details/109710067
+- https://blog.csdn.net/xiaoshihd/article/details/109398264
+- https://blog.csdn.net/weixin_42618434/article/details/116019430
 
 其中，DHT的包正常运行需要依赖于Adafruit的Unified Sensor Lib: 
 - https://github.com/adafruit/Adafruit_Sensor
@@ -108,6 +116,21 @@ or
 SH1106Spi display(D0, D2);       // RES, DC
 ```
 
+OLED常用基本函数：
+
+```C++
+// clear the display 清空已有显示
+display.clear();
+
+// create more fonts at http://oleddisplay.squix.ch/
+display.setTextAlignment(TEXT_ALIGN_LEFT); // 显示位置，可选参数包括LEFT，RIGHT和CENTER，详见同目录下OLED示例程序
+display.setFont(ArialMT_Plain_16); // 设置字体和字体大小，尾数即为字体大小
+display.drawString(0, 0, "temp: " + String(temperature) + "°C"); // 前两个参数为绘制文本的起始位置的x，y坐标
+
+// write the buffer to the display
+display.display(); // 将上述函数构成
+```
+
 本项目选择的是四引脚的OLED小屏，使用I2C总线通信，使用的地址位是0x3c，使用第一种初始化方式。
 
 后续的SDA和SCL引脚在开发板提供者的引脚定义头文件中写明，pins_arduino.h 对于ESP32C3，两个引脚分别为引脚是**8（SDA）**和**9（SCL）**，分别对应**GPIO8**和**GPIO9**。
@@ -149,16 +172,16 @@ void loop()
 {
     tempSerial.listen();  // 监听温度串口
     for (int i = 0 ; i < 8; i++) {  // 发送测温命令
-    tempSerial.write(tempCommand[i]);   // write输出
+        tempSerial.write(tempCommand[i]);   // write输出
     }
     delay(100);  // 等待测温数据返回
     tempData = "";
     while (tempSerial.available()) {//从串口中读取数据
-    unsigned char in = (unsigned char)tempSerial.read();  // read读取
-    Serial.print(in, HEX);
-    Serial.print(',');
-    tempData += in;
-    tempData += ',';
+        uint8_t in = (uint8_t)tempSerial.read();  // read读取, unsigned char define成 uint8_t
+        Serial.print(in, HEX);
+        Serial.print(',');
+        tempData += in;
+        tempData += ',';
     }
     tempSerial.end();
 }
@@ -196,7 +219,83 @@ mySerial1.begin(4800,SERIAL_8N1,35,12);
 
 ## 三、编程注意事项
 
-蓝牙BLE_uart开发注意事项：
+### 蓝牙BLE_uart
 
-- ESP蓝牙模块不支持Arduino的String关键字，调用时须指明是std命名空间里的，如std:string
-- 实测支持Arduino自己的delay()、millis()等原生函数。
+新建蓝牙的步骤为：
+
+```C++
+/*
+   Ported to Arduino ESP32 by Evandro Copercini
+
+   The design of creating the BLE server is:
+   1. Create a BLE Server
+   2. Create a BLE Service
+   3. Create a BLE Characteristic on the Service
+   4. Create a BLE Descriptor on the characteristic
+   5. Start the service.
+   6. Start advertising.
+*/
+```
+
+需要指定蓝牙的设备唯一ID和他的发信收信通道ID：
+
+```C++
+#define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
+#define CHARACTERISTIC_UUID_RX "6E400002-B5A3-F393-E0A9-E50E24DCCA9E" // 收信
+#define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E" // 发信
+```
+
+需要引用的头文件和初始化的类包括：
+
+```C++
+#include <BLEDevice.h>
+#include <BLEServer.h>
+#include <BLEUtils.h>
+#include <BLE2902.h>
+// #include <string.h> 
+
+BLEServer *pServer = NULL;
+BLECharacteristic * pTxCharacteristic;
+bool deviceConnected = false; // 当前有无设备连接
+bool oldDeviceConnected = false; // 是否已经有设备连接
+
+class MyServerCallbacks: public BLEServerCallbacks {} // 设备状态更改
+class MyCallbacks: public BLECharacteristicCallbacks {} // 收信响应类
+```
+
+更具体的操作请看样例代码。
+
+其他注意事项：
+
+- ESP蓝牙模块读写不支持Arduino的`String`关键字，仅可以使用C++自带的`<string.h>`头文件里的`string`类型，调用时须指明是`std`命名空间里的，如`std:string`
+
+### OLED驱动
+
+因为OLED不可以无限制快速刷新，每次刷新中间需要时间间隔，因此将其放在单独的线程中刷新。
+
+#### ESP的线程
+
+使用封装的函数`xTaskCreate`。示例代码：
+
+```C++
+xTaskCreate(
+    taskOne,   /* Task function. */
+    "TaskOne", /* String with name of task. */
+    10000,     /* Stack size in bytes. */
+    NULL,      /* Parameter passed as input of the task */
+    1,         /* Priority of the task. */
+    NULL     /* Task handle. */
+);
+```
+
+第一个参数为要在线程中执行的函数的函数名，第三个参数为给该线程分配的栈的字节数（即内存大小），第五个参数为优先级。当第四个参数，传入函数的参数，设定为`NULL`时，相对应的函数应当写明函数不接受任何参数，如下：
+
+```C++
+void taskOne(void *parameter) {}
+```
+
+应特别注明接受参数为`void *parameter`，而写作`void`不够严格，在编译器里会报错。
+
+### DHT驱动
+
+DHT不可写在线程里，必须在主线程中不断循环，且其采样时间不随外部输入时间确定。
