@@ -118,13 +118,75 @@ Ref: https://github.com/espressif/arduino-esp32/blob/master/variants/esp32c3/pin
 
 ### 有害气体传感器
 
-使用TTL通信或485通信，波特率2400/4800/9600可选，出厂默认9600。外部设置金属网对电磁干扰进行屏蔽。使用modbus-RTU通信协议，具体通信方式见通信协议。
+使用TTL通信或485通信，波特率2400/4800/9600可选，出厂默认9600。外部设置金属网对电磁干扰进行屏蔽。使用modbus-RTU通信协议，与ESP通信须使用485转TTL模组，具体通信格式见通信协议。
 
-注意事项：
+传感器使用注意事项：
 
 - 不要直接焊接模组的插针，可以焊接插针的管座
 - 不可经受过度撞击和震动
 - 初次上电使用需预热三分钟
+
+与传感器的通信：
+
+与传感器的通信使用软串口通信，在ESP8266中须引用`<SoftwareSerial.h>`头文件，在ESP32中不须引用头文件，已经默认在core中编译了头文件`<HardwareSerial.h>`，在代码中引用会报错。ESP的串口可以另外指定引脚，而不一定强制使用官方封装的引脚；但8266和32的引脚声明又略有区别。
+
+在ESP8266中定义如下，`SoftwareSerial`类的初始化传入参数包括了TTL通信的两个引脚。
+
+```C++
+#include <SoftwareSerial.h>
+SoftwareSerial tempSerial(8, 7);  // RX, TX，注意顺序
+```
+
+8266的软串口使用：
+
+```C++
+void setup()
+{
+  tempSerial.begin(9600);
+}
+
+void loop()
+{
+    tempSerial.listen();  // 监听温度串口
+    for (int i = 0 ; i < 8; i++) {  // 发送测温命令
+    tempSerial.write(tempCommand[i]);   // write输出
+    }
+    delay(100);  // 等待测温数据返回
+    tempData = "";
+    while (tempSerial.available()) {//从串口中读取数据
+    unsigned char in = (unsigned char)tempSerial.read();  // read读取
+    Serial.print(in, HEX);
+    Serial.print(',');
+    tempData += in;
+    tempData += ',';
+    }
+    tempSerial.end();
+}
+```
+其中，开始监听的`listen`函数和`end`函数可不写，且是ESP8266独占函数，在ESP32中不可使用。
+
+
+ESP32中定义如下，传入参数`1`表明板子上总共有几路可使用的串口通信引脚。
+
+```C++
+HardwareSerial mySerial1(1); //软串口，用来与传感器进行通信
+```
+
+在ESP中，不可在这一步中指定使用别的引脚，需要在串口启动函数中才能另外指定。
+
+```C++
+mySerial1.begin(4800,SERIAL_8N1,35,12); 
+```
+
+对于具体的参数进行说明：
+
+- `4800`：波特率
+- `SERIAL_8N1`：表设置`config`，表示8位数据位，无校验位，1位停止位。
+- 后两个参数分别为`rxPin`和`txPin`的引脚标号
+
+本装置中使用的`TX`、`RX`的引脚与ESP32C3官方封装一致，为`IO20`（`RX`）和`IO21`（`TX`）。上面后三个参数不需要特别说明，`config`和`TX`、`RX`默认值均已在头文件里写好。
+
+具体的读写方式与上面ESP8266除了不需要`listen`和`end`之外完全一致。
 
 ## 三、编程注意事项
 
