@@ -1,14 +1,14 @@
 #include "DHT.h"
 HardwareSerial mySerial1(1); //软串口，用来与传感器进行通信
-unsigned char item[8] = {0x01, 0x03, 0x00, 0x00, 0x00, 0x03, 0x05, 0xCB}; 
+uint8_t request_for_sensor_command[8] = {0x01, 0x03, 0x00, 0x06, 0x00, 0x01, 0x64, 0x0B}; 
 
 /* CRC16 计算函数，ptr-数据指针，len-数据长度，返回值-计算出的 CRC16 数值 */ 
-unsigned int GetCRC16(unsigned char *ptr, unsigned char len)
+uint16_t GetCRC16(uint8_t *ptr, uint8_t len)
 {
-  unsigned int index;
-  unsigned char crch = 0xFF; // 高 CRC 字节 
-  unsigned char crcl = 0xFF; // 低 CRC 字节
-  unsigned char TabH[] = { // CRC 高位字节值表
+  uint16_t index;
+  uint8_t crch = 0xFF; // 高 CRC 字节 
+  uint8_t crcl = 0xFF; // 低 CRC 字节
+  uint8_t TabH[] = { // CRC 高位字节值表
     0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 
     0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 
     0x81, 0x40, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 
@@ -34,7 +34,7 @@ unsigned int GetCRC16(unsigned char *ptr, unsigned char len)
     0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 
     0xC1, 0x81, 0x40
   };
-  unsigned char TabL[] = { // CRC 低位字节值表
+  uint8_t TabL[] = { // CRC 低位字节值表
     0x00, 0xC0, 0xC1, 0x01, 0xC3, 0x03, 0x02, 0xC2, 0xC6, 0x06, 0x07, 
     0xC7, 0x05, 0xC5, 0xC4, 0x04, 0xCC, 0x0C, 0x0D, 0xCD, 0x0F, 0xCF, 
     0xCE, 0x0E, 0x0A, 0xCA, 0xCB, 0x0B, 0xC9, 0x09, 0x08, 0xC8, 0xD8, 
@@ -65,29 +65,29 @@ unsigned int GetCRC16(unsigned char *ptr, unsigned char len)
     crch = crcl ^ TabH[index]; 
     crcl = TabL[index];
   }
-  return ((crch<<8) | crcl);
+  return ((crch << 8) | crcl);
 }
 
 //下面定义了一个函数，用来与传感器通信和发送温湿度的值到数据库
-void *readAndRecordData() {
+void readAndRecordData() {
   String data = ""; 
-  char buff[128];// 定义存储传感器数据的数组
+  uint8_t buff[128];// 定义存储传感器数据的数组
   String info[11];
-  for (int i = 0 ; i < 8; i++) {  // 发送测温命令
-    mySerial1.write(item[i]);   // write输出
+  for (int i = 0 ; i < 9; i++) {  // 发送测温命令
+    mySerial1.write(request_for_sensor_command[i]);   // write输出
   }
   delay(100);  // 等待测温数据返回
   data = "";
   while (mySerial1.available()) {//从串口中读取数据
-    unsigned char in = (unsigned char)mySerial1.read();  // read读取
+    uint8_t in = (uint8_t)mySerial1.read();  // read读取
     Serial.print(in, HEX);
     Serial.print(',');
     data += in;
     data += ',';
   }
   if (data.length() > 0) { //先输出一下接收到的数据
-    Serial.print(data.length());
-    Serial.println();
+    // Serial.print(data.length());
+    // Serial.println();
     Serial.println(data);
     int commaPosition = -1;
     // 用字符串数组存储
@@ -112,10 +112,14 @@ void setup()
 {
   Serial.begin(115200);
   mySerial1.begin(9600);
-  while (!Serial); // wait for serial port to connect. Needed for Leonardo only
+  // while (!Serial); // wait for serial port to connect. Needed for Leonardo only
+  uint16_t tempInt = 0x0000;
+  tempInt = GetCRC16(request_for_sensor_command, 6);
+  Serial.println(tempInt, HEX);
 }
 
 void loop()
 {
+
   delay(1000);
 }
