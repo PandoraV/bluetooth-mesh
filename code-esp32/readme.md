@@ -300,3 +300,110 @@ void taskOne(void *parameter) {}
 ### DHT驱动
 
 DHT不可写在线程里，必须在主线程中不断循环，且其采样时间不随外部输入时间确定。
+
+---
+
+## FAQ
+
+---
+
+### 两条I2C的配置
+
+I2C在Arduino中配置第二条总线
+- Ref：https://blog.csdn.net/qq_33685823/article/details/113796309
+
+### OLED小屏
+
+屏幕背后烧的电阻给的地址位是0x78，但是程序里面的地址位是0x3c，奇怪的是程序烧进去的地址可以驱动OLED小屏，而将地址改成0x78之后就不能驱动小屏了。
+
+单色图绘图工具：
+- https://blog.squix.org/2015/05/esp8266-nodemcu-how-to-create-xbm.html
+
+### DHT11
+
+1. 由于DHT温湿度传感器是一个非常非常慢的传感器，在主循环中需要2秒的时间才可以完成一次完整的读取温湿度的操作。因此，为了尽量提高读取成功率，本程序每次读取DHT传感器的时间间隔为3000毫秒。
+
+2. 传感器对于湿度的下降非常不敏感，上升反应还是比较快的。
+
+3. 他的读写收到环境因素的强烈干扰和未知的随机因素影响，存在长时间无法正常读取温湿度的情况。
+
+### Arduino的宏定义F()
+
+Arduino中F函数对字符串的操作
+
+首先纠正一点，`F()`不是函数，而是宏定义，简单点说：
+
+    程序存储空间（也就是文中的flash memory），是用来存放程序的；
+
+    动态存储空间（也就是文中的dynamic memory），是用来存放变量的；
+
+有时候，dynamic memory不够用了，那么使用`F()`宏，把原来需要存放到dynamic memory中的内容，修改为存放到flash memory中。所以使用`F()`宏后，会导致占用更多的flash memory。
+
+通俗点说，当你写程序的时候弄了很多全局变量，编译的时候会提示你占用了多少空间可能会造成不稳定什么的。这时候可以把所有的`serial.print`里面加上`F()`，这样可以节省全局变量。
+
+### ESP多线程
+
+补充上述`void* parameter`的部分：
+
+    invalid conversion from 'void (*)()' to 'TaskFunction_t' {aka 'void (*)(void*)'} [-fpermissive]
+
+使用ESP32的多线程报错，在使用xTaskCreate()创建任务时，报了上述错误，是因为：
+
+任务函数的参数格式不能写作
+
+    Task_example()
+
+在C++里，函数`()`表示可以接收任何形式的参数，而函数`(void* Parameter)`才是什么参数都不接受。上述方案仅适用于任务函数不需要外部参数输入的情况。
+
+### ESP-IDF环境安装和配置
+
+#### 从Git上clone **（不推荐）**
+
+（1）从Windows迁移到macOS下的文件在终端中运行报 
+
+    env: bash\r: No such file or directory
+
+是因为两个系统的文件名管理策略有区别，需要运行以下命令；
+
+    1、brew install dos2unix
+    2、find . -type f -exec dos2unix {} \;
+
+（2）idf.py build之后报
+
+    env: idf.py: Permission denied
+
+去idf.py目录下执行
+
+    chmod u+x ./idf.py
+
+如果其他如export.sh也报这个问题也执行一下就好了。
+
+#### 解压压缩包 **（推荐）**
+
+- Ref: https://backmountaindevil.github.io/#/hackaday/esp32/espidf
+
+#### 环境配置
+
+VScode打开源文件头文件报错找不到，在includePath内加入下述设置，具体目录根据自己安装位置自行调整。
+
+    "/opt/esp/esp-idf-v4.4/components/**"
+
+在包含ESP-IDF的components文件夹之后剩余的头文件（如
+
+    cannot open source file "sys/reent.h" (dependency of "freertos/FreeRTOS.h")
+
+）报错解决方法：
+
+    "C_Cpp.intelliSenseEngine": "Tag Parser"
+
+向setting.json文件夹末尾追加上述设置。
+
+- Ref：https://github.com/espressif/vscode-esp-idf-extension/issues/618 
+
+### Git ignore跟踪问题
+
+Gitignore不生效：在工程目录下运行：
+
+    1.	git rm -r --cached .
+    2.	git add .
+    3.	git commit -m "update .gitignore"
