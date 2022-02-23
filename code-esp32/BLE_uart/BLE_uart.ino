@@ -14,9 +14,9 @@ SSD1306Wire display(0x3c, SDA, SCL);   // ADDRESS, SDA, SCL
 
 // 软串口 
 HardwareSerial tempSerial(1); // RX, TX
-uint8_t active_model_command[9] = {}; // 主动上报模式命令
-uint8_t query_model_command[9] = {}; // 询问上报模式
-uint8_t request_for_sensor_command[9] = {}; // 询问当前浓度
+// uint8_t active_model_command[9] = {}; // 主动上报模式命令
+// uint8_t query_model_command[9] = {}; // 询问上报模式
+uint8_t request_for_sensor_command[8] = {}; // 询问当前浓度
 
 /*
    Ported to Arduino ESP32 by Evandro Copercini
