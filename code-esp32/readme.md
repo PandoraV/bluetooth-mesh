@@ -418,3 +418,22 @@ Gitignore不生效：在工程目录下运行：
     1.	git rm -r --cached .
     2.	git add .
     3.	git commit -m "update .gitignore"
+
+### ESP的TTL串口
+
+对于每一块ESP32的开发板，都有至少两组TTL串口引脚（TX和RX）。其中，对于ESP32C3，其封装管脚示意图上明确指出的TX和RX引脚（U0RX和U0TX，IO20/IO21）是系统烧录的串口引脚，在系统头文件HardwareSerial.h里名称为SOC_TX和SOC_RX，赋值分别为21和20。这对引脚是与板载USB转TTL的线路直接相连，当电脑向单片机烧录时，即通过这两个引脚进行操作。若将单片机的这两个引脚引出，例如接到485转TTL上，上位机会优先烧录引脚上连接的外部设备，在等待连接的过程中，板载与IO19相连的冷色LED灯会均匀呼吸闪烁，上位机会提示：
+
+    A fatal error occurred: Timed out waiting for packet header
+
+或者提示是否串口上连接了多个设备：
+
+    raise SerialException('device reports readiness to read but returned no data (device disconnected or multiple access on port?)')
+    serial.serialutil.SerialException: device reports readiness to read but returned no data (device disconnected or multiple access on port?)
+
+也因此，在Arduino IDE里向设备发送数据时，485转TTL模块里收发信指示灯并未亮起，而调用Serial接口向上位机发送数据，串口打印文本信息时，则会亮起。
+
+对于ESP32C3，除了系统烧录的串口引脚之外，有且只有另一组串口引脚可以用来当做软串口（对于ESP32，可能叫硬串口会更合适），在系统头文件中分别定义为RX1和TX1，分别为IO19和IO18。ESP32为串口通信封装了指示灯，对于ESP32C3，冷色灯挂载在IO19上，暖色灯挂载在IO18上，由于传输数据的本质是通过对引脚电平的拉高和拉低，引脚上的电平会直接影响到这组板载LED等的亮度，传输数据就会引起LED闪烁，因此这组LED灯起到了通信指示灯的作用。
+
+先前冷色灯过亮，因此我代码里用TTL输出将IO19默认置低电平。当接线从系统串口迁移到这组软串口时，最初我的接线仍然接错了，接成了TX-TX，RX-RX，此时485转TTL模块上TX线路的指示LED常亮，串口输出大量乱码。取消置低电平后，冷光灯常亮，485转TTL模块熄灭并转为闪烁。然后发现接线错误，将接线交换后，变为暖光灯常亮，并偶见闪烁，冷光灯熄灭。不清楚内部接线以及电平之间的关系，灯的亮灭可能与LED方向也有关系。目前认为，RX引脚被拉低即为接收状态，TX拉低为发送状态；TX接的对面的RX为高电压时，表示无数据传送，对面也没有处于接收数据状态；RX对面的TX同理。现在不好的就是暖色灯也总是处于过亮的状态了。
+
+
