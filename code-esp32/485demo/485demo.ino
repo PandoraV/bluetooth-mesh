@@ -1,7 +1,7 @@
-#include "DHT.h"
+// #include "DHT.h"
 HardwareSerial mySerial1(1); //软串口，用来与传感器进行通信
 uint8_t request_for_sensor_command[8] = {0x01, 0x03, 0x00, 0x06, 0x00, 0x01, 0x64, 0x0B}; 
-
+uint8_t command2[8] = {0x02, 0x03, 0x00, 0x06, 0x00, 0x01, 0x64, 0x38};
 /* CRC16 计算函数，ptr-数据指针，len-数据长度，返回值-计算出的 CRC16 数值 */ 
 uint16_t GetCRC16(uint8_t *ptr, uint8_t len)
 {
@@ -72,19 +72,20 @@ uint16_t GetCRC16(uint8_t *ptr, uint8_t len)
 //下面定义了一个函数，用来与传感器通信和发送温湿度的值到数据库
 void readAndRecordData() {
   String data = ""; 
-  uint8_t buff[128];// 定义存储传感器数据的数组
   String info[11];
-  for (int i = 0 ; i < 9; i++) {  // 发送测温命令
-    mySerial1.write(request_for_sensor_command[i]);   // write输出
-  }
-  delay(100);  // 等待测温数据返回
+  mySerial1.write(command2, 8); // 发送测温命令
+  delay(10);  // 等待测温数据返回
   data = "";
+  // Serial.println("hardware serial read available? " + String(mySerial1.available()));
   while (mySerial1.available()) {//从串口中读取数据
+    if (data != "")
+      data += ',';
     uint8_t in = (uint8_t)mySerial1.read();  // read读取
     Serial.print(in, HEX);
     Serial.print(',');
     data += in;
-    data += ',';
+    // delay(2);
+    // data += ',';
   }
   if (data.length() > 0) { //先输出一下接收到的数据
     // Serial.print(data.length());
@@ -106,21 +107,33 @@ void readAndRecordData() {
     //   }
     // }
   }
-  return 1.0;
 }
 
 void setup()
 {
   Serial.begin(115200);
-  mySerial1.begin(9600);
+  mySerial1.begin(9600, SERIAL_8N1);
   // while (!Serial); // wait for serial port to connect. Needed for Leonardo only
-  uint16_t tempInt = 0x0000;
-  tempInt = GetCRC16(request_for_sensor_command, 6);
-  Serial.println(tempInt, HEX);
+  // uint16_t tempInt = 0x0000;
+  // tempInt = GetCRC16(request_for_sensor_command, 6);
+  // Serial.println(tempInt, HEX);
+  // pinMode(19, OUTPUT);
+  // digitalWrite(19, LOW);
 }
 
 void loop()
 {
-
+  // Serial.println("byte delivered");
+  // mySerial1.write(0x01);
+  // delay(500);
+  readAndRecordData();
+  // String data = "";
+  // while (mySerial1.available() > 0) {
+  //   uint8_t tempChar = mySerial1.read();
+  //   Serial.print(tempChar, HEX);
+  //   data += tempChar;
+  //   delay(2);
+  // }
+  
   delay(1000);
 }
