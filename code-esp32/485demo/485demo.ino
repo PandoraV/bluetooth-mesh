@@ -60,7 +60,8 @@ uint16_t GetCRC16(uint8_t *ptr, uint8_t len)
     0x85, 0x45, 0x87, 0x47, 0x46, 0x86, 0x82, 0x42, 0x43, 0x83, 0x41, 
     0x81, 0x80, 0x40
   };
-  while(len--) //计算指定长度的CRC {
+  while(len--) //计算指定长度的CRC 
+  {
     index = crch ^ *ptr++; 
     crch = crcl ^ TabH[index]; 
     crcl = TabL[index];
