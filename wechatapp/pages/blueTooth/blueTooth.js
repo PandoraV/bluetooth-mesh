@@ -442,7 +442,7 @@ Page({
         for (var i = 3; i <= i_num; i++) {
           gas_precision = 0; // 清空
           var index = 2 * (i + 1);
-          if (bytes_received.charCodeAt(index) == 0) { // 传感器工作异常
+          if (bytes_received.charCodeAt(index) == 255) { // 传感器工作异常
             gas_precision = -1;
           } else {
             gas_precision += bytes_received.charCodeAt(index) * 256; // 高字节
