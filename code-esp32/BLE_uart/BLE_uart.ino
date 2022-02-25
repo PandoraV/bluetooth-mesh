@@ -25,15 +25,15 @@ uint8_t data_high_byte[4] = {0x00, 0x00, 0x00, 0x00}; // 数据高八位
 uint8_t data_low_byte[4]  = {0x00, 0x00, 0x00, 0x00}; // 数据低八位
 
 /*
-   Ported to Arduino ESP32 by Evandro Copercini
+  Ported to Arduino ESP32 by Evandro Copercini
 
-   The design of creating the BLE server is:
-   1. Create a BLE Server
-   2. Create a BLE Service
-   3. Create a BLE Characteristic on the Service
-   4. Create a BLE Descriptor on the characteristic
-   5. Start the service.
-   6. Start advertising.
+  The design of creating the BLE server is:
+  1. Create a BLE Server
+  2. Create a BLE Service
+  3. Create a BLE Characteristic on the Service
+  4. Create a BLE Descriptor on the characteristic
+  5. Start the service.
+  6. Start advertising.
 */
 
 #include <BLEDevice.h>
@@ -69,7 +69,7 @@ ulong period_millis = DEFAULT_PERIOD_MILLIS; // 发信间隔
 #define ADDRESS_PRESENT_SLAVE 1 // 从机地址位
 #define info_num 2 // 传回上位机信息条数，测试时仅有温湿度两项
 // std::string info_name = "temp测试中文"; // 传回上位机的项目名称
-std::string info_name[10] = {
+String info_name[10] = {
   "temp",
   "humi",
   "NH3",
@@ -237,7 +237,7 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
             // Serial.println("received data has passed the verification and has been authorized.");
             data_high_byte[i] = data[3];
             data_low_byte[i]  = data[4];
-            Serial.print("the data bit is ");
+            Serial.print("the data bit of " + info_name[i+2] + " is ");
             Serial.print(data_high_byte[i], HEX);
             Serial.print(" ");
             Serial.println(data_low_byte[i], HEX);
@@ -255,7 +255,7 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
         }
       }
     }
-    delay(1000);
+    delay(period_millis);
   }
   Serial.println("sensor thread ended."); // 不会执行
   vTaskDelete(NULL); // 删除线程 释放内存
