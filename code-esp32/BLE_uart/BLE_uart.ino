@@ -54,7 +54,7 @@ std::string tx_str_for_query = "";
 #define DEFAULT_PERIOD_MILLIS 1000
 #define MINIMUM_PERIOD_MILLIS 500
 #define MAXIMUM_PERIOD_MILLIS 65535
-#define SENSOR_OVERTIME_MILLIS 10
+#define SENSOR_OVERTIME_MILLIS 50
 ulong current_millis = 0;
 ulong send_millis = 0;    // 上次发信的时间
 ulong queryDuration = 20; // 回信间隔
@@ -178,23 +178,33 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
 {
   Serial.println("sensor thread started!");
 
-  int i = 1;
-  while(i == 1) { // 死循环
+  int k = 1;
+  while(k == 1) { // 死循环
     std::string data = ""; 
 
     // 将已存储的传感器数据位清空
     for (int i = 0; i < info_num - 2; i++) {
-      data_high_byte[i] = 0x00;
-      data_low_byte[i]  = 0x00;
+      data_high_byte[i] = 0xff;
+      data_low_byte[i]  = 0xff;
     }
 
     for (int i = 0; i < info_num - 2; i++) { // 轮询
       mySerial1.write(request_for_sensor_command[i], 8); // 发送测温命令
+      // for (int j = 0; j < 8; j++) {
+      //   Serial.print(request_for_sensor_command[i][j]);
+      //   Serial.print(" ");
+      // }
+      // Serial.print(millis());
+      // Serial.println();
       delay(SENSOR_OVERTIME_MILLIS);  // 等待测温数据返回
       
       if (mySerial1.available() > 0) {
         // 有返回数据
+        data_high_byte[i] = 0x00;
+        data_low_byte[i]  = 0x00;
         // Serial.println("the " + String(i) + " has replyed!");
+        // Serial.print("received millis is: ");
+        // Serial.println(millis());
       } else {
         // 无返回数据
         data_high_byte[i] = 0xff;
@@ -231,7 +241,7 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
             // Serial.println("received data has passed the verification and has been authorized.");
             data_high_byte[i] = data[3];
             data_low_byte[i]  = data[4];
-            Serial.print("the data bit of " + info_name[i + 3] + " is ");
+            Serial.print("the data bit of " + info_name[i + 2] + " is ");
             Serial.print(data_high_byte[i], HEX);
             Serial.print(" ");
             Serial.println(data_low_byte[i], HEX);
@@ -515,26 +525,38 @@ void setup_json_string() // 构建发送的json字符串
     if (info_num >= 3)
     {
       // 氨气传感器
+      if (data_high_byte[0] == 0x00) { // 等待读取完成
+        delay(SENSOR_OVERTIME_MILLIS);
+      }
       txValue += data_high_byte[0];
       txValue += data_low_byte[0];
     }
     if (info_num >= 4)
     {
       // 臭氧传感器
-      txValue += data_high_byte[0];
-      txValue += data_low_byte[0];
+      if (data_high_byte[1] == 0x00) { // 等待读取完成
+        delay(SENSOR_OVERTIME_MILLIS);
+      }
+      txValue += data_high_byte[1];
+      txValue += data_low_byte[1];
     }
     if (info_num >= 5)
     {
       // NO传感器
-      txValue += data_high_byte[0];
-      txValue += data_low_byte[0];
+      if (data_high_byte[2] == 0x00) { // 等待读取完成
+        delay(SENSOR_OVERTIME_MILLIS);
+      }
+      txValue += data_high_byte[2];
+      txValue += data_low_byte[2];
     }
     if (info_num >= 6)
     {
       // NO2传感器
-      txValue += data_high_byte[0];
-      txValue += data_low_byte[0];
+      if (data_high_byte[3] == 0x00) { // 等待读取完成
+        delay(SENSOR_OVERTIME_MILLIS);
+      }
+      txValue += data_high_byte[3];
+      txValue += data_low_byte[3];
     }
   }
   
