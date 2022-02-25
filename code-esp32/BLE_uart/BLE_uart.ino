@@ -182,76 +182,83 @@ void overFlow()
 
 void gas_sensor_serial(void *parameter) // 气体传感器软串口
 {
-  std::string data = ""; 
+  Serial.println("sensor thread started!");
 
-  // 将已存储的传感器数据位清空
-  for (int i=0; i<4; i++) {
-    data_high_byte[i] = 0x00;
-    data_low_byte[i]  = 0x00;
-  }
+  int i = 1;
+  while(i == 1) { // 死循环
+    std::string data = ""; 
 
-  for (int i=0; i<4; i++) { // 轮询
-    mySerial1.write(request_for_sensor_command[i], 8); // 发送测温命令
-    delay(100);  // 等待测温数据返回
-    
-    if (mySerial1.available() > 0) {
-      // 有返回数据
-      // Serial.println("the " + String(i) + " has replyed!");
-    } else {
-      // 无返回数据
-      data_high_byte[i] == 0xff;
-      data_low_byte[i]  == 0xff;
-      // Serial.print(i);
-      // Serial.println(": the sensor didn't reply anything!");
-      continue;
+    // 将已存储的传感器数据位清空
+    for (int i=0; i<4; i++) {
+      data_high_byte[i] = 0x00;
+      data_low_byte[i]  = 0x00;
     }
 
-    data = ""; // 清空
-    while (mySerial1.available()) { // 从串口中读取数据
-      uint8_t in = (uint8_t)mySerial1.read();  // read读取
-      // Serial.print(in, HEX);
-      // Serial.print(' ');
-      data += in;
-    }
-    // Serial.println();
+    for (int i=0; i<4; i++) { // 轮询
+      mySerial1.write(request_for_sensor_command[i], 8); // 发送测温命令
+      delay(100);  // 等待测温数据返回
+      
+      if (mySerial1.available() > 0) {
+        // 有返回数据
+        // Serial.println("the " + String(i) + " has replyed!");
+      } else {
+        // 无返回数据
+        data_high_byte[i] == 0xff;
+        data_low_byte[i]  == 0xff;
+        // Serial.print(i);
+        // Serial.println(": the sensor didn't reply anything!");
+        continue;
+      }
 
-    if (data.length() > 0) { 
-      // 校验操作
+      data = ""; // 清空
+      while (mySerial1.available()) { // 从串口中读取数据
+        uint8_t in = (uint8_t)mySerial1.read();  // read读取
+        // Serial.print(in, HEX);
+        // Serial.print(' ');
+        data += in;
+      }
+      // Serial.println();
 
-      // 首先确认是否是7位数据
-      if (data.length() == 7) {
-        // 数据位符合要求，检查CRC16
-        uint8_t data_char_str[7] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-        for (int i=0; i<7; i++) { // 将string类型字符串传入unsigned char
-          data_char_str[i] = data[i];
-        }
-        uint16_t crcInt = GetCRC16(data_char_str, 5);
-        unsigned char crcl = crcInt;
-        unsigned char crch = crcInt >> 8;
-        if (crch == data[5] && crcl == data[6]) {
-          // 校验通过
-          // Serial.println("received data has passed the verification and has been authorized.");
-          data_high_byte[i] = data[3];
-          data_low_byte[i]  = data[4];
-          Serial.print("the data bit is ");
-          Serial.print(data_high_byte[i], HEX);
-          Serial.print(" ");
-          Serial.println(data_low_byte[i], HEX);
+      if (data.length() > 0) { 
+        // 校验操作
+
+        // 首先确认是否是7位数据
+        if (data.length() == 7) {
+          // 数据位符合要求，检查CRC16
+          uint8_t data_char_str[7] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+          for (int i=0; i<7; i++) { // 将string类型字符串传入unsigned char
+            data_char_str[i] = data[i];
+          }
+          uint16_t crcInt = GetCRC16(data_char_str, 5);
+          unsigned char crcl = crcInt;
+          unsigned char crch = crcInt >> 8;
+          if (crch == data[5] && crcl == data[6]) {
+            // 校验通过
+            // Serial.println("received data has passed the verification and has been authorized.");
+            data_high_byte[i] = data[3];
+            data_low_byte[i]  = data[4];
+            Serial.print("the data bit is ");
+            Serial.print(data_high_byte[i], HEX);
+            Serial.print(" ");
+            Serial.println(data_low_byte[i], HEX);
+          } else {
+            // 数据异常
+            Serial.println("data loss! The data received has not passed the CRC verification!");
+            data_high_byte[i] == 0xff;
+            data_low_byte[i]  == 0xff;
+          }
         } else {
-          // 数据异常
-          Serial.println("data loss! The data received has not passed the CRC verification!");
+          // 数据位数异常
+          Serial.println("data loss! the length of data doesn't equal 7");
           data_high_byte[i] == 0xff;
           data_low_byte[i]  == 0xff;
         }
-      } else {
-        // 数据位数异常
-        Serial.println("data loss! the length of data doesn't equal 7");
-        data_high_byte[i] == 0xff;
-        data_low_byte[i]  == 0xff;
       }
     }
+    delay(1000);
   }
-  delay(1000);
+  Serial.println("sensor thread ended."); // 不会执行
+  vTaskDelete(NULL); // 删除线程 释放内存
 }
 
 void sendMsg(std::string msg_to_TX) // 蓝牙发送信息函数
@@ -583,10 +590,19 @@ void setup() {
     NULL,           /* Parameter passed as input of the task */
     1,              /* Priority of the task. */
     NULL            /* Task handle. */
-  );     
+  );
 
   // 软串口启动
   mySerial1.begin(9600, SERIAL_8N1);
+
+  xTaskCreate(
+    gas_sensor_serial,   /* Task function. */
+    "Display",      /* String with name of task. */
+    10000,          /* Stack size in bytes. */
+    NULL,           /* Parameter passed as input of the task */
+    1,              /* Priority of the task. */
+    NULL            /* Task handle. */
+  );
 }
 
 void loop() {
