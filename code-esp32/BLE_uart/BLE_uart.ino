@@ -377,7 +377,7 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
                     }
                     if (new_period_millis < MINIMUM_PERIOD_MILLIS)
                     {
-                      Serial.print("the new period " + String(new_period_millis) + " is smaller than the minimum value");
+                      Serial.println("the new period " + String(new_period_millis) + " is smaller than the minimum value");
                     } else {
                       Serial.print("the sensor period has been updated to ");
                       Serial.println(new_period_millis);
@@ -396,13 +396,13 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
                       break;
                     }
                     new_period_millis *= 10; // 进位
-                    new_period_millis += 1000*(rxValue[i] - '0'); // 毫秒为单位
+                    new_period_millis += rxValue[i] - '0'; // 毫秒为单位
                   }
                   if (new_period_millis != 0)
                   {
                     if (new_period_millis > MAXIMUM_PERIOD_MILLIS)
                     {
-                      Serial.print("the new period " + String(new_period_millis) + " is larger than the maximum value");
+                      Serial.println("the new period " + String(new_period_millis) + " is larger than the maximum value");
                     } else {
                       period_millis = new_period_millis;
                       Serial.print("the sensor period has been updated to ");

@@ -352,11 +352,13 @@ Page({
         if (inputNum >= 500 && inputNum <= 65535)
         {
           // 发送
-          var sendCommand = "Q0"
-          sendCommand += this.data.address
+          var sendCommand = "P0"
+          sendCommand += this.data.slave_address
+          if (inputNum < 1000)
+            sendCommand += '0'
           sendCommand += inputNum
           console.log("new duration has been switched into " + inputNum)
-          this.msgHandle(sendCommand)
+          this.sendMsg2BLE(sendCommand)
           wx.showToast({
             title: '时间间隔已经调整为' + inputNum + "毫秒",
             icon: 'none',
