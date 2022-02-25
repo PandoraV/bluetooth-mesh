@@ -12,7 +12,8 @@ uint8_t request_for_sensor_command[4][8] = {
   {0x04, 0x03, 0x00, 0x06, 0x00, 0x01, 0x64, 0x5e} // NO2传感器
 };
 
-uint8_t command2[8] = {0x02, 0x03, 0x00, 0x06, 0x00, 0x01, 0x64, 0x38}; // 臭氧传感器
+uint8_t data_high_byte[4] = {0x00, 0x00, 0x00, 0x00}; // 数据高八位
+uint8_t data_low_byte[4]  = {0x00, 0x00, 0x00, 0x00}; // 数据低八位
 
 /* CRC16 计算函数，ptr-数据指针，len-数据长度，返回值-计算出的 CRC16 数值 */ 
 uint16_t GetCRC16(uint8_t *ptr, uint8_t len)
@@ -84,30 +85,70 @@ uint16_t GetCRC16(uint8_t *ptr, uint8_t len)
 //下面定义了一个函数，用来与传感器通信和发送温湿度的值到数据库
 void readAndRecordData() {
   std::string data = ""; 
+
+  // 将已存储的传感器数据位清空
+  for (int i=0; i<4; i++) {
+    data_high_byte[i] = 0x00;
+    data_low_byte[i]  = 0x00;
+  }
+
   for (int i=0; i<4; i++) { // 轮询
     mySerial1.write(request_for_sensor_command[i], 8); // 发送测温命令
     delay(100);  // 等待测温数据返回
     
     if (mySerial1.available() > 0) {
       // 有返回数据
-      Serial.println("data received!");
+      // Serial.println("the " + String(i) + " has replyed!");
     } else {
       // 无返回数据
-      Serial.print(i);
-      Serial.println(": the sensor didn't reply anything!");
+      // Serial.print(i);
+      // Serial.println(": the sensor didn't reply anything!");
       continue;
     }
 
-    data = "";
+    data = ""; // 清空
     while (mySerial1.available()) { // 从串口中读取数据
       uint8_t in = (uint8_t)mySerial1.read();  // read读取
-      Serial.print(in, HEX);
-      Serial.print(' ');
+      // Serial.print(in, HEX);
+      // Serial.print(' ');
       data += in;
     }
-    Serial.println();
+    // Serial.println();
+
     if (data.length() > 0) { 
-      // 用字符串数组存储
+      // 校验操作
+
+      // 首先确认是否是7位数据
+      if (data.length() == 7) {
+        // 数据位符合要求，检查CRC16
+        uint8_t data_char_str[7] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        for (int i=0; i<7; i++) { // 将string类型字符串传入unsigned char
+          data_char_str[i] = data[i];
+        }
+        uint16_t crcInt = GetCRC16(data_char_str, 5);
+        unsigned char crcl = crcInt;
+        unsigned char crch = crcInt >> 8;
+        if (crch == data[5] && crcl == data[6]) {
+          // 校验通过
+          // Serial.println("received data has passed the verification and has been authorized.");
+          data_high_byte[i] = data[3];
+          data_low_byte[i]  = data[4];
+          Serial.print("the data bit is ");
+          Serial.print(data_high_byte[i], HEX);
+          Serial.print(" ");
+          Serial.println(data_low_byte[i], HEX);
+        } else {
+          // 数据异常
+          Serial.println("data loss! The data received has not passed the CRC verification!");
+          data_high_byte[i] == 0xff;
+          data_low_byte[i]  == 0xff;
+        }
+      } else {
+        // 数据位数异常
+        Serial.println("data loss! the length of data doesn't equal 7");
+        data_high_byte[i] == 0xff;
+        data_low_byte[i]  == 0xff;
+      }
     }
   }
   delay(1000);
