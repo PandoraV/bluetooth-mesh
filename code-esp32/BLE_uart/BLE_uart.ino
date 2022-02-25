@@ -70,14 +70,7 @@ ulong period_millis = DEFAULT_PERIOD_MILLIS; // 发信间隔
 #define ADDRESS_PRESENT_SLAVE 1 // 从机地址位
 #define info_num 2 // 传回上位机信息条数，测试时仅有温湿度两项
 // std::string info_name = "temp测试中文"; // 传回上位机的项目名称
-String info_name[10] = {
-  "temp",
-  "humi",
-  "NH3",
-  "O3",
-  "NO",
-  "NO2"
-};
+String info_name[6] = {  "temp",  "humi",  "NH3",  "O3",  "NO",  "NO2"};
 
 uint16_t GetCRC16(uint8_t *ptr, uint8_t len)
 {
