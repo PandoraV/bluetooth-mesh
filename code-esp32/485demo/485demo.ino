@@ -101,6 +101,8 @@ void readAndRecordData() {
       // Serial.println("the " + String(i) + " has replyed!");
     } else {
       // 无返回数据
+      data_high_byte[i] == 0xff;
+      data_low_byte[i]  == 0xff;
       // Serial.print(i);
       // Serial.println(": the sensor didn't reply anything!");
       continue;
