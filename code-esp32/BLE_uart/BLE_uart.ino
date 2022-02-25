@@ -68,7 +68,7 @@ ulong period_millis = DEFAULT_PERIOD_MILLIS; // 发信间隔
 #define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E" // 发信
 
 #define ADDRESS_PRESENT_SLAVE 1 // 从机地址位
-#define info_num 2 // 传回上位机信息条数，测试时仅有温湿度两项
+#define info_num 4 // 传回上位机信息条数，测试时仅有温湿度两项
 // std::string info_name = "temp测试中文"; // 传回上位机的项目名称
 String info_name[6] = {  "temp",  "humi",  "NH3",  "O3",  "NO",  "NO2"};
 
@@ -183,12 +183,12 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
     std::string data = ""; 
 
     // 将已存储的传感器数据位清空
-    for (int i=0; i<4; i++) {
+    for (int i = 0; i < info_num - 2; i++) {
       data_high_byte[i] = 0x00;
       data_low_byte[i]  = 0x00;
     }
 
-    for (int i=0; i<4; i++) { // 轮询
+    for (int i = 0; i < info_num - 2; i++) { // 轮询
       mySerial1.write(request_for_sensor_command[i], 8); // 发送测温命令
       delay(SENSOR_OVERTIME_MILLIS);  // 等待测温数据返回
       
@@ -220,8 +220,8 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
         if (data.length() == 7) {
           // 数据位符合要求，检查CRC16
           uint8_t data_char_str[7] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-          for (int i=0; i<7; i++) { // 将string类型字符串传入unsigned char
-            data_char_str[i] = data[i];
+          for (int j=0; j < 7; j++) { // 将string类型字符串传入unsigned char
+            data_char_str[j] = data[j];
           }
           uint16_t crcInt = GetCRC16(data_char_str, 5);
           unsigned char crcl = crcInt;
@@ -231,7 +231,7 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
             // Serial.println("received data has passed the verification and has been authorized.");
             data_high_byte[i] = data[3];
             data_low_byte[i]  = data[4];
-            Serial.print("the data bit of " + info_name[i+2] + " is ");
+            Serial.print("the data bit of " + info_name[i + 3] + " is ");
             Serial.print(data_high_byte[i], HEX);
             Serial.print(" ");
             Serial.println(data_low_byte[i], HEX);
@@ -515,18 +515,26 @@ void setup_json_string() // 构建发送的json字符串
     if (info_num >= 3)
     {
       // 氨气传感器
+      tempChar = data_high_byte[0];
+      txValue += data_low_byte[0];
     }
     if (info_num >= 4)
     {
       // 臭氧传感器
+      tempChar = data_high_byte[0];
+      txValue += data_low_byte[0];
     }
     if (info_num >= 5)
     {
       // NO传感器
+      tempChar = data_high_byte[0];
+      txValue += data_low_byte[0];
     }
     if (info_num >= 6)
     {
       // NO2传感器
+      tempChar = data_high_byte[0];
+      txValue += data_low_byte[0];
     }
   }
   
