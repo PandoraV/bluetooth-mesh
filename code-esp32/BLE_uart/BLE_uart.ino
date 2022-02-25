@@ -525,36 +525,24 @@ void setup_json_string() // 构建发送的json字符串
     if (info_num >= 3)
     {
       // 氨气传感器
-      if (data_high_byte[0] == 0x00) { // 等待读取完成
-        delay(SENSOR_OVERTIME_MILLIS);
-      }
       txValue += data_high_byte[0];
       txValue += data_low_byte[0];
     }
     if (info_num >= 4)
     {
       // 臭氧传感器
-      if (data_high_byte[1] == 0x00) { // 等待读取完成
-        delay(SENSOR_OVERTIME_MILLIS);
-      }
       txValue += data_high_byte[1];
       txValue += data_low_byte[1];
     }
     if (info_num >= 5)
     {
       // NO传感器
-      if (data_high_byte[2] == 0x00) { // 等待读取完成
-        delay(SENSOR_OVERTIME_MILLIS);
-      }
       txValue += data_high_byte[2];
       txValue += data_low_byte[2];
     }
     if (info_num >= 6)
     {
       // NO2传感器
-      if (data_high_byte[3] == 0x00) { // 等待读取完成
-        delay(SENSOR_OVERTIME_MILLIS);
-      }
       txValue += data_high_byte[3];
       txValue += data_low_byte[3];
     }
