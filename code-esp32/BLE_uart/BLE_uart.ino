@@ -54,6 +54,7 @@ std::string tx_str_for_query = "";
 #define DEFAULT_PERIOD_MILLIS 1000
 #define MINIMUM_PERIOD_MILLIS 500
 #define MAXIMUM_PERIOD_MILLIS 65535
+#define SENSOR_OVERTIME_MILLIS 10
 ulong current_millis = 0;
 ulong send_millis = 0;    // 上次发信的时间
 ulong queryDuration = 20; // 回信间隔
@@ -196,7 +197,7 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
 
     for (int i=0; i<4; i++) { // 轮询
       mySerial1.write(request_for_sensor_command[i], 8); // 发送测温命令
-      delay(100);  // 等待测温数据返回
+      delay(SENSOR_OVERTIME_MILLIS);  // 等待测温数据返回
       
       if (mySerial1.available() > 0) {
         // 有返回数据

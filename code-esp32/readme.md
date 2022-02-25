@@ -294,7 +294,7 @@ xTaskCreate(
     10000,     /* Stack size in bytes. */
     NULL,      /* Parameter passed as input of the task */
     1,         /* Priority of the task. */
-    NULL     /* Task handle. */
+    NULL       /* Task handle. */
 );
 ```
 
