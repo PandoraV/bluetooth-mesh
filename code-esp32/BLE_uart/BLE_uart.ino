@@ -197,8 +197,8 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
         // Serial.println("the " + String(i) + " has replyed!");
       } else {
         // 无返回数据
-        data_high_byte[i] == 0xff;
-        data_low_byte[i]  == 0xff;
+        data_high_byte[i] = 0xff;
+        data_low_byte[i]  = 0xff;
         // Serial.print(i);
         // Serial.println(": the sensor didn't reply anything!");
         continue;
@@ -238,14 +238,14 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
           } else {
             // 数据异常
             Serial.println("data loss! The data received has not passed the CRC verification!");
-            data_high_byte[i] == 0xff;
-            data_low_byte[i]  == 0xff;
+            data_high_byte[i] = 0xff;
+            data_low_byte[i]  = 0xff;
           }
         } else {
           // 数据位数异常
           Serial.println("data loss! the length of data doesn't equal 7");
-          data_high_byte[i] == 0xff;
-          data_low_byte[i]  == 0xff;
+          data_high_byte[i] = 0xff;
+          data_low_byte[i]  = 0xff;
         }
       }
     }
