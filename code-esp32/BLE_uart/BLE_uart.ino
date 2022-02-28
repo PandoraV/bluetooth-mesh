@@ -145,21 +145,45 @@ void drawFontFace(void *parameter) { // OLED驱动函数
   ulong temp_num = 0;
 
   int i = 1;
-  while(i == 1) {
+  while(i == 1) { // 死循环
     // clear the display
     display.clear();
 
-    // create more fonts at http://oleddisplay.squix.ch/
-    display.setTextAlignment(TEXT_ALIGN_LEFT);
-    display.setFont(ArialMT_Plain_16);
-    display.drawString(0, 0, "temp: " + String(temperature) + "°C");
-    display.drawString(0, 16, "humi: " + String(humidity) + "%");
-    
-    // 屏幕刷新帧数
-    display.setFont(ArialMT_Plain_10);
-    display.setTextAlignment(TEXT_ALIGN_RIGHT);
-    display.drawString(128, 54, String(temp_num));
-    temp_num++;
+    if (temp_num <= 10) { // 每10帧切换一次
+      // first page
+
+      // create more fonts at http://oleddisplay.squix.ch/
+      display.setTextAlignment(TEXT_ALIGN_LEFT);
+      display.setFont(ArialMT_Plain_16);
+      display.drawString(0, 0, "temp: " + String(temperature) + "°C");
+      display.drawString(0, 16, "humi: " + String(humidity) + "%");
+      display.drawString(0, 32, "NH3: " + String(humidity) + "ppm");
+      
+      // 屏幕刷新帧数
+      display.setFont(ArialMT_Plain_10);
+      display.setTextAlignment(TEXT_ALIGN_RIGHT);
+      display.drawString(128, 54, String(temp_num));
+      temp_num++;
+      if (temp_num > 20) 
+        temp_num = 0;
+    } else {
+      // second page
+
+      // create more fonts at http://oleddisplay.squix.ch/
+      display.setTextAlignment(TEXT_ALIGN_LEFT);
+      display.setFont(ArialMT_Plain_16);
+      display.drawString(0, 0, "O3: " + String(temperature) + "ppm");
+      display.drawString(0, 16, "NO: " + String(humidity) + "ppm");
+      display.drawString(0, 32, "NO2: " + String(humidity) + "ppm");
+      
+      // 屏幕刷新帧数
+      display.setFont(ArialMT_Plain_10);
+      display.setTextAlignment(TEXT_ALIGN_RIGHT);
+      display.drawString(128, 54, String(temp_num));
+      temp_num++;
+      if (temp_num > 20) 
+        temp_num = 0;
+    }
 
     // write the buffer to the display
     display.display();
