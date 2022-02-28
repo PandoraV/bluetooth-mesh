@@ -21,8 +21,8 @@ uint8_t request_for_sensor_command[4][8] = {
   {0x04, 0x03, 0x00, 0x06, 0x00, 0x01, 0x64, 0x5e} // NO2传感器
 };
 
-uint8_t data_high_byte[4] = {0x00, 0x00, 0x00, 0x00}; // 数据高八位
-uint8_t data_low_byte[4]  = {0x00, 0x00, 0x00, 0x00}; // 数据低八位
+uint8_t data_high_byte[4] = {0xff, 0xff, 0xff, 0xff}; // 数据高八位
+uint8_t data_low_byte[4]  = {0xff, 0xff, 0xff, 0xff}; // 数据低八位
 
 /*
   Ported to Arduino ESP32 by Evandro Copercini
@@ -143,11 +143,24 @@ void drawFontFace(void *parameter) { // OLED驱动函数
   Serial.println("OLED thread started!");
 
   ulong temp_num = 0;
+  float gas_presicion[4] =  {-1, -1, -1, -1};
 
   int i = 1;
   while(i == 1) { // 死循环
     // clear the display
     display.clear();
+
+    for (int i=0; i<4; i++) // 解码
+    {
+      if (data_high_byte[i] == 0xff) { // 高字节为ff的时候就一定是异常数据了
+        gas_presicion[i] = -1;
+      } else {
+        gas_presicion[i] = 0;
+        gas_presicion[i] += int(data_low_byte[i]);
+        gas_presicion[i] += int(data_high_byte[i])*256;
+        gas_presicion[i] *= 0.1;
+      }
+    }
 
     if (temp_num <= 10) { // 每10帧切换一次
       // first page
@@ -157,7 +170,7 @@ void drawFontFace(void *parameter) { // OLED驱动函数
       display.setFont(ArialMT_Plain_16);
       display.drawString(0, 0, "temp: " + String(temperature) + "°C");
       display.drawString(0, 16, "humi: " + String(humidity) + "%");
-      display.drawString(0, 32, "NH3: " + String(humidity));
+      display.drawString(0, 32, "NH3: " + String(gas_presicion[0]));
       
       // 屏幕刷新帧数
       display.setFont(ArialMT_Plain_10);
@@ -172,9 +185,9 @@ void drawFontFace(void *parameter) { // OLED驱动函数
       // create more fonts at http://oleddisplay.squix.ch/
       display.setTextAlignment(TEXT_ALIGN_LEFT);
       display.setFont(ArialMT_Plain_16);
-      display.drawString(0, 0, "O3: " + String(temperature));
-      display.drawString(0, 16, "NO: " + String(humidity));
-      display.drawString(0, 32, "NO2: " + String(humidity));
+      display.drawString(0, 0, "O3: " + String(gas_presicion[1]));
+      display.drawString(0, 16, "NO: " + String(gas_presicion[2]));
+      display.drawString(0, 32, "NO2: " + String(gas_presicion[3]));
       
       // 屏幕刷新帧数
       display.setFont(ArialMT_Plain_10);
