@@ -157,7 +157,7 @@ void drawFontFace(void *parameter) { // OLED驱动函数
       display.setFont(ArialMT_Plain_16);
       display.drawString(0, 0, "temp: " + String(temperature) + "°C");
       display.drawString(0, 16, "humi: " + String(humidity) + "%");
-      display.drawString(0, 32, "NH3: " + String(humidity) + "ppm");
+      display.drawString(0, 32, "NH3: " + String(humidity));
       
       // 屏幕刷新帧数
       display.setFont(ArialMT_Plain_10);
@@ -172,9 +172,9 @@ void drawFontFace(void *parameter) { // OLED驱动函数
       // create more fonts at http://oleddisplay.squix.ch/
       display.setTextAlignment(TEXT_ALIGN_LEFT);
       display.setFont(ArialMT_Plain_16);
-      display.drawString(0, 0, "O3: " + String(temperature) + "ppm");
-      display.drawString(0, 16, "NO: " + String(humidity) + "ppm");
-      display.drawString(0, 32, "NO2: " + String(humidity) + "ppm");
+      display.drawString(0, 0, "O3: " + String(temperature));
+      display.drawString(0, 16, "NO: " + String(humidity));
+      display.drawString(0, 32, "NO2: " + String(humidity));
       
       // 屏幕刷新帧数
       display.setFont(ArialMT_Plain_10);
