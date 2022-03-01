@@ -51,16 +51,14 @@ function jsonFake2csv(jsonobj) {
   var keys = ["time", "temp", "humi", "NH3", "O3", "NO", "NO2"] // 顺序很重要，代表csv的列
   var res = "" // csv 数据结果
   for (var i = 0; i < keys.length; i++) { //遍历数组
-    if (res != "" && i != keys.length - 1) {
-      res += ',' // 中间加逗号
-    } else {
-      res += '\r\n' // 结尾加换行符
-    }
-    
     if (jsonobj[keys[i]]) {
       res += jsonobj[keys[i]]
-    } else { // json 中没有对应的数据
-      continue
+    }
+    
+    if (i != keys.length - 1) {
+      res += ','
+    } else {
+      res += '\r\n'
     }
   }
   // console.info(res)
