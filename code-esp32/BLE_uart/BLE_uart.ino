@@ -68,7 +68,7 @@ ulong period_millis = DEFAULT_PERIOD_MILLIS; // 发信间隔
 #define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E" // 发信
 
 #define ADDRESS_PRESENT_SLAVE 1 // 从机地址位
-#define info_num 4 // 传回上位机信息条数，测试时仅有温湿度两项
+int info_num = 4; // 传回上位机信息条数，测试时仅有温湿度两项
 // std::string info_name = "temp测试中文"; // 传回上位机的项目名称
 String info_name[6] = {  "temp",  "humi",  "NH3",  "O3",  "NO",  "NO2"};
 
@@ -390,9 +390,8 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
         {
         case 'P':
           // 调整采样间隔
-          switch (rxValue[1])
-          {
-          case '0':// 不指定传感器
+          switch (rxValue[1]) {
+            case '0': // 不指定传感器
             {
               // 看第三位地址位
               int add_received;
@@ -495,6 +494,29 @@ class MyCallbacks: public BLECharacteristicCallbacks { // 处理接收的字符�
           }
         }
           break;
+        case 'S': { // 调整传感器数量
+          switch(rxValue[1]) {
+            case '0':  // 不指定传感器
+            {
+              if (rx_len == 4) {
+                if (rxValue[2] == ADDRESS_PRESENT_SLAVE + '0') { // 地址位相同
+                  int new_info_num = rxValue[3] - '0';
+                  if (new_info_num >= 2 && new_info_num <= 6) { // 合法性校验
+                    info_num = new_info_num;
+                    Serial.println("info num has been switched into " + String(info_num));
+                  }
+                  else {
+                    Serial.println("new info num is illegal!");
+                  }
+                }
+              } else {
+                Serial.println("the length of command is illegal!");
+              }
+            }
+            default:
+              break;
+          }
+        } break;
         default:
           break;
         }
