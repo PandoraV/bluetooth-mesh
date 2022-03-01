@@ -58,14 +58,8 @@ function jsonFake2csv(jsonobj) {
     }
     
     if (jsonobj[keys[i]]) {
-      if (jsonobj[keys[i]] != -1) {
-        res += jsonobj[keys[i]]
-      } else if (keys[i] == "temp" || keys[i] == "humi") {
-        res += jsonobj[keys[i]]
-      } else {
-        continue
-      }
-    } else { // json 中没有对于的数据
+      res += jsonobj[keys[i]]
+    } else { // json 中没有对应的数据
       continue
     }
   }
