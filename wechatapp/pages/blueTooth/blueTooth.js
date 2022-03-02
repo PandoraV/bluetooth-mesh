@@ -439,10 +439,10 @@ Page({
           if (bytes_received[index] == 255) { // 传感器工作异常
             gas_precision = -1;
           } else {
-            gas_precision += bytes_received[index] * 256; // 高字节
-            index++;
-            gas_precision += bytes_received[index]; // 低字节
-            gas_precision *= 0.1;
+            gas_precision += bytes_received[index] * 25.6 + bytes_received[index + 1]*0.1; // 高字节
+            // index++;
+            // gas_precision += bytes_received[index + 1]*0.1; // 低字节
+            // gas_precision *= 0.1;
           }
           jsonstr += ",";
           jsonstr += "\"";
