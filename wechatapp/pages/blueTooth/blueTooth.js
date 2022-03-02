@@ -448,7 +448,11 @@ Page({
           jsonstr += "\"";
           jsonstr += keys[i + 2];
           jsonstr += "\":";
-          jsonstr += String(gas_precision);
+          if (gas_precision == 0) {
+            jsonstr += '0'
+          } else  {
+            jsonstr += String(gas_precision);
+          }
         }
       }
     }
