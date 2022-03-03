@@ -325,3 +325,21 @@ download("hello.txt","This is the content of my file :)");
 ```html
 <a href="data:text/plain;charset=utf-8,This%20is%20the%20content%20of%20my%20file%20%3A)" download="test.txt">down</a>
 ```
+
+## JavaScript对于`0`的理解
+
+在操作字符串时，如果将一个数字转化为字符串之后加到另一个字符串上，这在C++里面使用非常普遍。然而，对于js来说，`String(1)`和`String(0)`返回值却一个是`'1'`，另一个是`'\x00'`，即空字符。因此，编程时需要注意避免出现类似的调用，在调用前需要对数据做判断。
+
+## JavaScript对于浮点数存储产生的舍入误差
+
+先看一个实例：
+    0.1 + 0.2 =？
+    0.1 + 0.2 = 0.3？
+
+对于JavaScript有：
+
+```JavaScript
+console.log( 0.1 + 0.2 ); // OUTPUT:0.30000000000000004
+```
+
+前几版代码中，将气体浓度加和之后乘`0.1`会频繁出现舍入误差，而上一行求温湿度的，在同一行中同时完成乘以小数和加和操作则完全没有问题。
