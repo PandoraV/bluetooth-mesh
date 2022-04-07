@@ -255,6 +255,8 @@ mySerial1.begin(4800,SERIAL_8N1,35,12);
 #define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E" // 发信
 ```
 
+使用网址 https://www.uuidgenerator.net/ 生成唯一的蓝牙地址
+
 需要引用的头文件和初始化的类包括：
 
 ```C++
