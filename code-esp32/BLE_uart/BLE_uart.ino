@@ -296,7 +296,7 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
         }
       }
     }
-    delay(period_millis);
+    delay(period_millis - SENSOR_OVERTIME_MILLIS * (info_num - 2)); // 实际延迟时间应为目标时间间隔减去轮询等待的时间
   }
   Serial.println("sensor thread ended."); // 不会执行
   vTaskDelete(NULL); // 删除线程 释放内存
