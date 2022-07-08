@@ -48,6 +48,7 @@ bool deviceConnected = false; // 当前有无设备连接
 bool oldDeviceConnected = false; // 是否已经有设备连接
 
 bool duringDelivering = false;  // 是否处于发信函数调用状态
+bool duringReceiving = false;   // 是否处于软串口收信状态
 std::string txValue = "";  
 std::string tx_str_for_query = "";
 
@@ -218,6 +219,9 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
   int k = 1;
   while(k == 1) { // 死循环
     std::string data = ""; 
+    
+    // 修改收信标志位
+    duringReceiving = true;
 
     // 将已存储的传感器数据位清空
     for (int i = 0; i < info_num - 2; i++) {
@@ -296,6 +300,7 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
         }
       }
     }
+    duringReceiving = false; // 清空收信标志位，解禁发送
     delay(period_millis - SENSOR_OVERTIME_MILLIS * (info_num - 2)); // 实际延迟时间应为目标时间间隔减去轮询等待的时间
   }
   Serial.println("sensor thread ended."); // 不会执行
@@ -683,9 +688,14 @@ void loop() {
     current_millis = millis();
     if (current_millis - send_millis >= period_millis)
     {
-      send_millis = current_millis;
-      setup_json_string();
-      sendMsg(txValue);
+      if (!duringReceiving) // 如果软串口现在处在挂起阶段
+      {
+        send_millis = current_millis;
+        setup_json_string();
+        sendMsg(txValue);
+      } else { // 如果处于正在收信阶段
+        // 跳过，最长约需等待200ms
+      }
     }
     else if (current_millis < send_millis)
     {
