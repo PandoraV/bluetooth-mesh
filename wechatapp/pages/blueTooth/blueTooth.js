@@ -44,14 +44,22 @@ Date.prototype.Format = function (fmt) {
   return fmt;
 }
 
-/* 将 json 对象解析为 csv 格式的一行数据，数据顺序按照  keys 排列
+/* 将 json 对象解析为 csv 格式的一行数据，数据顺序按照 keys 排列
 @param jsonobj： json对象
 @return res：csv 格式的一行数据的字符串形式*/
 function jsonFake2csv(jsonobj) {
   var keys = ["time", "temp", "humi", "NH3", "O3", "NO", "NO2"] // 顺序很重要，代表csv的列
   var res = "" // csv 数据结果
+  // console.log(jsonobj[keys[i]])
   for (var i = 0; i < keys.length; i++) { //遍历数组
-    if (jsonobj[keys[i]]) {
+    if (jsonobj.hasOwnProperty(keys[i])) {
+      // if (keys[i] == keys[i]) {
+      //   // console.log(keys[i])
+      //   if (jsonobj[keys[i]] == "")
+      //   {
+      //     jsonobj[keys[i]] = "0.0"
+      //   }
+      // }
       res += jsonobj[keys[i]]
     }
     
@@ -67,6 +75,7 @@ function jsonFake2csv(jsonobj) {
 
 /* 将 json 的 key 转换为对应的中文，返回有换行、有中文的 string */
 function js2key(jsonobj) {
+  // 为了前台显示数据
   var keyobj = {
     "p_mls": "采样时间间隔",
     "temp": "温度",
@@ -113,7 +122,7 @@ Page({
 
     var that = this;
     that.setData({ // 设置数据文件路径
-      dataFilePath: `${wx.env.USER_DATA_PATH}/` + that.data.deviceId + '.csv'
+      dataFilePath: `${wx.env.USER_DATA_PATH}/` + that.data.deviceId + '.csv' // 存储路径如下，实际导出文件应重新命名
     })
     // 没有对应的数据文件就创建新的，有的话就不再新建了
     fs.access({
@@ -443,13 +452,15 @@ Page({
             // index++;
             // gas_precision += bytes_received[index + 1]*0.1; // 低字节
             // gas_precision *= 0.1;
+            gas_precision.toFixed(1);
           }
           jsonstr += ",";
           jsonstr += "\"";
           jsonstr += keys[i + 2];
           jsonstr += "\":";
           if (gas_precision == 0) {
-            jsonstr += '0'
+            jsonstr += "0.0"
+            // console.log(jsonstr)
           } else  {
             jsonstr += String(gas_precision);
           }
@@ -462,6 +473,7 @@ Page({
     if (i_num > 1) { // 对于更新时间间隔，不调用json解析
       try {
         var jsonobj = JSON.parse(jsonstr); // 如果不是合理的格式会出错，处理
+        // console.log(jsonobj)
         if (jsonobj) {
           // jsonobj.p_mls = that.data.period_millis // 更新为全局变量的数值
           that.data.period_millis = period_millis;
@@ -504,10 +516,11 @@ Page({
 
   /* 导出 csv 数据文件，如果微信版本过低，就提示升级 */
   exportData() {
-    if (wx.shareFileMessage) { // 可直接导出 csv,测试通过
+    if (wx.shareFileMessage) { // 可直接导出 csv,测试通过      
+      var timenow = new Date().Format("MMM-dd_hh_mm"); // 格式见 readme
       wx.shareFileMessage({
         filePath: this.data.dataFilePath,
-        fileName: this.data.deviceId + '.csv',
+        fileName: this.data.connectName + '_' + timenow + '.csv', // 导出文件名应包括设备名称和日期，日期格式为名称+日期+时刻
         success() {},
         fail: console.error,
       })
