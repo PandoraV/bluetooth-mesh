@@ -31,6 +31,7 @@
             "disablePlugins": [],
             "outputPath": ""
         },
+        "enableEngineNative": false,
         "useIsolateContext": true,
         "userConfirmedBundleSwitch": false,
         "packNpmManually": false,
@@ -39,12 +40,11 @@
         "disableUseStrict": false,
         "minifyWXML": true,
         "showES6CompileOption": false,
-        "useCompilerPlugins": false,
-        "ignoreUploadUnusedFiles": true
+        "useCompilerPlugins": false
     },
     "compileType": "miniprogram",
-    "libVersion": "2.22.0",
-    "appid": "wxd91c30ce827ed228",
+    "libVersion": "2.17.0",
+    "appid": "wx8b5515814d70dfe1",
     "projectname": "wechatapp",
     "cloudfunctionTemplateRoot": "",
     "watchOptions": {
