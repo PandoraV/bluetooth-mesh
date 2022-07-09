@@ -36,6 +36,12 @@ Page({
     */
   },
 
+  jumpToBluetooth: function() {
+    wx.switchTab({
+      url: '/pages/blueTooth/blueTooth'
+    })
+  },
+
   openBluetoothAdapter() {
     /* 打开蓝牙适配器 */
     let that = this;
