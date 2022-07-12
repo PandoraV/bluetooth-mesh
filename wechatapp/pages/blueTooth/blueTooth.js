@@ -311,7 +311,8 @@ Page({
         app.globalData.current_connect_deviceID = ""
         // 清空连接状态
         that.setData({
-          isConnected: false
+          isConnected: false,
+          msg: ""
         });
       },
       fail() {
