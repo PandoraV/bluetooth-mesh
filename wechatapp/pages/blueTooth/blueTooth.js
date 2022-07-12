@@ -116,11 +116,20 @@ Page({
     slave_address: '0' // 从机地址，以后可以改成列表
   },
 
-  onLoad: function (option) {
-    let deviceId = option.id; //设备id
-    let connectName = option.name; //连接的设备名称
-
+  onLoad: function () { // 如果设备为空，下次进入页面的时候需要重新加载
     var that = this;
+    var app = getApp();
+
+    let deviceId = app.globalData.current_connect_deviceID; //设备id
+    let connectName = app.globalData.current_connect_connectName; //连接的设备名称
+    if (deviceId == undefined) {
+      // 设备ID为空
+      console.error("The device ID is NULL!")
+      // wx.showToast({
+      //   title: '当前未连接设备'
+      // })
+    }
+
     that.setData({ // 设置数据文件路径
       dataFilePath: `${wx.env.USER_DATA_PATH}/` + that.data.deviceId + '.csv' // 存储路径如下，实际导出文件应重新命名
     })
@@ -261,7 +270,20 @@ Page({
     wx.closeBLEConnection({
       deviceId: this.data.deviceId,
       success() {
-        wx.navigateTo({ // 返回设备列表页面
+        wx.switchTab({ // 返回设备列表页面
+          url: '../index/index',
+        })
+        // 清空全局变量
+        var app = getApp();
+        app.globalData.current_connect_localName = ""
+        app.globalData.current_connect_name = ""
+        app.globalData.current_connect_deviceID = ""
+      },
+      fail() {
+        wx.showToast({
+          title: "无设备连接"
+        })
+        wx.switchTab({ // 返回设备列表页面
           url: '../index/index',
         })
       }
@@ -554,7 +576,7 @@ Page({
    */
   onUnload: function () {
     let that = this;
-    that.closeBLEConnection();
+    // that.closeBLEConnection();
   },
 
   /**

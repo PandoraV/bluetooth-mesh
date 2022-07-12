@@ -2,5 +2,8 @@
 App({
   onLaunch: function () {
   },
-  globalData: {}
+  globalData: {
+    current_connect_connectName: "",
+    current_connect_deviceID: "",
+  }
 })

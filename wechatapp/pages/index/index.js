@@ -36,9 +36,18 @@ Page({
     */
   },
 
-  jumpToBluetooth: function() {
+  jumpToBluetooth: function(res) {
+    var received_value = res.currentTarget.dataset;
+    console.log(received_value.id)
+    var deviceId = received_value.id;
+    var connectName = received_value.name;
+    var app = getApp()
+    app.globalData.current_connect_deviceId = deviceId;
+    app.globalData.current_connect_name = connectName;
+    // console.log("current data: deviceID is ", app.globalData.current_connect_deviceId)
+    // console.log("current data: connectName is ", app.globalData.current_connect_name)
     wx.switchTab({
-      url: '/pages/blueTooth/blueTooth'
+      url: '../blueTooth/blueTooth'
     })
   },
 
