@@ -7,10 +7,15 @@
     <view class="list-item">
       <view class="item-box" wx:for="{{devicesList}}" wx:key="index">
         <text class="bt-name">{{item.name || item.localName}}</text>
-        <view bindtap="jumpToBluetooth" data-name="{{item.localName || item.name}}" data-id="{{item.deviceId}}">跳转</view>
-        <navigator class="btn-connection" 
+        <view class="btn-connection" 
+              bindtap="jumpToBluetooth" 
+              data-name="{{item.localName || item.name}}" 
+              data-id="{{item.deviceId}}"
+              aria-role="button" 
+              aria-label="连接该设备">连接</view>
+        <!-- <navigator class="btn-connection" 
                   url="../blueTooth/blueTooth?id={{item.deviceId}}&name={{item.localName || item.name}}" 
-                  open-type="switchTab" hover-class="other-navigator-hover" aria-role="button" aria-label="连接该设备">连接</navigator>
+                  open-type="switchTab" hover-class="other-navigator-hover" aria-role="button" aria-label="连接该设备">连接</navigator> -->
       </view>
     </view>
   </view>
