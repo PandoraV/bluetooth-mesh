@@ -19,8 +19,4 @@
       </view>
     </view>
   </view>
-  <view>
-    <navigator url="/pages/blueTooth/blueTooth" open-type="switchTab" hover-class="other-navigator-hover">切换 Tab</navigator>
-  </view>
-  <view bindtap="jumpToBluetooth">跳转</view>
 </view>
