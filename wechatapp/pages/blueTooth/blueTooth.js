@@ -112,6 +112,8 @@ Page({
     uuidListen: "", // 监听接收的 uuid
     uuidWrite: "", // 发送内容的uuid
     msg: "", // 最新一条消息
+    maxNO: 0, // 最大一氧化氮
+    maxNO2: 0, // 最大二氧化氮
     dataFilePath: "", // 收到的全部蓝牙消息的 csv 文件路径
     period_millis: 1000, // 当前采样时间间隔，默认1秒
     slave_address: '0' // 从机地址，以后可以改成列表
@@ -309,10 +311,12 @@ Page({
         var app = getApp();
         app.globalData.current_connect_name = ""
         app.globalData.current_connect_deviceID = ""
-        // 清空连接状态
+        // 清空页面缓存数据
         that.setData({
-          isConnected: false,
-          msg: ""
+          isConnected: false, // 清空连接状态
+          msg: "", // 清空页面显示文字
+          maxNO: 0, // 清空存储的氮氧化物最大值
+          maxno2: 0
         });
       },
       fail() {
@@ -512,6 +516,25 @@ Page({
             // gas_precision *= 0.1;
             gas_precision.toFixed(1);
           }
+          if (i == 5) {
+            // 一氧化氮
+            if (that.data.maxNO < gas_precision) {
+              // 更新值
+              that.setData({
+                maxNO: gas_precision
+              })
+            }
+          }
+          if (i == 6) {
+            // 二氧化氮
+            if (that.data.maxNO2 < gas_precision) {
+              // 更新值
+              that.setData({
+                maxNO2: gas_precision
+              })
+            }
+          }
+          // 对于
           jsonstr += ",";
           jsonstr += "\"";
           jsonstr += keys[i + 2];
@@ -608,7 +631,7 @@ Page({
    */
   onUnload: function () {
     let that = this;
-    // that.closeBLEConnection();
+    that.closeBLEConnection();
   },
 
   /**
