@@ -121,19 +121,17 @@ Page({
     var app = getApp();
 
     let deviceId = app.globalData.current_connect_deviceID; //设备id
-    let connectName = app.globalData.current_connect_connectName; //连接的设备名称
-    if (deviceId == undefined) {
-      // 设备ID为空
-      console.error("The device ID is NULL!")
-      // wx.showToast({
-      //   title: '当前未连接设备'
-      // })
-    }
+    let connectName = app.globalData.current_connect_name; //连接的设备名称
+    console.log(app.globalData)
+    // console.log("decive ID is ", deviceId)
 
     that.setData({ // 设置数据文件路径
+      deviceId: deviceId,
+      connectName: connectName,
       dataFilePath: `${wx.env.USER_DATA_PATH}/` + that.data.deviceId + '.csv' // 存储路径如下，实际导出文件应重新命名
     })
     // 没有对应的数据文件就创建新的，有的话就不再新建了
+    // console.log("set data complete")
     fs.access({
       path: that.data.dataFilePath,
       success(res) {
@@ -162,7 +160,9 @@ Page({
         })
       }
     })
+    // console.log("file prepared completed")
     this.connectTo(deviceId, connectName);
+    // console.log("connecting started")
   },
 
 
@@ -192,8 +192,9 @@ Page({
       fail(error) {
         // wx.hideLoading();
         wx.showToast({
-          title: error,
+          title: "看后台",
         })
+        console.error(error.errCode, " the device id is ", deviceId)
       }
     });
   },
