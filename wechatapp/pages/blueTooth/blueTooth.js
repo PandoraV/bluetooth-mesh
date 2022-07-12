@@ -104,7 +104,8 @@ Page({
    * 页面的初始数据
    */
   data: {
-    isListen: true,
+    isConnected: false, // 当前是否处于连接状态
+    isListen: true, // 当前是否处于监听状态
     deviceId: '',
     connectName: '',
     serviceId: "", // 服务 ID
@@ -116,7 +117,34 @@ Page({
     slave_address: '0' // 从机地址，以后可以改成列表
   },
 
-  onLoad: function () { // 如果设备为空，下次进入页面的时候需要重新加载
+  onLoad: function () { 
+    this.connectPreparing()
+  },
+
+  /**
+   * 生命周期函数--监听页面显示
+   */
+   onShow: function () {
+    var app = getApp()
+    // 判断当前是否处于非连接状态
+    if (this.data.isConnected == false)
+    {
+      // 当前处于非连接状态
+      var deviceId = app.globalData.current_connect_deviceID
+      var connectName = app.globalData.current_connect_name
+      // 判断全局变量是否存有待连接设备
+      if (deviceId == "") {
+        // 当前无连接，刷新当前显示
+        // TODO
+      } else {
+        // 当前待连接，调用准备连接函数
+        this.connectPreparing();
+      }
+    }
+  },
+
+  // 连接准备工作
+  connectPreparing() {
     var that = this;
     var app = getApp();
 
@@ -163,8 +191,11 @@ Page({
     // console.log("file prepared completed")
     this.connectTo(deviceId, connectName);
     // console.log("connecting started")
+    // 设置连接状态
+    this.setData({
+      isConnected: true
+    });
   },
-
 
   //开始连接，获取deviceId
   connectTo(deviceId, connectName) {
@@ -276,9 +307,12 @@ Page({
         })
         // 清空全局变量
         var app = getApp();
-        app.globalData.current_connect_localName = ""
         app.globalData.current_connect_name = ""
         app.globalData.current_connect_deviceID = ""
+        // 清空连接状态
+        that.setData({
+          isConnected: false
+        });
       },
       fail() {
         wx.showToast({
@@ -562,10 +596,6 @@ Page({
    */
   onReady: function () {},
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {},
 
   /**
    * 生命周期函数--监听页面隐藏
