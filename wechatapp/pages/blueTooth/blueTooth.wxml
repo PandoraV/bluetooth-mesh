@@ -26,7 +26,7 @@
     </form>
   </view>
   
-  <view class="duration-command">
+  <!-- <view class="duration-command">
     <form catchsubmit="timeDurationSend" catchreset="formReset">
       <view>
         <input class="weui-input" name="input" placeholder="调整时间间隔，500~65535，单位毫秒" value="" />
@@ -35,7 +35,7 @@
         <button style="margin: 30rpx 0" type="primary" formType="submit" aria-role="button" aria-label="发送输入框内的数据">发送命令</button>
       </view>
     </form>
-  </view>
+  </view> -->
 
   <view class="btns">
     <button class="btnCtrl" type="warn" size="mini" bindtap="closeBLEConnection" aria-role="button" aria-label="断开连接">断开连接</button>
