@@ -141,4 +141,11 @@ Page({
   onPullDownRefresh: function () {
     this.searchBlue();
   },
+
+  aboutUs() {
+      // 关于我们
+      wx.navigateTo({
+        url: '../aboutUs/aboutUs',
+      })
+  }
 })

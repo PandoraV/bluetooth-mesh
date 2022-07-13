@@ -2,7 +2,8 @@
   "pages": [
     "pages/index/index",
     "pages/logs/logs",
-    "pages/blueTooth/blueTooth"
+    "pages/blueTooth/blueTooth",
+    "pages/aboutUs/aboutUs"
   ],
   "window": {
     "enablePullDownRefresh": true,
