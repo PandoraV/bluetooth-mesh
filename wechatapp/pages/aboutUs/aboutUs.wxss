@@ -1,0 +1,17 @@
+.text_container {
+    display: flex;
+    flex-direction: column;
+    margin: 15rpx;
+}
+
+.developer-container {
+    margin: 30rpx;
+    display: flex;
+    flex-direction: column;
+}
+
+.developer {
+    font-size: "large";
+    border-bottom: 1px solid rgb(219, 219, 219);
+    padding-bottom: 30rpx;
+}

@@ -2,7 +2,8 @@
   "pages": [
     "pages/index/index",
     "pages/logs/logs",
-    "pages/blueTooth/blueTooth"
+    "pages/blueTooth/blueTooth",
+    "pages/aboutUs/aboutUs"
   ],
   "window": {
     "enablePullDownRefresh": true,
@@ -13,5 +14,19 @@
     "navigationBarTextStyle": "black"
   },
   "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "tabBar": {
+    "backgroundColor": "#ffffff",
+    "color": "#484848",
+    "selectedColor": "#2967ff",
+    "list": [{
+        "pagePath": "pages/index/index",
+        "text": "搜索"
+      },
+      {
+        "pagePath": "pages/blueTooth/blueTooth",
+        "text": "设备"
+      }
+    ]
+  }
 }

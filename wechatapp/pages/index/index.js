@@ -36,6 +36,21 @@ Page({
     */
   },
 
+  jumpToBluetooth: function(res) {
+    var received_value = res.currentTarget.dataset;
+    console.log(received_value.id)
+    var deviceId = received_value.id;
+    var connectName = received_value.name;
+    var app = getApp()
+    app.globalData.current_connect_deviceID = deviceId;
+    app.globalData.current_connect_name = connectName;
+    // console.log("current data: deviceID is ", app.globalData.current_connect_deviceId)
+    // console.log("current data: connectName is ", app.globalData.current_connect_name)
+    wx.switchTab({
+      url: '../blueTooth/blueTooth'
+    })
+  },
+
   openBluetoothAdapter() {
     /* 打开蓝牙适配器 */
     let that = this;
@@ -126,4 +141,11 @@ Page({
   onPullDownRefresh: function () {
     this.searchBlue();
   },
+
+  aboutUs() {
+      // 关于我们
+      wx.navigateTo({
+        url: '../aboutUs/aboutUs',
+      })
+  }
 })

@@ -1,5 +1,5 @@
 <!--index.wxml-->
-<view>
+<view class="top-container">
   <view>
     <button bindtap="searchBlue" type="primary" class="bt-search" aria-role="button" aria-label="搜索设备">搜索设备</button>
   </view>
@@ -7,8 +7,23 @@
     <view class="list-item">
       <view class="item-box" wx:for="{{devicesList}}" wx:key="index">
         <text class="bt-name">{{item.name || item.localName}}</text>
-        <navigator class="btn-connection" url="../blueTooth/blueTooth?id={{item.deviceId}}&name={{item.localName || item.name}}" hover-class="navigator-hover" aria-role="button" aria-label="连接该设备">连接</navigator>
+        <view class="btn-connection" 
+              bindtap="jumpToBluetooth" 
+              data-name="{{item.localName || item.name}}" 
+              data-id="{{item.deviceId}}"
+              aria-role="button" 
+              aria-label="连接该设备">连接</view>
+        <!-- <navigator class="btn-connection" 
+                  url="../blueTooth/blueTooth?id={{item.deviceId}}&name={{item.localName || item.name}}" 
+                  open-type="switchTab" hover-class="other-navigator-hover" aria-role="button" aria-label="连接该设备">连接</navigator> -->
       </view>
     </view>
+  </view>
+  <view class="bottom-container">
+    <view class="about-us">
+        <text class="text-item" bindtap="aboutUs">关于我们</text>
+    </view>
+  <view class="copyright" >中国农业大学 高电压实验室 版权所有</view>
+  <view class="copyright" >Copyright © 2022 China Agricultural university. All Rights Reserved.</view>
   </view>
 </view>

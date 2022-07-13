@@ -104,27 +104,64 @@ Page({
    * 页面的初始数据
    */
   data: {
-    isListen: true,
+    isConnected: false, // 当前是否处于连接状态
+    isListen: true, // 当前是否处于监听状态
     deviceId: '',
     connectName: '',
     serviceId: "", // 服务 ID
     uuidListen: "", // 监听接收的 uuid
     uuidWrite: "", // 发送内容的uuid
     msg: "", // 最新一条消息
+    maxNO: -1, // 最大一氧化氮
+    maxNO2: -1, // 最大二氧化氮
     dataFilePath: "", // 收到的全部蓝牙消息的 csv 文件路径
     period_millis: 1000, // 当前采样时间间隔，默认1秒
     slave_address: '0' // 从机地址，以后可以改成列表
   },
 
-  onLoad: function (option) {
-    let deviceId = option.id; //设备id
-    let connectName = option.name; //连接的设备名称
+  onLoad: function () { 
+    // this.connectPreparing()
+  },
 
+  /**
+   * 生命周期函数--监听页面显示
+   */
+   onShow: function () {
+    var app = getApp()
+    // 判断当前是否处于非连接状态
+    if (this.data.isConnected == false)
+    {
+      // 当前处于非连接状态
+      var deviceId = app.globalData.current_connect_deviceID
+      var connectName = app.globalData.current_connect_name
+      // 判断全局变量是否存有待连接设备
+      if (deviceId == "") {
+        // 当前无连接，刷新当前显示
+        // TODO
+      } else {
+        // 当前待连接，调用准备连接函数
+        this.connectPreparing();
+      }
+    }
+  },
+
+  // 连接准备工作
+  connectPreparing() {
     var that = this;
+    var app = getApp();
+
+    let deviceId = app.globalData.current_connect_deviceID; //设备id
+    let connectName = app.globalData.current_connect_name; //连接的设备名称
+    console.log(app.globalData)
+    // console.log("decive ID is ", deviceId)
+
     that.setData({ // 设置数据文件路径
+      deviceId: deviceId,
+      connectName: connectName,
       dataFilePath: `${wx.env.USER_DATA_PATH}/` + that.data.deviceId + '.csv' // 存储路径如下，实际导出文件应重新命名
     })
     // 没有对应的数据文件就创建新的，有的话就不再新建了
+    // console.log("set data complete")
     fs.access({
       path: that.data.dataFilePath,
       success(res) {
@@ -153,9 +190,14 @@ Page({
         })
       }
     })
+    // console.log("file prepared completed")
     this.connectTo(deviceId, connectName);
+    // console.log("connecting started")
+    // 设置连接状态
+    this.setData({
+      isConnected: true
+    });
   },
-
 
   //开始连接，获取deviceId
   connectTo(deviceId, connectName) {
@@ -183,8 +225,9 @@ Page({
       fail(error) {
         // wx.hideLoading();
         wx.showToast({
-          title: error,
+          title: "看后台",
         })
+        console.error(error.errCode, " the device id is ", deviceId)
       }
     });
   },
@@ -261,7 +304,26 @@ Page({
     wx.closeBLEConnection({
       deviceId: this.data.deviceId,
       success() {
-        wx.navigateTo({ // 返回设备列表页面
+        wx.switchTab({ // 返回设备列表页面
+          url: '../index/index',
+        })
+        // 清空全局变量
+        var app = getApp();
+        app.globalData.current_connect_name = ""
+        app.globalData.current_connect_deviceID = ""
+        // 清空页面缓存数据
+        that.setData({
+          isConnected: false, // 清空连接状态
+          msg: "", // 清空页面显示文字
+          maxNO: -1, // 清空存储的氮氧化物最大值
+          maxno2: -1
+        });
+      },
+      fail() {
+        wx.showToast({
+          title: "无设备连接"
+        })
+        wx.switchTab({ // 返回设备列表页面
           url: '../index/index',
         })
       }
@@ -454,6 +516,25 @@ Page({
             // gas_precision *= 0.1;
             gas_precision.toFixed(1);
           }
+          if (i == 5) {
+            // 一氧化氮
+            if (that.data.maxNO < gas_precision) {
+              // 更新值
+              that.setData({
+                maxNO: gas_precision
+              })
+            }
+          }
+          if (i == 6) {
+            // 二氧化氮
+            if (that.data.maxNO2 < gas_precision) {
+              // 更新值
+              that.setData({
+                maxNO2: gas_precision
+              })
+            }
+          }
+          // 对于
           jsonstr += ",";
           jsonstr += "\"";
           jsonstr += keys[i + 2];
@@ -539,10 +620,6 @@ Page({
    */
   onReady: function () {},
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {},
 
   /**
    * 生命周期函数--监听页面隐藏
