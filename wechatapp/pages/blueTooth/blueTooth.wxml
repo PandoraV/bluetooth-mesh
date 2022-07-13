@@ -13,11 +13,14 @@
     <scroll-view scroll-y="true" class="dev-msg" enable-back-to-top="true">
       <text selectable="true" user-select="true" style="word-break:break-all;" aria-role="text" aria-label="来自设备的全部消息">{{msg}}</text>
     </scroll-view>
+  </view>
+
+  <view>
     <view >
-      <text selectable="true" user-select="true" style="word-break:break-all;" aria-role="text" aria-label="一氧化氮">NO最大值：{{maxNO}}</text>
+      <text selectable="true" user-select="true" aria-role="text" aria-label="一氧化氮">NO最大值：{{maxNO}}</text>
     </view>
     <view>
-      <text selectable="true" user-select="true" style="word-break:break-all;" aria-role="text" aria-label="二氧化氮">NO2最大值：{{maxNO2}}</text>
+      <text selectable="true" user-select="true" aria-role="text" aria-label="二氧化氮">NO2最大值：{{maxNO2}}</text>
     </view>
   </view>
 
