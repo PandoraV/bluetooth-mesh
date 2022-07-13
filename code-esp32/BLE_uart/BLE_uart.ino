@@ -694,7 +694,10 @@ void loop() {
         setup_json_string();
         sendMsg(txValue);
       } else { // 如果处于正在收信阶段
-        // 跳过，最长约需等待200ms
+        // 跳过，最长约需等待200ms，这会导致传回数据不均匀，需要衡量
+        send_millis = current_millis;
+        setup_json_string();
+        sendMsg(txValue);
       }
     }
     else if (current_millis < send_millis)
