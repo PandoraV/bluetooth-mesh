@@ -1,3 +1,27 @@
-<view class="container">
-
+<view class="text-container">
+    <view class="developer-container" style="color: gray; ">
+        <text style="font-size: x-large; padding-bottom: 10rpx; ">开发者信息</text>
+        <text style="font-size: large; padding-top: 10rpx; font-weight: bolder;">JD</text>
+        <text style="padding-bottom: 10rpx; ">Email: Zhangdi_JD@cau.edu.cn
+            Github: @PandoraV
+            Gitee: @high-voltage-laboratory</text>
+        <text style="font-size: large; padding-top: 10rpx; font-weight: bolder;">Kearney</text>
+        <text >Email: kearneyyi@cau.edu.cn
+            Github: https://anidea.gitee.io
+            Gitee: @anidea
+            CSDN: @Kearney form An idea</text>
+    </view>
+    <view style="height: 50rpx;"></view>
+    <view class="developer-container" style="color: gray;">
+        <text style="font-size: x-large; padding-bottom: 10rpx;">命令发信说明</text>
+        <scroll-view scroll-y="true">
+            <text style="font-size: small;">"P0105"：将地址1的从机的采样间隔调整为0.5s
+    "P010500"：将地址1的从机的采样间隔调整为0.5s
+    "P012000"：将地址1的从机的采样间隔调整为2s
+    "S014"   ：将地址1的从机询问的传感器数量改成4
+    "T01Hi!" ：向地址为1的从机发送文本"Hi!"
+    "Q010"   ：向地址为1的从机询问当前采样时间间隔
+            </text>
+        </scroll-view>
+    </view>
 </view>
