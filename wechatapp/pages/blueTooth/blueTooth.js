@@ -120,7 +120,7 @@ Page({
   },
 
   onLoad: function () { 
-    this.connectPreparing()
+    // this.connectPreparing()
   },
 
   /**
