@@ -224,12 +224,14 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
     duringReceiving = true;
 
     // 将已存储的传感器数据位清空
-    for (int i = 0; i < info_num - 2; i++) {
-      data_high_byte[i] = 0xff;
-      data_low_byte[i]  = 0xff;
-    }
+    // for (int i = 0; i < info_num - 2; i++) {
+    //   data_high_byte[i] = 0xff;
+    //   data_low_byte[i]  = 0xff;
+    // }
 
     for (int i = 0; i < info_num - 2; i++) { // 轮询
+      data_high_byte[i] = 0xff; // 分次清空数据位
+      data_low_byte[i] = 0xff;
       mySerial1.write(request_for_sensor_command[i], 8); // 发送测温命令
       // for (int j = 0; j < 8; j++) {
       //   Serial.print(request_for_sensor_command[i][j]);
