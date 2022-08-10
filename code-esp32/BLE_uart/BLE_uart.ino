@@ -23,6 +23,8 @@ uint8_t request_for_sensor_command[4][8] = {
 
 uint8_t data_high_byte[4] = {0xff, 0xff, 0xff, 0xff}; // 数据高八位
 uint8_t data_low_byte[4]  = {0xff, 0xff, 0xff, 0xff}; // 数据低八位
+uint8_t data_high_byte_temp[4] = {0xff, 0xff, 0xff, 0xff}; // 临时数据高八位
+uint8_t data_low_byte_temp[4]  = {0xff, 0xff, 0xff, 0xff}; // 临时数据低八位
 
 /*
   Ported to Arduino ESP32 by Evandro Copercini
@@ -144,7 +146,7 @@ void drawFontFace(void *parameter) { // OLED驱动函数
   Serial.println("OLED thread started!");
 
   ulong temp_num = 0;
-  float gas_presicion[4] =  {-1, -1, -1, -1};
+  float gas_presicion[4] =  {-1, -1, -1, -1}; // 完整的数据
 
   int i = 1;
   while(i == 1) { // 死循环
@@ -230,7 +232,7 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
     // }
 
     for (int i = 0; i < info_num - 2; i++) { // 轮询
-      data_high_byte[i] = 0xff; // 分次清空数据位
+      data_high_byte[i] = 0xff; // 分次清空数据位，只清空第i位数据位，不清空其他位和临时数据存储。
       data_low_byte[i] = 0xff;
       mySerial1.write(request_for_sensor_command[i], 8); // 发送测温命令
       // for (int j = 0; j < 8; j++) {
@@ -254,6 +256,10 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
         data_low_byte[i]  = 0xff;
         // Serial.print(i);
         // Serial.println(": the sensor didn't reply anything!");
+
+        data_high_byte_temp[i] = data_high_byte[i]; // 更新临时存储位
+        data_low_byte_temp[i]  = data_low_byte[i];
+
         continue;
       }
 
@@ -267,8 +273,9 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
       // Serial.println();
 
       if (data.length() > 0) { 
-        // 校验操作
-
+        /*
+        *** 对接收到的数据进行校验操作 ***
+        */
         // 首先确认是否是7位数据
         if (data.length() == 7) {
           // 数据位符合要求，检查CRC16
@@ -301,6 +308,8 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
           data_low_byte[i]  = 0xff;
         }
       }
+      data_high_byte_temp[i] = data_high_byte[i]; // 更新临时存储位
+      data_low_byte_temp[i]  = data_low_byte[i];
     }
     duringReceiving = false; // 清空收信标志位，解禁发送
     delay(period_millis - SENSOR_OVERTIME_MILLIS * (info_num - 2)); // 实际延迟时间应为目标时间间隔减去轮询等待的时间
@@ -591,26 +600,46 @@ void setup_json_string() // 构建发送的json字符串
     if (info_num >= 3)
     {
       // 氨气传感器
-      txValue += data_high_byte[0];
-      txValue += data_low_byte[0];
+      if (!duringReceiving) {
+        txValue += data_high_byte[0];
+        txValue += data_low_byte[0];
+      } else {
+        txValue += data_high_byte_temp[0];
+        txValue += data_low_byte_temp[0];
+      }
     }
     if (info_num >= 4)
     {
       // 臭氧传感器
-      txValue += data_high_byte[1];
-      txValue += data_low_byte[1];
+      if (!duringReceiving) {
+        txValue += data_high_byte[1];
+        txValue += data_low_byte[1];
+      } else {
+        txValue += data_high_byte_temp[1];
+        txValue += data_low_byte_temp[1];
+      }
     }
     if (info_num >= 5)
     {
       // NO传感器
-      txValue += data_high_byte[2];
-      txValue += data_low_byte[2];
+      if (!duringReceiving) {
+        txValue += data_high_byte[2];
+        txValue += data_low_byte[2];
+      } else {
+        txValue += data_high_byte_temp[2];
+        txValue += data_low_byte_temp[2];
+      }
     }
     if (info_num >= 6)
     {
       // NO2传感器
-      txValue += data_high_byte[3];
-      txValue += data_low_byte[3];
+      if (!duringReceiving) {
+        txValue += data_high_byte[3];
+        txValue += data_low_byte[3];
+      } else {
+        txValue += data_high_byte_temp[3];
+        txValue += data_low_byte_temp[3];
+      }
     }
   }
   
