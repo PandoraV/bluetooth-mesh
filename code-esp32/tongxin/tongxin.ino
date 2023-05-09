@@ -1,9 +1,9 @@
-#include <SoftwareSerial.h>
+#include <HardwareSerial.h>
 #define PZEM_BAUDRATE 9600
-SoftwareSerial Serial2(2, 3); // 定义软件串口
+HardwareSerial MySerial(1);
 void setup() {
   Serial.begin(115200);
-  Serial2.begin(PZEM_BAUDRATE); // 初始化PZEM串口
+  MySerial.begin(PZEM_BAUDRATE, SERIAL_8N1, 18, 19); // 初始化PZEM串口 // 初始化PZEM串口
 }
 void loop() {
   // 读取PZEM电压值、电流值、功率值
@@ -31,14 +31,14 @@ float readPZEMData(byte cmd, byte regHi, byte regLo, byte lenHi, byte lenLo, byt
   request[6] = crc >> 8;
   request[7] = crc & 0xFF;
   // 发送读取命令
-  Serial2.write(request, 8);
+  MySerial.write(request, 8);
   // 等待PZEM回复
   delay(100);
   // 读取PZEM回复数据
-  int count = Serial2.available();
+  int count = MySerial.available();
   if (count == 7 + num * len) {
     for (int i = 0; i < count; i++) {
-      response[i] = Serial2.read();
+      response[i] = MySerial.read();
     }
   }
   // 解析PZEM回复数据
