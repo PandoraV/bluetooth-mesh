@@ -57,7 +57,7 @@ std::string tx_str_for_query = "";
 #define DEFAULT_PERIOD_MILLIS 1000
 #define MINIMUM_PERIOD_MILLIS 500
 #define MAXIMUM_PERIOD_MILLIS 65535
-#define SENSOR_OVERTIME_MILLIS 50
+#define SENSOR_OVERTIME_MILLIS 150
 ulong current_millis = 0;
 ulong send_millis = 0;    // 上次发信的时间
 ulong queryDuration = 20; // 回信间隔
