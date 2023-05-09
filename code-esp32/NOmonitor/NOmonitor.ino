@@ -23,6 +23,8 @@ uint8_t request_for_sensor_command[4][8] = {
 
 uint8_t data_high_byte[4] = {0xff, 0xff, 0xff, 0xff}; // 数据高八位
 uint8_t data_low_byte[4]  = {0xff, 0xff, 0xff, 0xff}; // 数据低八位
+uint8_t data_high_byte_temp[4] = {0xff, 0xff, 0xff, 0xff}; // 临时数据高八位
+uint8_t data_low_byte_temp[4]  = {0xff, 0xff, 0xff, 0xff}; // 临时数据低八位
 
 /*
   Ported to Arduino ESP32 by Evandro Copercini
@@ -48,6 +50,7 @@ bool deviceConnected = false; // 当前有无设备连接
 bool oldDeviceConnected = false; // 是否已经有设备连接
 
 bool duringDelivering = false;  // 是否处于发信函数调用状态
+bool duringReceiving = false;   // 是否处于软串口收信状态
 std::string txValue = "";  
 std::string tx_str_for_query = "";
 
@@ -219,6 +222,9 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
   while(k == 1) { // 死循环
     std::string data = ""; 
 
+    // 修改收信标志位
+    duringReceiving = true;
+
     // 将已存储的传感器数据位清空
     // for (int i = 0; i < info_num - 2; i++) {
     //   data_high_byte[i] = 0xff;
@@ -250,14 +256,18 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
         data_low_byte[i]  = 0xff;
         // Serial.print(i);
         // Serial.println(": the sensor didn't reply anything!");
+
+        data_high_byte_temp[i] = data_high_byte[i]; // 更新临时存储位
+        data_low_byte_temp[i]  = data_low_byte[i];
+
         continue;
       }
 
       data = ""; // 清空
       while (mySerial1.available()) { // 从串口中读取数据
         uint8_t in = (uint8_t)mySerial1.read();  // read读取
-        // Serial.print(in, HEX);
-        // Serial.print(' ');
+        Serial.print(in, HEX);
+        Serial.print(' ');
         data += in;
       }
       // Serial.println();
@@ -297,7 +307,10 @@ void gas_sensor_serial(void *parameter) // 气体传感器软串口
           data_low_byte[i]  = 0xff;
         }
       }
+      data_high_byte_temp[i] = data_high_byte[i]; // 更新临时存储位
+      data_low_byte_temp[i]  = data_low_byte[i];
     }
+    duringReceiving = false; // 清空收信标志位，解禁发送
     delay(period_millis - SENSOR_OVERTIME_MILLIS * (info_num - 2)); // 实际延迟时间应为目标时间间隔减去轮询等待的时间
   }
   Serial.println("sensor thread ended."); // 不会执行
@@ -586,26 +599,46 @@ void setup_json_string() // 构建发送的json字符串
     if (info_num >= 3)
     {
       // 氨气传感器
-      txValue += data_high_byte[0];
-      txValue += data_low_byte[0];
+      if (!duringReceiving) {
+        txValue += data_high_byte[0];
+        txValue += data_low_byte[0];
+      } else {
+        txValue += data_high_byte_temp[0];
+        txValue += data_low_byte_temp[0];
+      }
     }
     if (info_num >= 4)
     {
       // 臭氧传感器
-      txValue += data_high_byte[1];
-      txValue += data_low_byte[1];
+      if (!duringReceiving) {
+        txValue += data_high_byte[1];
+        txValue += data_low_byte[1];
+      } else {
+        txValue += data_high_byte_temp[1];
+        txValue += data_low_byte_temp[1];
+      }
     }
     if (info_num >= 5)
     {
       // NO传感器
-      txValue += data_high_byte[2];
-      txValue += data_low_byte[2];
+      if (!duringReceiving) {
+        txValue += data_high_byte[2];
+        txValue += data_low_byte[2];
+      } else {
+        txValue += data_high_byte_temp[2];
+        txValue += data_low_byte_temp[2];
+      }
     }
     if (info_num >= 6)
     {
       // NO2传感器
-      txValue += data_high_byte[3];
-      txValue += data_low_byte[3];
+      if (!duringReceiving) {
+        txValue += data_high_byte[3];
+        txValue += data_low_byte[3];
+      } else {
+        txValue += data_high_byte_temp[3];
+        txValue += data_low_byte_temp[3];
+      }
     }
   }
   
@@ -723,7 +756,7 @@ void loop() {
     float h = dht.readHumidity();
     float t = dht.readTemperature();
     if (isnan(h) || isnan(t)) { // 若返回为空值
-      Serial.println("Failed to read from DHT sensor!");
+      // Serial.println("Failed to read from DHT sensor!");
       humidity = -1.0;
       temperature = -1.0;
     } else {
