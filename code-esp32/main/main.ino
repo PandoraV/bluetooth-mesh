@@ -2,13 +2,13 @@
   main.ino
   基于ESP32C3的有害气体在线监测装置驱动软件
 
-  Created by 张頔 on 2022/2/11.
-  Copyright © 张頔·中国农业大学 个人版权所有 All rights reserved.
+  Created by JD on 2022/2/11.
+  Copyright © JD·中国农业大学 个人版权所有 All rights reserved.
 
   -----------------------------------------------------------------------
   修订历史/Revision History  
   日期/Date    作者/Author      参考号/Ref    修订说明/Revision Description
-  2022/2/11       张頔             1.0               初始版本
+  2022/2/11       JD             1.0               初始版本
   -----------------------------------------------------------------------
 
   本程序功能包括：
